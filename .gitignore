@@ -1,0 +1,27 @@
+__pycache__/
+
+# Database
+*.db
+*.sqlite3
+*.log
+
+# Virtual Environment
+env
+venv
+
+# Javascript
+package-lock.json
+
+# Static files
+staticfiles/*
+!staticfiles/.gitkeep 
+.vscode/symbols.json
+
+# Assets
+apps/static/assets/node_modules
+apps/static/assets/yarn.lock
+apps/static/assets/.temp
+
+# Environments
+.env
+

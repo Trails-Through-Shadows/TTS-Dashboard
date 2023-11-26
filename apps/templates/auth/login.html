@@ -1,0 +1,80 @@
+{% extends "layouts/base-fullscreen.html" %}
+{% load i18n %}
+
+{% block title %} Sign IN {% endblock %}
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <main>
+        <section class="vh-lg-100 mt-5 mt-lg-0 bg-soft d-flex align-items-center">
+            <div class="container">
+                <div class="row justify-content-center form-bg-image" data-background-lg="{{ ASSETS_ROOT }}/img/illustrations/signin.svg">
+                    <div class="col-12 d-flex align-items-center justify-content-center">
+                        <div class="bg-white shadow border-0 rounded border-light p-4 p-lg-5 w-100 fmxw-500">
+                            <div class="text-center text-md-center mb-4 mt-md-0">
+                                <h1 class="mb-2 h3">
+                                    TTS-Dashboard - {% translate 'Login' %}
+                                </h1>
+
+                                {% if msg %}
+                                    <p>
+                                        <span class="text-danger">
+                                            {{ msg | safe }}
+                                        </span>
+                                    </p>
+                                {% endif %}
+                            </div>
+
+                            <form method="post" action="" class="mt-4">
+                                {% csrf_token %}
+
+                                <div class="form-group mb-4">
+                                    <label for="email">{% translate 'Your Username' %}</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <span class="fas fa-user-circle"></span>
+                                        </span>
+
+                                        {{ form.username }}
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="form-group mb-4">
+                                        <label for="password">{% translate 'Your Password' %}</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <span class="fas fa-unlock-alt"></span>
+                                            </span>
+
+                                            {{ form.password }}
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-top mb-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="remember">
+
+                                            <label class="form-check-label mb-0" for="remember">
+                                                {% translate 'Remember Me' %}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" name="login" class="btn btn-gray-800">{% translate 'Sign-in' %}</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+{% endblock content %}
+
+{% block javascripts %}{% endblock javascripts %}
