@@ -1,13 +1,13 @@
 # -*- encoding: utf-8 -*-
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
+from django.utils.translation import gettext_lazy as lang
 from django.shortcuts import render, redirect
 from .forms import LoginForm
 
 
 def login_view(request):
     form = LoginForm(request.POST or None)
-
     msg = None
 
     if request.method == "POST":
@@ -20,8 +20,12 @@ def login_view(request):
                 login(request, user)
                 return redirect("/")
             else:
-                msg = 'Invalid credentials'
+                msg = lang('Invalid credentials')
         else:
-            msg = 'Error validating the form'
+            msg = lang('Error validating the form')
 
     return render(request, "auth/login.html", {"form": form, "msg": msg})
+
+def logout_view(request):
+    logout(request)
+    return redirect("/")

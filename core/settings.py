@@ -17,11 +17,12 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 DEBUG = env('DEBUG')
 SECRET_KEY = env('SECRET_KEY', default='JustMeAnSecretKey')
 ASSETS_ROOT = os.getenv('ASSETS_ROOT', '/static/assets')
-ALLOWED_HOSTS = ['localhost', 'localhost:85', '127.0.0.1', env('SERVER', default='127.0.0.1')]
-CSRF_TRUSTED_ORIGINS = ['http://localhost:85', 'http://127.0.0.1', 'https://' + env('SERVER', default='127.0.0.1')]
+ALLOWED_HOSTS = ['localhost', 'localhost:8080', '127.0.0.1', env('SERVER', default='127.0.0.1')]
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8080', 'http://127.0.0.1', 'https://' + env('SERVER', default='127.0.0.1')]
 
 # Set running port
 PORT = 6666
+DEBUG = True
 
 # ==============================================================================
 # Application definition
@@ -33,6 +34,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_gravatar',
+    'fontawesomefree',
     'apps.home'  # Enable the inner home (home)
 ]
 
@@ -72,6 +75,23 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+        },
+    },
+}
+
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases

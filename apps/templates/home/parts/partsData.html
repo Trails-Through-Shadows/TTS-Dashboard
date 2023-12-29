@@ -1,0 +1,49 @@
+{% if parts is empty %}
+    <tr>
+        <td colspan="5" class="text-center">No parts found.</td>
+    </tr>
+{% else %}
+    {% for part in parts %}
+        <tr>
+            <td>
+                <span class="fw-normal">{{ part.id }}</span>
+            </td>
+            <td>
+                <span class="fw-normal">{{ part.tag }}</span>
+            </td>
+            <td class="text-center">
+                <span class="fw-normal">{{ part.hexes|length }}</span>
+            </td>
+            <td class="text-center">
+                <span class="fw-normal">{{ part.usages }}</span>
+            </td>
+            <td>
+                <div class="btn-group d-flex align-items-center">
+                    <button class="btn btn-link text-dark m-0 p-0" id="view-{{ part.id }}">
+                        <span class="icon icon-lg">
+                            <i class="bi bi-eye"></i>
+                        </span>
+                    </button>
+
+                    <button class="btn btn-link text-dark m-0 p-0" id="edit-{{ part.id }}">
+                        <span class="icon icon-lg text-success">
+                            <i class="bi bi-pencil"></i>
+                        </span>
+                    </button>
+
+                    <button class="btn btn-link text-dark m-0 p-0" id="delete-{{ part.id }}">
+                        <span class="icon icon-lg text-danger">
+                            <i class="bi bi-trash"></i>
+                        </span>
+                    </button>
+
+                    <button class="btn btn-link text-dark m-0 p-0" id="export-{{ part.id }}">
+                        <span class="icon icon-lg">
+                            <i class="bi bi-download"></i>
+                        </span>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    {% endfor %}
+{% endif %}

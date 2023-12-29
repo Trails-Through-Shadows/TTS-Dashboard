@@ -41,3 +41,9 @@ msgstr "Zapamatovat si mě"
 
 msgid "Sign-in"
 msgstr "Přihlásit se"
+
+msgid "Invalid credentials"
+msgstr "Neplatné přihlašovací údaje"
+
+msgid "Error validating the form"
+msgstr "Chyba při ověřování formuláře"
