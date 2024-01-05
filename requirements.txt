@@ -1,4 +1,4 @@
-Django==5.0
+Django==5.0.1
 asgiref==3.7.2
 autopep8==2.0.4
 dj-database-url==2.1.0
@@ -12,5 +12,6 @@ django-environ==0.11.2
 environ==1.0
 mysqlclient==2.2.0
 requests==2.31.0
-django-gravatar2==1.4.3
+django-gravatar2==1.4.4
 fontawesomefree===6.5.1
+PyMySQL~=1.1.0

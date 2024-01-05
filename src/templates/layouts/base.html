@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>
+            {% block title %} TTS-Dashboard {% endblock %}
+        </title>
+
+        {% include 'layouts/head-tags.html' %}
+
+        {% block stylesheets %}
+            <!-- Custom styles -->
+        {% endblock stylesheets %}
+    </head>
+
+    <body>
+        {% include 'includes/sidebar.html' %}
+
+        <main class="content">
+            {% include 'includes/navigation.html' %}
+
+            {% block content %}
+                <!-- Content -->
+            {% endblock content %}
+
+            {% include 'includes/footer.html' %}
+        </main>
+
+        {% include 'includes/scripts.html' %}
+
+        {% block javascripts %}
+            <!-- Custom scripts -->
+        {% endblock javascripts %}
+    </body>
+</html>
