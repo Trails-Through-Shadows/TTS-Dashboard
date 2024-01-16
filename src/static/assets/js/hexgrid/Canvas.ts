@@ -5,6 +5,7 @@ module Dashboard {
         private written = false;
         private loading = false;
 
+        private readonly darkMode: boolean;
         private width: number;
         private height: number;
 
@@ -13,16 +14,27 @@ module Dashboard {
             this.onResize = onResize;
         }
 
+        private onMouseHover: (x: number, y: number) => void = () => {};
+        public setOnMouseHover(onMouseHover: (x: number, y: number) => void): void {
+            this.onMouseHover = onMouseHover;
+        }
+
+        private onMouseClick: (x: number, y: number) => void = () => {};
+        public setOnMouseClick(onMouseClick: (x: number, y: number) => void): void {
+            this.onMouseClick = onMouseClick;
+        }
+
         private def = {
             title: 'No Data',
             substr: '',
             spacer: 100
         };
 
-        constructor(canvas: HTMLCanvasElement, def?: { title: string, substr: string, spacer: number }) {
+        constructor(canvas: HTMLCanvasElement, darkMode: boolean, def?: { title: string, substr: string, spacer: number }) {
             this.canvas = canvas;
             this.canvas.style.width = '100%';
             this.canvas.style.height = '100%';
+            this.darkMode = darkMode;
             this.resize();
 
             if (def) {
@@ -55,14 +67,30 @@ module Dashboard {
                 this.onResize();
             });
             resizeObserver.observe(this.canvas);
+
+            // Mouse hover listener
+            this.canvas.addEventListener('mousemove', (event: MouseEvent) => {
+                const rect = this.canvas.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+
+                this.onMouseHover(x, y);
+            });
+
+            // Mouse click listener
+            this.canvas.addEventListener('click', (event: MouseEvent) => {
+                const rect = this.canvas.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+
+                this.onMouseClick(x, y);
+            });
         }
 
         public title(text: string, substr: string): void {
             this.clear();
 
             const ctx = this.getContext();
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-            ctx.shadowColor = 'rgba(0, 0, 0, 1)';
             ctx.shadowBlur = 5;
             ctx.shadowOffsetX = 5;
             ctx.shadowOffsetY = 5;
@@ -74,7 +102,6 @@ module Dashboard {
 
             if (substr.length > 0) {
                 ctx.font = '2em Arial';
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
 
                 const lines = substr.split('\n');
                 for (let i = 0; i < lines.length; i++) {
@@ -84,13 +111,23 @@ module Dashboard {
             }
         }
 
+        public took(timeTaken: number): void {
+            const ctx = this.getContext();
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            ctx.font = 'bold 1em Arial';
+            ctx.fillText(`${timeTaken}ms`, this.canvas.width - 25, this.canvas.height - 5);
+        }
+
         public clear(): void {
             const ctx = this.getContext();
             ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
             // Reset styles
-            ctx.fillStyle = 'rgba(255, 255, 255, 1)';
-            ctx.shadowColor = 'rgba(0, 0, 0, 0)';
             ctx.shadowBlur = 0;
             ctx.shadowOffsetX = 0;
             ctx.shadowOffsetY = 0;
@@ -105,7 +142,17 @@ module Dashboard {
         }
 
         public getContext(): CanvasRenderingContext2D {
-            return this.canvas.getContext('2d');
+            const ctx = this.canvas.getContext('2d');
+
+            if (this.darkMode) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.shadowColor = 'rgba(0, 0, 0, 1)';
+            } else {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.shadowColor = 'rgba(255, 255, 255, 1)';
+            }
+
+            return ctx;
         }
 
         public getWidth(): number {
@@ -114,6 +161,10 @@ module Dashboard {
 
         public getHeight(): number {
             return this.height;
+        }
+
+        public isDrawn(): boolean {
+            return this.written;
         }
 
         public setDrawn(): void {

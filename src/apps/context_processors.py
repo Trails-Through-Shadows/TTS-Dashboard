@@ -1,6 +1,5 @@
 from django.conf import settings
 
-
 def cfg_assets_root(request):
     url = request.get_full_path()
 
@@ -13,22 +12,13 @@ def cfg_assets_root(request):
     }
 
     breadcrumbItems = url.split('/')
-    breadcrumbItems = list(filter(None, breadcrumbItems))
     breadcrumbItems.pop(0)
-    breadcrumbs = ""
+    breadcrumbItems.pop(0)
 
-    if len(breadcrumbItems) != 0 and breadcrumbItems[0] != 'api':
-        for i, item in enumerate(breadcrumbItems):
+    if '?' in breadcrumbItems[-1]:
+        breadcrumbItems[-1] = breadcrumbItems[-1].split('?')[0]
 
-            backUrl = "../" * (len(breadcrumbItems) - i - 1)
-            item = item[0].upper() + item[1:]
-
-            if i == len(breadcrumbItems) - 1:
-                breadcrumbs += '<li class="breadcrumb-item active" aria-current="page">' + item + '</li>'
-                break
-
-            breadcrumbs += '<li class="breadcrumb-item"><a href=' + backUrl + '>' + item + '</a></li>'
-
-    context['BREADCRUMBS'] = breadcrumbs
+    breadcrumbItems = list(filter(None, breadcrumbItems))
+    context['BREADCRUMBS'] = breadcrumbItems
 
     return context

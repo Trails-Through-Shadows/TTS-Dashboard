@@ -92,6 +92,8 @@ LOGGING = {
 
 # API
 API_URL = os.getenv('API_URL', 'http://localhost:8000')
+if API_URL[-1] == '/':
+    API_URL = API_URL[:-1]
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases

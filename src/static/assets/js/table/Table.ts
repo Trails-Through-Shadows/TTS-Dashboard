@@ -30,6 +30,7 @@ module Dashboard {
         private root: HTMLElement;
         private readonly filter: TableFilter;
         private readonly template: string;
+        private took: number = 0;
 
         private onDataLoad: () => void = () => {};
         public setOnDataLoad(onDataLoad: () => void): void {
@@ -47,8 +48,12 @@ module Dashboard {
         }
 
         public queryData(url: string, page: number, limit: number) : void {
+            const currentTime = new Date().getTime();
+
             page = Math.max(page, 1);
             limit = Math.max(limit, 1);
+
+            console.log(`Table | Querying data from ${url} with page=${page} and limit=${limit}`);
 
             const request = new XMLHttpRequest();
             request.onreadystatechange = () => {
@@ -73,6 +78,9 @@ module Dashboard {
                             this.queryData(url, parseInt(newPage), limit);
                         });
                     }
+
+                    this.took = new Date().getTime() - currentTime;
+                    console.log(`Table | Query took ${this.took}ms`);
 
                     this.onDataLoad();
                 }

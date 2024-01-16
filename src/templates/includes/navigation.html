@@ -1,3 +1,4 @@
+{% load filters %}
 {% load i18n %}
 {% load gravatar %}
 
@@ -14,7 +15,9 @@
                                 </a>
                             </li>
 
-                            {{ BREADCRUMBS|safe }}
+                            {% for bread in BREADCRUMBS %}
+                                <li class="breadcrumb-item {% if forloop.last %} active {% endif %}" aria-current="page"> {{ bread|camel }} </li>
+                            {% endfor %}
                         </ol>
                     </nav>
                 {% endif %}

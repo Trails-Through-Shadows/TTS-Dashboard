@@ -32,14 +32,14 @@
 
                     <div class="col-12 col-sm-6">
                         <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
-                            <a href="#" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                            <a href="{% url 'partCreator' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
                                 <i class="fa-solid fa-plus me-1"></i>
                                 {% translate 'New Part' %}
                             </a>
 
                             <div class="btn-group ms-2 ms-lg-3">
-                                <button type="button" class="btn btn-sm btn-outline-gray-600">{% translate 'Upload' %}</button>
-                                <button type="button" class="btn btn-sm btn-outline-gray-600">{% translate 'Export' %}</button>
+                                <button type="button" class="btn btn-sm btn-outline-gray-600" id="uploadButton">{% translate 'Upload' %}</button>
+                                <button type="button" class="btn btn-sm btn-outline-gray-600" id="exportButton">{% translate 'Export' %}</button>
                             </div>
                         </div>
                     </div>
@@ -110,7 +110,7 @@
 {% block javascripts %}
     <script>
         const canvasRoot = document.getElementById('hexGridView');
-        const canvas = new Dashboard.Canvas(canvasRoot, {
+        const canvas = new Dashboard.Canvas(canvasRoot, true, {
             title: 'No Data',
             substr: 'Please select a part to render!',
             spacer: 100
@@ -136,11 +136,98 @@
                 event.preventDefault();
 
                 const hexGrid = new Dashboard.HexGrid(canvas, []);
-                hexGrid.readData(30, `/data/parts?id=${id}`);
+                hexGrid.readData(30, `/api/table/part/${id}`);
 
                 canvas.setOnResize(() => {
                     hexGrid.draw();
                 });
+            });
+
+            table.setAction("delete", (event, element) => {
+                const id = element.getAttribute('data-part');
+                event.preventDefault();
+
+                Swal.fire({
+                    title: "{% translate "Are you sure?" %}",
+                    text: "{% translate "You won't be able to revert this!" %}",
+                    icon: "warning",
+                    showCancelButton: true,
+                    reverseButtons: true,
+                    confirmButtonText: "{% translate "Yes, delete it!" %}",
+                    confirmButtonColor: '#3a3',
+                    cancelButtonText: "{% translate "No, cancel!" %}",
+                    cancelButtonColor: '#a33'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const csrfToken = tableRoot.querySelector('#csrftoken').value;
+
+                        console.log(`Button | Deleting part ${id}`);
+                        Swal.fire({
+                            title: '{% translate "Deleting..." %}',
+                            text: '{% translate "The part is being deleted." %}',
+                            icon: 'info',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            allowEnterKey: false,
+                            showConfirmButton: false
+                        });
+
+                        const request = new XMLHttpRequest();
+                        request.onreadystatechange = () => {
+                            if (request.readyState === 4) {
+                                if (request.status === 204) {
+                                    console.log(`Button | Deleting part ${id} successful`);
+                                    Swal.fire({
+                                        title: '{% translate "Success!" %}',
+                                        text: '{% translate "The part has been deleted." %}',
+                                        icon: 'success',
+                                        timer: 1500
+                                    });
+
+                                    table.queryData(apiUrl, page, limit);
+                                } else {
+                                    const data = JSON.parse(request.responseText);
+
+                                    console.log(`Button | Deleting part ${id} failed`);
+                                    Swal.fire({
+                                        title: '{% translate "The part could not be deleted." %}',
+                                        text: data.error,
+                                        icon: 'error',
+                                        confirmButtonText: '{% translate "Ok" %}'
+                                    });
+                                }
+                            }
+                        };
+
+                        request.open('DELETE', `/api/table/part/${id}`);
+                        request.setRequestHeader('X-CSRFToken', csrfToken);
+                        request.send();
+                    }
+                });
+            });
+
+            table.setAction("download", (event, element) => {
+                const id = element.getAttribute('data-part');
+                event.preventDefault();
+
+                Swal.fire({
+                    toast: true,
+                    icon: 'success',
+                    title: '{% translate "Downloading started.." %}',
+                    position: 'bottom-right',
+                    showConfirmButton: false,
+                    timerProgressBar: true,
+                    timer: 2000,
+                })
+
+                window.location.assign(`/api/table/part/${id}?download`);
+            });
+
+            table.setAction("edit", (event, element) => {
+                const id = element.getAttribute('data-part');
+                event.preventDefault();
+
+                window.location.assign("{% url 'partEditor' id=0 %}".replace(0, id));
             });
         })
 
@@ -149,12 +236,10 @@
 
         // Setup search
         const searchInput = document.getElementById('tableSearch');
-        let timeout = null;
-
         searchInput.addEventListener('keyup', () => {
-            clearTimeout(timeout);
+            let timeout = null;
 
-            timeout = setTimeout(() => {
+            function process() {
                 filter = searchInput.value;
 
                 // Update filter param in URL
@@ -164,7 +249,115 @@
 
                 table.getFilter().set('tag', filter);
                 table.queryData(apiUrl, 0, limit);
-            }, 500);
+            }
+
+            if (event.keyCode === 13) { // Enter pressed
+                clearTimeout(timeout);
+                process();
+            } else {
+                clearTimeout(timeout);
+                timeout = setTimeout(process, 500);
+            }
+        });
+
+        // Setup upload
+        const uploadButton = document.getElementById('uploadButton');
+        uploadButton.addEventListener('click', async () => {
+            const { value: file } = await Swal.fire({
+                title: '{% translate 'Select a file' %}',
+                input: 'file',
+                inputAttributes: {
+                    'accept': 'application/json',
+                    'aria-label': '{% translate 'Upload your file' %}'
+                },
+                showCancelButton: true,
+                confirmButtonText: '{% translate 'Upload' %}',
+                cancelButtonText: '{% translate 'Cancel' %}',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return '{% translate 'You need to select a file' %}';
+                    }
+                },
+                customClass: {
+                    input: 'popup-input'
+                }
+            });
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const data = JSON.parse(e.target.result);
+
+                    Swal.fire({
+                        title: '{% translate 'Uploading...' %}',
+                        text: '{% translate 'The file is being uploaded.' %}',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        allowEnterKey: false,
+                        showConfirmButton: false
+                    });
+
+                    const request = new XMLHttpRequest();
+                    request.onreadystatechange = () => {
+                        if (request.readyState === 4) {
+                            console.log(request.status);
+                            console.log(request.responseText);
+
+                            if (request.status === 200) {
+                                Swal.fire({
+                                    title: '{% translate 'Success!' %}',
+                                    text: '{% translate 'The file has been uploaded.' %}',
+                                    icon: 'success',
+                                    timer: 3000
+                                });
+
+                                table.queryData(apiUrl, page, limit);
+                            } else {
+                                const data = JSON.parse(request.responseText);
+
+                                Swal.fire({
+                                    title: '{% translate 'The file could not be uploaded.' %}',
+                                    text: data.message,
+                                    icon: 'error',
+                                    confirmButtonText: '{% translate 'Ok' %}'
+                                });
+                            }
+                        }
+                    };
+
+                    const csrfToken = tableRoot.querySelector('#csrftoken').value;
+
+                    console.log(data);
+                    console.log("post");
+                    console.log(JSON.stringify(data));
+
+                    request.open('POST', '/{{ request.LANGUAGE_CODE }}/api/table/part/');
+                    request.setRequestHeader('Content-Type', 'application/json');
+                    request.setRequestHeader('X-CSRFToken', csrfToken);
+                    request.send(JSON.stringify(data));
+                };
+
+                reader.readAsText(file);
+            }
+        });
+
+        // Setup export
+        const exportButton = document.getElementById('exportButton');
+        exportButton.addEventListener('click', async (event) => {
+            event.preventDefault();
+
+            Swal.fire({
+                toast: true,
+                icon: 'success',
+                title: '{% translate "Downloading started.." %}',
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timerProgressBar: true,
+                timer: 2000,
+            })
+
+            window.location.assign(`/api/table/parts/?download`);
         });
     </script>
 {% endblock javascripts %}

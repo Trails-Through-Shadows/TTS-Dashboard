@@ -1,0 +1,96 @@
+{% extends "layouts/base.html" %}
+{% load filters %}
+{% load i18n %}
+
+{% block title %} Dungeon - Parts - Editor {% endblock %}
+
+{% block stylesheets %}
+    <!-- Empty -->
+{% endblock stylesheets %}
+
+{% block content %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+        <div class="d-block mb-4 mb-md-0">
+            <h2 class="h4 mb-0">{% translate 'Part Editor' %}</h2>
+            <p class="mb-0">{% translate 'Create or edit part shape' %}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-xl-3" id="partInformation">
+            <div class="row flex-column h-100">
+                <div class="col-12 flex-fill mb-4">
+                    <div class="card card-body border-0 shadow h-100">
+                        <div class="card-header p-0">
+                            <h2 class="h5">Part Information</h2>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label for="partID">Part ID:</label>
+                                    <input class="form-control" id="partID" type="number" required="" value="0" readonly>
+                                </div>
+
+                                <div class="col-12 mb-3">
+                                    <label for="partTag">Part Tag:</label>
+                                    <input class="form-control" id="partTag" type="text" placeholder="Enter short identifier" required="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="card card-body border-0 shadow">
+                        <div class="row justify-content-evenly">
+                            <div class="col-6">
+                                <button class="btn btn-red-100 animate-up-2 w-100" type="submit">Cancel</button>
+                            </div>
+
+                            <div class="col-6">
+                                <button class="btn btn-green-100 animate-up-2 w-100" type="submit">Save all</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-9">
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="card card-body border-0 shadow h-100">
+                        <canvas id="hexGridView"></canvas>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="card card-body border-0 shadow h-100">
+                        <div class="row justify-content-start">
+                            <div class="col-auto">
+                                {% for i in 10|range %}
+                                    <button class="btn btn-gray-800 animate-up-2 disabled" type="submit">Action {{ i }}</button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block javascripts %}
+    <script>
+        const canvasRoot = document.getElementById('hexGridView');
+        const canvas = new Dashboard.Canvas(canvasRoot, true, {});
+
+        const gridEditor = new Dashboard.GridEditor(canvas, 30);
+        gridEditor.draw();
+
+        canvas.setOnResize(() => {
+            gridEditor.draw();
+        });
+    </script>
+{% endblock javascripts %}

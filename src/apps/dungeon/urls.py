@@ -2,9 +2,10 @@
 
 from django.urls import path
 
-from .views import partView, asyncDataRequest
+from .views import partViewer, partEditor
 
 urlpatterns = [
-    path('dungeon/parts/', partView, name="partView"),
-    path('data/parts/', asyncDataRequest, name="asyncDataPartView"),
+    path('dungeon/parts/', partViewer, name="partViewer"),
+    path('dungeon/parts/create/', partEditor, name="partCreator"),
+    path('dungeon/parts/edit/<int:id>/', partEditor, name="partEditor"),
 ]

@@ -1,6 +1,8 @@
 {% load i18n %}
 
 <div class="card card-body border-0 shadow table-wrapper table-responsive">
+    <input type="hidden" value="{{ csrf_token }}" id="csrftoken" readonly/>
+
     <table class="table table-hover">
         <thead>
             <tr>
@@ -33,30 +35,38 @@
                             <span class="fw-normal">{{ part.usages }}</span>
                         </td>
                         <td>
-                            <div class="btn-group d-flex align-items-center" id="tableActions">
-                                <button class="btn btn-link text-dark m-0 p-0" data-action="view" data-part="{{ part.id }}">
-                                    <span class="icon icon-lg text-secondary">
-                                        <i class="fa-regular fa-eye"></i>
-                                    </span>
-                                </button>
+                            <div class="btn-group d-flex align-items-center justify-content-evenly" id="tableActions">
+                                <a href="javascript:void(0)">
+                                    <button class="btn btn-link text-dark m-0 p-0" data-action="view" data-part="{{ part.id }}">
+                                        <span class="icon icon-lg text-secondary">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </span>
+                                    </button>
+                                </a>
 
-                                <button class="btn btn-link text-dark m-0 p-0">
-                                    <span class="icon icon-lg text-success">
-                                        <i class="fa-solid fa-pen-to-square"></i>
-                                    </span>
-                                </button>
+                                <a href="javascript:void(0)">
+                                    <button class="btn btn-link text-dark m-0 p-0" data-action="edit" data-part="{{ part.id }}">
+                                        <span class="icon icon-lg text-success">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </span>
+                                    </button>
+                                </a>
 
-                                <button class="btn btn-link text-dark m-0 p-0">
-                                    <span class="icon icon-lg text-danger">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </span>
-                                </button>
+                                <a href="javascript:void(0)">
+                                    <button class="btn btn-link text-dark m-0 p-0" data-action="delete" data-part="{{ part.id }}">
+                                        <span class="icon icon-lg text-danger">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </span>
+                                    </button>
+                                </a>
 
-                                <button class="btn btn-link text-dark m-0 p-0">
-                                    <span class="icon icon-lg">
-                                        <i class="fa-solid fa-download"></i>
-                                    </span>
-                                </button>
+                                <a href="javascript:void(0)">
+                                    <button class="btn btn-link text-dark m-0 p-0" data-action="download" data-part="{{ part.id }}">
+                                        <span class="icon icon-lg">
+                                            <i class="fa-solid fa-download"></i>
+                                        </span>
+                                    </button>
+                                </a>
                             </div>
                         </td>
                     </tr>
@@ -71,17 +81,17 @@
         {% if pages.total != 0 %}
             <ul class="pagination mb-0">
                 <li class="page-item">
-                    <a class="page-link" href="#" data-page="{{ pages.prev }}">{% translate 'Previous' %}</a>
+                    <a class="page-link" href="javascript:void(0)" data-page="{{ pages.prev }}">{% translate 'Previous' %}</a>
                 </li>
 
                 {% for i in pages.indexes %}
                     <li class="page-item {% if i == pages.currentPage %} active {% endif %}">
-                        <a class="page-link" href="?page={{ i }}" data-page="{{ i }}">{{ i }}</a>
+                        <a class="page-link" href="javascript:void(0)" data-page="{{ i }}">{{ i }}</a>
                     </li>
                 {% endfor %}
 
                 <li class="page-item">
-                    <a class="page-link" href="#" data-page="{{ pages.next }}">{% translate 'Next' %}</a>
+                    <a class="page-link" href="javascript:void(0)" data-page="{{ pages.next }}">{% translate 'Next' %}</a>
                 </li>
             </ul>
         {% else %}

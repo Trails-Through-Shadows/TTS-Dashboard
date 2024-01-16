@@ -1,18 +1,13 @@
 module Dashboard {
     export class Color {
-        public r: number;
-        public g: number;
-        public b: number;
-        private a: number;
+        constructor (
+            public r: number,
+            public g: number,
+            public b: number,
+            private a: number = 1
+        ) {}
 
-        constructor(r: number, g: number, b: number, a: number = 1) {
-            this.r = r;
-            this.g = g;
-            this.b = b;
-            this.a = a;
-        }
-
-        toHex(): string {
+        toHEX(): string {
             return `#${this.r.toString(16)}${this.g.toString(16)}${this.b.toString(16)}`;
         }
 
@@ -20,11 +15,19 @@ module Dashboard {
             return `rgb(${this.r}, ${this.g}, ${this.b})`;
         }
 
-        toRGBA(a: number): string {
-            return `rgba(${this.r}, ${this.g}, ${this.b}, ${a})`;
+        toRGBA(): string {
+            return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
         }
 
-        static fromHex(hex: string): Color {
+        toString(): string {
+            if (this.a === 1) {
+                return this.toHEX();
+            }
+
+            return this.toRGBA();
+        }
+
+        static fromHEX(hex: string): Color {
             hex = hex.replace('#', '');
 
             if (hex.length === 3) {
