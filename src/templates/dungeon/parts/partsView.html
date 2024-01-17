@@ -123,7 +123,7 @@
         let limit = urlParams.get('limit') || 10;
         let filter = urlParams.get('filter') || '';
 
-        const apiUrl = '/api/table/parts/';
+        const apiUrl = '/api/table/parts';
         const template = '/dungeon/parts/partsData.html';
 
         const tableRoot = document.getElementById('partsTable');
@@ -136,7 +136,7 @@
                 event.preventDefault();
 
                 const hexGrid = new Dashboard.HexGrid(canvas, []);
-                hexGrid.readData(30, `/api/table/part/${id}`);
+                hexGrid.readData(30, `${apiUrl}/${id}`);
 
                 canvas.setOnResize(() => {
                     hexGrid.draw();
@@ -199,7 +199,7 @@
                             }
                         };
 
-                        request.open('DELETE', `/api/table/part/${id}`);
+                        request.open('DELETE', `/api/table/parts/${id}`);
                         request.setRequestHeader('X-CSRFToken', csrfToken);
                         request.send();
                     }
@@ -220,7 +220,7 @@
                     timer: 2000,
                 })
 
-                window.location.assign(`/api/table/part/${id}?download`);
+                window.location.assign(`${apiUrl}/${id}?download`);
             });
 
             table.setAction("edit", (event, element) => {
@@ -332,7 +332,7 @@
                     console.log("post");
                     console.log(JSON.stringify(data));
 
-                    request.open('POST', '/{{ request.LANGUAGE_CODE }}/api/table/part/');
+                    request.open('POST', '/{{ request.LANGUAGE_CODE }}/api/table/parts/');
                     request.setRequestHeader('Content-Type', 'application/json');
                     request.setRequestHeader('X-CSRFToken', csrfToken);
                     request.send(JSON.stringify(data));

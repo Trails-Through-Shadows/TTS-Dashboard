@@ -1,105 +1,140 @@
 module Dashboard {
 
     export class GridEditor {
-        private hexGrid: HexGrid;
         private placeholderHexes: Hex[] = [];
+        private hoveredHex: Hex | null = null;
 
         constructor(
-            private canvas: Canvas,
-            private hexSize: number
+            private readonly canvas: Canvas,
+            private readonly hexGrid: HexGrid,
         ) {
-            this.hexGrid = new HexGrid(this.canvas, [
-                new Hex(hexSize, new Dashboard.CubeCoordinate(0, 0, 0), []),
-                new Hex(hexSize, new Dashboard.CubeCoordinate(1, 0, -1), []),
-                new Hex(hexSize, new Dashboard.CubeCoordinate(1, -1, 0), []),
-                new Hex(hexSize, new Dashboard.CubeCoordinate(0, -1, 1), []),
-                new Hex(hexSize, new Dashboard.CubeCoordinate(-1, 0, 1), []),
-                new Hex(hexSize, new Dashboard.CubeCoordinate(-1, 1, 0), []),
-                new Hex(hexSize, new Dashboard.CubeCoordinate(0, 1, -1), []),
-                new Hex(hexSize, new Dashboard.CubeCoordinate(0, 2, -2), []),
-            ]);
+            this.canvas.addOnMouseClickListener((x: number, y: number) => {
+                const offset: Offset = this.hexGrid.getOffset();
 
-            this.canvas.setOnMouseClick((x: number, y: number) => {
-                this.hexGrid.getHexes().forEach(hex => {
-                    const hexPixel = hex.coords.to2D(this.hexSize);
-                    const hexPixelX = hexPixel.x + this.canvas.getWidth() / 2;
-                    const hexPixelY = hexPixel.y + this.canvas.getHeight() / 2;
+                const coord = Dashboard.CubeCoordinate.from2D(x - offset.x, y - offset.y, this.hexGrid.getHexSize());
+                const hex = this.hexGrid.getHexes().find(hex => hex.coords.equals(coord));
+                let redraw = false;
 
-                    if (Math.abs(x - hexPixelX) <= this.hexSize && Math.abs(y - hexPixelY) <= this.hexSize) {
-                        console.log('Mouse is hovering over hex', hex.coords);
+                if (hex) {
+                    if (hex.coords.isZero()) return;
+
+                    this.hexGrid.removeHex(hex);
+                    redraw = true;
+                } else {
+                    const placeholderHex = this.placeholderHexes.find(hex => hex.coords.equals(coord));
+
+                    if (placeholderHex) {
+                        this.hexGrid.addHexAt(placeholderHex.coords);
+                        redraw = true;
                     }
-                });
+                }
+
+                if (redraw) {
+                    this.calculatePlaceholderHexes();
+                    this.canvas.clear();
+                    this.draw();
+                }
+            });
+
+            this.canvas.addOnMouseHoverListener((x: number, y: number) => {
+                const offset: Offset = this.hexGrid.getOffset();
+
+                const coord = Dashboard.CubeCoordinate.from2D(x - offset.x, y - offset.y, this.hexGrid.getHexSize());
+                let hex = this.hexGrid.getHexes().find(hex => hex.coords.equals(coord));
+
+                if (!hex) {
+                    hex = this.placeholderHexes.find(hex => hex.coords.equals(coord));
+                }
+
+                if (hex) {
+                    console.log(hex.coords);
+                    this.hoveredHex = hex;
+                    this.canvas.setCursor('pointer');
+                    this.redraw();
+                } else {
+                    this.hoveredHex = null;
+                    this.canvas.setCursor('default');
+                    this.redraw();
+                }
             });
 
             this.calculatePlaceholderHexes();
         }
 
-        private calculatePlaceholderHexes(): void {
-            const hexGridHexes = this.hexGrid.getHexes();
-
-            const neighborDirections = [
-                new Dashboard.CubeCoordinate(1, -1, 0),
-                new Dashboard.CubeCoordinate(1, 0, -1),
-                new Dashboard.CubeCoordinate(0, 1, -1),
-                new Dashboard.CubeCoordinate(-1, 1, 0),
-                new Dashboard.CubeCoordinate(-1, 0, 1),
-                new Dashboard.CubeCoordinate(0, -1, 1)
-            ];
-
-            this.placeholderHexes = [];
-            hexGridHexes.forEach(hex => {
-                neighborDirections.forEach(direction => {
-                    const neighbor = hex.getNeighbor(direction);
-
-                    if (!hexGridHexes.includes(neighbor) && !this.placeholderHexes.includes(neighbor)) {
-                        this.placeholderHexes.push(neighbor);
-                    }
-                });
-            });
+        private redraw(): void {
+            this.canvas.clear();
+            this.draw();
         }
 
         public draw(): void {
             this.canvas.setDrawn();
 
             const ctx = this.canvas.getContext();
-            ctx.clearRect(0, 0, this.canvas.getWidth(), this.canvas.getHeight());
-
-            const boundingBox: BoundingBox = this.hexGrid.getCorners();
-            const offset: OffsetCoordinate = new Dashboard.OffsetCoordinate(
-                this.canvas.getWidth() / 2 - ((boundingBox.minX + boundingBox.maxX) / 2),
-                this.canvas.getHeight() / 2 - ((boundingBox.minY + boundingBox.maxY) / 2)
-            );
-
-            const backgroundColor = new Color(0, 0, 0, 0.05);
-            const borderColor = new Color(0, 0, 0);
+            const offset: Offset = this.hexGrid.getOffset();
 
             // Draw hexes
-            for (let i = 0; i < this.placeholderHexes.length; i++) {
-                const hex = this.placeholderHexes[i];
-                console.log('Drawing placeholder hex', hex);
-                hex.draw(ctx, backgroundColor, borderColor, offset);
+            this.placeholderHexes.forEach(hex => {
+                let fillColor = Color.DARK_GREY;
 
-                // Draw white plus sign in center
-                const {x, y} = hex.coords.to2D(this.hexSize);
-                const plusSize = this.hexSize / 4;
+                if (this.hoveredHex && this.hoveredHex.coords.equals(hex.coords)) {
+                    fillColor = Color.fromHEX('#606060');
+                }
 
-                ctx.beginPath();
-                ctx.moveTo(offset.x + x - plusSize, offset.y + y);
-                ctx.lineTo(offset.x + x + plusSize, offset.y + y);
-                ctx.moveTo(offset.x + x, offset.y + y - plusSize);
-                ctx.lineTo(offset.x + x, offset.y + y + plusSize);
-                ctx.lineWidth = 1;
-                ctx.strokeStyle = '#FFF';
-                ctx.stroke();
-            }
-
-            // Draw circle in center
-            ctx.beginPath();
-            ctx.arc(offset.x, offset.y, 10, 0, 2 * Math.PI);
-            ctx.fillStyle = '#F00';
-            ctx.fill();
+                hex.draw(ctx, fillColor, Color.BLACK, offset);
+                hex.drawText(ctx, '+', Color.WHITE, offset, 2);
+            });
 
             this.hexGrid.draw();
+
+            // const innerBox = this.hexGrid.getBoundingBox();
+            // ctx.strokeStyle = Color.GREEN.toRGB();
+            // ctx.strokeRect(offset.x + innerBox.minX, offset.y + innerBox.minY, innerBox.maxX - innerBox.minX, innerBox.maxY - innerBox.minY);
+            //
+            // const outerBox = this.getBoundingBox();
+            // ctx.strokeStyle = Color.RED.toRGB();
+            // ctx.strokeRect(offset.x + outerBox.minX, offset.y + outerBox.minY, outerBox.maxX - outerBox.minX, outerBox.maxY - outerBox.minY);
+        }
+
+        private calculatePlaceholderHexes(): void {
+            const hexGridHexes = this.hexGrid.getHexes();
+
+            this.placeholderHexes = [];
+            hexGridHexes.forEach(hex => {
+                CubeCoordinate.directions.forEach(direction => {
+                    let neighbor = hex.getNeighbor(direction);
+
+                    if (!neighbor) {
+                        neighbor = new Hex(hex.coords.add(direction), this.hexGrid.getHexSize(), [hex]);
+                    }
+
+                    if (!hexGridHexes.find(hex => hex.coords.equals(neighbor.coords))) {
+                        this.placeholderHexes.push(neighbor);
+                    }
+                });
+            });
+        }
+
+        private getBoundingBox(): BoundingBox {
+            let minX = Infinity,
+                maxX = -Infinity,
+                minY = Infinity,
+                maxY = -Infinity;
+
+            this.placeholderHexes.forEach(hex => {
+                const {x, y} = hex.coords.to2D(hex.hexSize);
+
+                minX = Math.min(minX, x);
+                maxX = Math.max(maxX, x);
+                minY = Math.min(minY, y);
+                maxY = Math.max(maxY, y);
+            });
+
+            return {
+                minX: minX - this.hexGrid.getHexSize() + 5,
+                maxX: maxX + this.hexGrid.getHexSize() - 5,
+                minY: minY - this.hexGrid.getHexSize(),
+                maxY: maxY + this.hexGrid.getHexSize(),
+            };
         }
     }
 }

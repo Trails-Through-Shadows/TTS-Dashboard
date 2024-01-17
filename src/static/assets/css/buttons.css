@@ -1,0 +1,41 @@
+/** Green Button **/
+.btn-green-100 {
+  color: #2F855A;
+  background-color: #C6F6D5;
+  border-color: #C6F6D5;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(17, 24, 39, 0.075);
+}
+.btn-green-100:hover {
+  color: #2F855A;
+  background-color: #e8fbee;
+  border-color: #e8fbee;
+}
+.btn-check:focus + .btn-green-100,
+.btn-green-100:focus {
+  color: #e8fbee;
+  background-color: #e8fbee;
+  border-color: #e8fbee;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(17, 24, 39, 0.075);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(23, 82, 53, 0.075), 0 0 0 0.18rem rgba(210, 214, 217, 0.5);
+}
+/** Red Button **/
+.btn-red-100 {
+  color: #EF4444;
+  background-color: #FECACA;
+  border-color: #FECACA;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(17, 24, 39, 0.075);
+}
+.btn-red-100:hover {
+  color: #EF4444;
+  background-color: #ffeaea;
+  border-color: #ffeaea;
+}
+.btn-check:focus + .btn-red-100,
+.btn-red-100:focus {
+  color: #ffeaea;
+  background-color: #ffeaea;
+  border-color: #ffeaea;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(17, 24, 39, 0.075);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(239, 68, 68, 0.075), 0 0 0 0.18rem rgba(210, 214, 217, 0.5);
+}
+/*# sourceMappingURL=buttons.css.map */

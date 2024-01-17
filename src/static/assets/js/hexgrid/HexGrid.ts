@@ -8,23 +8,37 @@ module Dashboard {
     }
 
     export class HexGrid {
-        private took: number = 0;
+        private hoveredHex: Hex | null = null;
 
-        constructor (
+        constructor(
             private canvas: Canvas,
+            private hexSize: number,
             private hexes: Hex[] = [],
-        ) {}
+        ) {
+            this.canvas.addOnMouseHoverListener((x: number, y: number) => {
+                const offset: Offset = this.getOffset();
+
+                const coord = Dashboard.CubeCoordinate.from2D(x - offset.x, y - offset.y, this.hexSize);
+                let hex = this.hexes.find(hex => hex.coords.equals(coord));
+
+                if (hex) {
+                    this.hoveredHex = hex;
+                } else {
+                    this.hoveredHex = null;
+                }
+            });
+        }
 
         adjustCanvasHeight(): void {
-            let {minY, maxY} = this.getCorners();
+            let {minY, maxY} = this.getBoundingBox();
             minY = Math.abs(minY);
             maxY = Math.abs(maxY);
 
-            this.canvas.resize(null,((minY + maxY) * 2) + this.hexes[0].hexSize * 4);
+            this.canvas.resize(null, ((minY + maxY) * 2) + this.hexes[0].hexSize * 4);
             console.log(`HexGrid | Adjusted canvas height to ${this.canvas.getHeight()}`);
         }
 
-        readData(hexSize: number, url: string): void {
+        readData(url: string, callback?: () => {}): void {
             this.canvas.setLoading(true);
             const currentTime = new Date().getTime();
 
@@ -33,37 +47,24 @@ module Dashboard {
             const request = new XMLHttpRequest();
             request.onreadystatechange = () => {
                 if (request.readyState === 4 && request.status === 200) {
-                    const data = JSON.parse(request.responseText)['entry'];
+                    const data = JSON.parse(request.responseText);
 
                     // Map hexes
-                    this.hexes = data['hexes'].map((hex: CubeCoordinate) => {
-                        const {q, r, s} = hex;
-                        return new Hex(hexSize, new CubeCoordinate(q, r, s), []);
+                    this.hexes = data['hexes'].map((coords: CubeCoordinate) => {
+                        return new Hex(new Dashboard.CubeCoordinate(coords.q, coords.r, coords.s),this.hexSize, []);
                     })
 
                     // Map hex neighbors
-                    this.hexes.forEach(hex => {
-                        const directions = [
-                            new CubeCoordinate(1, 0, -1),
-                            new CubeCoordinate(1, -1, 0),
-                            new CubeCoordinate(0, -1, 1),
-                            new CubeCoordinate(-1, 0, 1),
-                            new CubeCoordinate(-1, 1, 0),
-                            new CubeCoordinate(0, 1, -1)
-                        ];
+                    this.hexes.forEach(hex => this.mapNeighbors(hex));
 
-                        hex.neighbors = directions.map(direction => {
-                            const neighbor = direction.add(hex.coords);
-                            return this.hexes.find(hex => hex.coords.equals(neighbor));
-                        }).filter(neighbor => neighbor !== undefined);
-                    });
-
-                    this.took = new Date().getTime() - currentTime;
-                    console.log(`HexGrid | Data read in ${this.took}ms`);
+                    const took = new Date().getTime() - currentTime;
+                    console.log(`HexGrid | Data read in ${took}ms`);
 
                     this.canvas.setLoading(false);
                     // this.adjustCanvasHeight();
                     this.draw();
+
+                    if (callback) callback();
                 }
             };
 
@@ -74,18 +75,12 @@ module Dashboard {
         draw(): void {
             if (this.hexes.length === 0) return;
 
-            const boundingBox: BoundingBox = this.getCorners();
-            // this.canvas.clear();
-
             const hexSize = this.hexes[0].hexSize;
-            const offset: OffsetCoordinate = new Dashboard.OffsetCoordinate(
-                this.canvas.getWidth() / 2 - ((boundingBox.minX + boundingBox.maxX) / 2),
-                this.canvas.getHeight() / 2 - ((boundingBox.minY + boundingBox.maxY) / 2)
-            );
+            const offset: Offset = this.getOffset();
 
-            // this.hexes.forEach(hex => {
-            //     hex.drawWalls(this.canvas.getContext(), Color.fromHEX("#878787"), offset);
-            // });
+            this.hexes.forEach(hex => {
+                hex.drawWall(this.canvas.getContext(), Color.fromHEX("#878787"), offset);
+            });
 
             this.hexes.forEach(hex => {
                 let fillColor = Color.fromHEX('#FFF');
@@ -106,7 +101,7 @@ module Dashboard {
             this.canvas.setDrawn();
         }
 
-        drawBoundingBox(boundingBox: BoundingBox, offset: OffsetCoordinate, hexSize: number): void {
+        drawBoundingBox(boundingBox: BoundingBox, offset: Offset, hexSize: number): void {
             const ctx = this.canvas.getContext();
             ctx.lineWidth = 2;
             ctx.strokeStyle = '#F00';
@@ -135,7 +130,18 @@ module Dashboard {
             ctx.stroke();
         }
 
-        getCorners(): BoundingBox {
+        private mapNeighbors(hex: Hex) {
+            console.log(hex);
+
+            hex.neighbors = CubeCoordinate.directions.map(direction => {
+                console.log(hex.coords);
+
+                const neighbor = direction.add(hex.coords);
+                return this.hexes.find(hex => hex.coords.equals(neighbor));
+            }).filter(neighbor => neighbor !== undefined);
+        }
+
+        getBoundingBox(): BoundingBox {
             let minX = Infinity,
                 maxX = -Infinity,
                 minY = Infinity,
@@ -150,11 +156,43 @@ module Dashboard {
                 maxY = Math.max(maxY, y);
             });
 
-            return {minX, maxX, minY, maxY};
+            return {
+                minX: minX - this.hexSize + 3,
+                maxX: maxX + this.hexSize - 3,
+                minY: minY - this.hexSize,
+                maxY: maxY + this.hexSize,
+            };
+        }
+
+        getOffset(): Offset {
+            const boundingBox = this.getBoundingBox();
+
+            return {
+                x: this.canvas.getWidth() / 2 - ((boundingBox.minX + boundingBox.maxX) / 2),
+                y: this.canvas.getHeight() / 2 - ((boundingBox.minY + boundingBox.maxY) / 2)
+            };
         }
 
         getHexes(): Hex[] {
             return this.hexes;
+        }
+
+        addHexAt(CubeCoordinate: CubeCoordinate): void {
+            const hex = new Hex(CubeCoordinate, this.hexSize, []);
+            this.mapNeighbors(hex);
+            this.hexes.push(hex);
+        }
+
+        removeHex(Hex: Hex): void {
+            this.hexes.splice(this.hexes.indexOf(Hex), 1);
+        }
+
+        getHexAt(CubeCoordinate: CubeCoordinate): Hex {
+            return this.hexes.find(hex => hex.coords.equals(CubeCoordinate));
+        }
+
+        getHexSize(): number {
+            return this.hexSize;
         }
     }
 }

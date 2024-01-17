@@ -4,13 +4,23 @@ module Dashboard {
         y: number;
     }
 
+    export interface Edge {
+        start: Vertex;
+        end: Vertex;
+    }
+
+    export interface Offset {
+        x: number;
+        y: number;
+    }
+
     export class Hex {
         public vertices: Vertex[] = [];
 
-        constructor (
-            public readonly hexSize: number = 30,
+        constructor(
             public readonly coords: CubeCoordinate,
-            public neighbors: Hex[] = []
+            public readonly hexSize: number = 30,
+            public neighbors: Hex[] = [],
         ) {
             this.vertices = this.calculateVertices(this.hexSize);
         }
@@ -19,38 +29,42 @@ module Dashboard {
             const vertices = [];
 
             for (let i = 0; i < 6; i++) {
-                const angle = Math.PI / 3 * i + Math.PI / 6;
-                const x = hexSize * Math.cos(angle);
-                const y = hexSize * Math.sin(angle);
-                vertices.push({x, y});
+                const angleDegrees = 60 * i + 30;
+                const angleRadians = Math.PI / 180 * angleDegrees;
+
+                vertices.push({
+                    x: hexSize * Math.cos(angleRadians),
+                    y: hexSize * Math.sin(angleRadians)
+                });
             }
 
             return vertices;
         }
 
-        draw(ctx: CanvasRenderingContext2D, fillColor: Color, borderColor: Color, offset: OffsetCoordinate): void {
+        draw(ctx: CanvasRenderingContext2D, fillColor: Color, borderColor: Color, offset: Offset): void {
             const {x, y} = this.coords.to2D(this.hexSize);
 
             // Draw hex vertices
             ctx.beginPath();
-            this.vertices.forEach((edge, index) => {
+            this.vertices.forEach((vertex, index) => {
                 if (index === 0) {
-                    ctx.moveTo(offset.x + x + edge.x, offset.y + y + edge.y);
+                    ctx.moveTo(offset.x + x + vertex.x, offset.y + y + vertex.y);
                 } else {
-                    ctx.lineTo(offset.x + x + edge.x, offset.y + y + edge.y);
+                    ctx.lineTo(offset.x + x + vertex.x, offset.y + y + vertex.y);
                 }
             });
             ctx.closePath();
 
             ctx.lineWidth = 1;
-            ctx.fillStyle = fillColor.toString();
-            ctx.strokeStyle = borderColor.toString();
+            ctx.fillStyle = fillColor.toRGB();
+            ctx.strokeStyle = borderColor.toRGB();
             ctx.fill();
             ctx.stroke();
         }
 
-        drawWalls(ctx: CanvasRenderingContext2D, wallColor: Color, offset: OffsetCoordinate): void {
+        drawWall(ctx: CanvasRenderingContext2D, wallColor: Color, offset: Offset): void {
             const {x, y} = this.coords.to2D(this.hexSize);
+            ctx.save();
 
             if (this.neighbors.length != 6) {
                 const borderHexes = this.calculateVertices(this.hexSize * 1.2);
@@ -65,23 +79,34 @@ module Dashboard {
                 });
                 ctx.closePath();
 
-                ctx.fillStyle = wallColor.toHEX();
+                ctx.fillStyle = wallColor.toRGB();
                 ctx.fill();
             }
+
+            ctx.restore();
         }
 
-        drawCoordinates(ctx: CanvasRenderingContext2D, textColor: Color, offset: OffsetCoordinate): void {
+        drawCoordinates(ctx: CanvasRenderingContext2D, textColor: Color, offset: Offset): void {
+            this.drawText(ctx, `${this.coords.q}, ${this.coords.r}, ${this.coords.s}`, textColor, offset);
+        }
+
+        drawText(ctx: CanvasRenderingContext2D, text: string, textColor: Color, offset: Offset, scale: number = 1): void {
             const {x, y} = this.coords.to2D(this.hexSize);
 
             ctx.fillStyle = textColor.toHEX();
-            ctx.font = '12px Arial';
+            ctx.font = (12 * scale) +'px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(`${this.coords.q}, ${this.coords.r}, ${this.coords.s}`, offset.x + x, offset.y + y);
+
+            const textMetrics = ctx.measureText(text);
+            const textWidth = textMetrics.width;
+            const textHeight = textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent;
+
+            ctx.fillText(text, offset.x + x, offset.y + y + scale);
         }
 
         getNeighbor(direction: CubeCoordinate): Hex {
-            return new Hex(this.hexSize, this.coords.add(direction));
+            return this.neighbors.find(hex => hex.coords.equals(this.coords.add(direction))) || null;
         }
     }
 }

@@ -12,4 +12,8 @@ def partViewer(request):
 
 @login_required(login_url="/login/")
 def partEditor(request, id=None):
-    return render(request, TEMPLATE_DIR + "/dungeon/parts/partEditor.html")
+    context = {
+        "partId": id,
+    }
+
+    return render(request, TEMPLATE_DIR + "/dungeon/parts/partEditor.html", context)

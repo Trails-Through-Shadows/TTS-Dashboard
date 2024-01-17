@@ -84,12 +84,17 @@
 {% block javascripts %}
     <script>
         const canvasRoot = document.getElementById('hexGridView');
-        const canvas = new Dashboard.Canvas(canvasRoot, true, {});
+        const canvas = new Dashboard.Canvas(canvasRoot, null);
 
-        const gridEditor = new Dashboard.GridEditor(canvas, 30);
+        const hexGrid = new Dashboard.HexGrid(canvas, 30, [
+            new Dashboard.Hex(new Dashboard.CubeCoordinate(0, 0, 0), 30, [])
+        ]);
+
+        const gridEditor = new Dashboard.GridEditor(canvas, hexGrid);
         gridEditor.draw();
 
         canvas.setOnResize(() => {
+            canvas.clear();
             gridEditor.draw();
         });
     </script>
