@@ -3,67 +3,61 @@ module Dashboard {
     export class GridEditor {
         private placeholderHexes: Hex[] = [];
         private hoveredHex: Hex | null = null;
+        private validator: Validator;
 
         constructor(
             private readonly canvas: Canvas,
             private readonly hexGrid: HexGrid,
         ) {
-            this.canvas.addOnMouseClickListener((x: number, y: number) => {
-                const offset: Offset = this.hexGrid.getOffset();
+            this.validator = new Validator(canvas, '/api/validate/part');
 
-                const coord = Dashboard.CubeCoordinate.from2D(x - offset.x, y - offset.y, this.hexGrid.getHexSize());
-                const hex = this.hexGrid.getHexes().find(hex => hex.coords.equals(coord));
-                let redraw = false;
-
-                if (hex) {
-                    if (hex.coords.isZero()) return;
-
-                    this.hexGrid.removeHex(hex);
-                    redraw = true;
-                } else {
-                    const placeholderHex = this.placeholderHexes.find(hex => hex.coords.equals(coord));
-
-                    if (placeholderHex) {
-                        this.hexGrid.addHexAt(placeholderHex.coords);
-                        redraw = true;
+            this.canvas.addOnMouseClickListener(() => {
+                if (this.hoveredHex) {
+                    if (this.hoveredHex.coords.isZero()) {
+                        return;
                     }
-                }
 
-                if (redraw) {
+                    if (this.hexGrid.hasHex(this.hoveredHex)) {
+                        this.hexGrid.removeHex(this.hoveredHex);
+                    } else {
+                        this.hexGrid.addHex(this.hoveredHex);
+                    }
+
+                    this.validator.requestValidation(this.hexGrid.exportData(0),
+                        () => this.redraw(),
+                        () => this.redraw()
+                    );
+
                     this.calculatePlaceholderHexes();
-                    this.canvas.clear();
-                    this.draw();
+                    this.redraw();
                 }
             });
 
             this.canvas.addOnMouseHoverListener((x: number, y: number) => {
+                if (this.canvas.isLoading()) {
+                    return
+                }
+
                 const offset: Offset = this.hexGrid.getOffset();
+                const coords = CubeCoordinate.from2D(x - offset.x, y - offset.y, this.hexGrid.getHexSize());
+                const hex = this.getHexAt(coords);
 
-                const coord = Dashboard.CubeCoordinate.from2D(x - offset.x, y - offset.y, this.hexGrid.getHexSize());
-                let hex = this.hexGrid.getHexes().find(hex => hex.coords.equals(coord));
-
-                if (!hex) {
-                    hex = this.placeholderHexes.find(hex => hex.coords.equals(coord));
+                // It's the same hex, ignore
+                if (this.hoveredHex === hex) {
+                    return;
                 }
 
                 if (hex) {
-                    console.log(hex.coords);
-                    this.hoveredHex = hex;
                     this.canvas.setCursor('pointer');
-                    this.redraw();
                 } else {
-                    this.hoveredHex = null;
                     this.canvas.setCursor('default');
-                    this.redraw();
                 }
+
+                this.hoveredHex = hex;
+                this.draw();
             });
 
             this.calculatePlaceholderHexes();
-        }
-
-        private redraw(): void {
-            this.canvas.clear();
-            this.draw();
         }
 
         public draw(): void {
@@ -77,7 +71,7 @@ module Dashboard {
                 let fillColor = Color.DARK_GREY;
 
                 if (this.hoveredHex && this.hoveredHex.coords.equals(hex.coords)) {
-                    fillColor = Color.fromHEX('#606060');
+                    fillColor = fillColor.lighten(0.2);
                 }
 
                 hex.draw(ctx, fillColor, Color.BLACK, offset);
@@ -85,17 +79,20 @@ module Dashboard {
             });
 
             this.hexGrid.draw();
-
-            // const innerBox = this.hexGrid.getBoundingBox();
-            // ctx.strokeStyle = Color.GREEN.toRGB();
-            // ctx.strokeRect(offset.x + innerBox.minX, offset.y + innerBox.minY, innerBox.maxX - innerBox.minX, innerBox.maxY - innerBox.minY);
-            //
-            // const outerBox = this.getBoundingBox();
-            // ctx.strokeStyle = Color.RED.toRGB();
-            // ctx.strokeRect(offset.x + outerBox.minX, offset.y + outerBox.minY, outerBox.maxX - outerBox.minX, outerBox.maxY - outerBox.minY);
+            this.validator.draw();
         }
 
-        private calculatePlaceholderHexes(): void {
+        private redraw(): void {
+            this.canvas.clear();
+            this.draw();
+        }
+
+        private getHexAt(coords: CubeCoordinate): Hex | null {
+            return this.hexGrid.getHexes().find(hex => hex.coords.equals(coords))
+                  || this.placeholderHexes.find(hex => hex.coords.equals(coords));
+        }
+
+        public calculatePlaceholderHexes(): void {
             const hexGridHexes = this.hexGrid.getHexes();
 
             this.placeholderHexes = [];

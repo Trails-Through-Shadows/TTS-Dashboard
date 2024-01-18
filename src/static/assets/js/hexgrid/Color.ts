@@ -44,5 +44,23 @@ module Dashboard {
 
             return `rgb(${this.r}, ${this.g}, ${this.b})`;
         }
+
+        darken(percent: number): Color {
+            return new Color(
+                this.r - (this.r * percent),
+                this.g - (this.g * percent),
+                this.b - (this.b * percent),
+                this.a
+            );
+        }
+
+        lighten(percent: number): Color {
+            return new Color(
+                this.r + ((this.r != 0 ? this.r : 255) * percent),
+                this.g + ((this.g != 0 ? this.g : 255) * percent),
+                this.b + ((this.b != 0 ? this.b : 255) * percent),
+                this.a
+            );
+        }
     }
 }

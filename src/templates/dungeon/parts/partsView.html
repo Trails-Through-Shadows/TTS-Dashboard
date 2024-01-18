@@ -38,8 +38,13 @@
                             </a>
 
                             <div class="btn-group ms-2 ms-lg-3">
-                                <button type="button" class="btn btn-sm btn-outline-gray-600" id="uploadButton">{% translate 'Upload' %}</button>
-                                <button type="button" class="btn btn-sm btn-outline-gray-600" id="exportButton">{% translate 'Export' %}</button>
+                                <a href="javascript:void(0)" class="btn btn-sm btn-outline-gray-600" id="uploadButton">
+                                    {% translate 'Upload' %}
+                                </a>
+                                
+                                <a href="{% url 'apiQueryTable' table='parts' %}?download" target="_top" class="btn btn-sm btn-outline-gray-600" id="exportButton">
+                                    {% translate 'Export' %}
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -108,23 +113,41 @@
 {% endblock content %}
 
 {% block javascripts %}
-    <script>
-        const canvasRoot = document.getElementById('hexGridView');
-        const canvas = new Dashboard.Canvas(canvasRoot, true, {
-            title: 'No Data',
-            substr: 'Please select a part to render!',
-            spacer: 100
-        });
-
-        // ----
-
+    <script async>
         const urlParams = new URLSearchParams(window.location.search);
         let page = urlParams.get('page') || 1;
         let limit = urlParams.get('limit') || 10;
         let filter = urlParams.get('filter') || '';
 
-        const apiUrl = '/api/table/parts';
+        const apiUrlAll = `{% url 'apiQueryTable' table='parts' %}`;
+        const apiUrlSingle = `{% url 'apiQueryTableID' table='parts' id=0 %}`;
         const template = '/dungeon/parts/partsData.html';
+
+        // ----
+
+        const canvasRoot = document.getElementById('hexGridView');
+        const canvas = new Dashboard.Canvas(canvasRoot, {
+            title: 'No Data',
+            subtitle: 'Please select a part to render!',
+            spacer: 100
+        });
+
+        // ----
+
+        const hexGridSize = 30;
+        const hexGrid = new Dashboard.HexGrid(canvas, hexGridSize, []);
+        hexGrid.draw();
+
+        canvas.addOnSizeListener(() => {
+            if (!canvas.isDrawn()) {
+                return;
+            }
+
+            canvas.clear();
+            hexGrid.draw();
+        });
+
+        // ----
 
         const tableRoot = document.getElementById('partsTable');
         const tableFilter = new Dashboard.TableFilter(["tag:has"]);
@@ -135,10 +158,8 @@
                 const id = element.getAttribute('data-part');
                 event.preventDefault();
 
-                const hexGrid = new Dashboard.HexGrid(canvas, []);
-                hexGrid.readData(30, `${apiUrl}/${id}`);
-
-                canvas.setOnResize(() => {
+                hexGrid.readData(apiUrlSingle.replace(0, id), () => {
+                    canvas.clear();
                     hexGrid.draw();
                 });
             });
@@ -151,12 +172,12 @@
                     title: "{% translate "Are you sure?" %}",
                     text: "{% translate "You won't be able to revert this!" %}",
                     icon: "warning",
-                    showCancelButton: true,
                     reverseButtons: true,
+                    showCancelButton: true,
+                    confirmButtonColor: '#3D3',
+                    cancelButtonColor: '#D33',
                     confirmButtonText: "{% translate "Yes, delete it!" %}",
-                    confirmButtonColor: '#3a3',
                     cancelButtonText: "{% translate "No, cancel!" %}",
-                    cancelButtonColor: '#a33'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         const csrfToken = tableRoot.querySelector('#csrftoken').value;
@@ -175,64 +196,44 @@
                         const request = new XMLHttpRequest();
                         request.onreadystatechange = () => {
                             if (request.readyState === 4) {
-                                if (request.status === 204) {
+                                if (request.status === 200) {
                                     console.log(`Button | Deleting part ${id} successful`);
                                     Swal.fire({
                                         title: '{% translate "Success!" %}',
                                         text: '{% translate "The part has been deleted." %}',
                                         icon: 'success',
-                                        timer: 1500
+                                        confirmButtonText: '{% translate "Ok" %}',
+                                        timer: 5000
                                     });
 
-                                    table.queryData(apiUrl, page, limit);
+                                    table.queryData(apiUrlAll, page, limit);
                                 } else {
                                     const data = JSON.parse(request.responseText);
 
                                     console.log(`Button | Deleting part ${id} failed`);
                                     Swal.fire({
                                         title: '{% translate "The part could not be deleted." %}',
-                                        text: data.error,
+                                        text: data["message"],
                                         icon: 'error',
-                                        confirmButtonText: '{% translate "Ok" %}'
+                                        confirmButtonText: '{% translate "Ok" %}',
+                                        timer: 5000
                                     });
                                 }
                             }
                         };
 
-                        request.open('DELETE', `/api/table/parts/${id}`);
+                        request.open('DELETE', apiUrlSingle.replace(0, id));
                         request.setRequestHeader('X-CSRFToken', csrfToken);
                         request.send();
                     }
                 });
             });
-
-            table.setAction("download", (event, element) => {
-                const id = element.getAttribute('data-part');
-                event.preventDefault();
-
-                Swal.fire({
-                    toast: true,
-                    icon: 'success',
-                    title: '{% translate "Downloading started.." %}',
-                    position: 'bottom-right',
-                    showConfirmButton: false,
-                    timerProgressBar: true,
-                    timer: 2000,
-                })
-
-                window.location.assign(`${apiUrl}/${id}?download`);
-            });
-
-            table.setAction("edit", (event, element) => {
-                const id = element.getAttribute('data-part');
-                event.preventDefault();
-
-                window.location.assign("{% url 'partEditor' id=0 %}".replace(0, id));
-            });
         })
 
         table.getFilter().set('tag', filter)
-        table.queryData(apiUrl, page, limit);
+        table.queryData(apiUrlAll, page, limit);
+
+        // ----
 
         // Setup search
         const searchInput = document.getElementById('tableSearch');
@@ -248,7 +249,7 @@
                 window.history.replaceState({}, '', pageUrl.toString());
 
                 table.getFilter().set('tag', filter);
-                table.queryData(apiUrl, 0, limit);
+                table.queryData(apiUrlAll, 0, limit);
             }
 
             if (event.keyCode === 13) { // Enter pressed
@@ -312,7 +313,7 @@
                                     timer: 3000
                                 });
 
-                                table.queryData(apiUrl, page, limit);
+                                table.queryData(apiUrlAll, page, limit);
                             } else {
                                 const data = JSON.parse(request.responseText);
 
@@ -332,7 +333,7 @@
                     console.log("post");
                     console.log(JSON.stringify(data));
 
-                    request.open('POST', '/{{ request.LANGUAGE_CODE }}/api/table/parts/');
+                    request.open('POST', '/{{ request.LANGUAGE_CODE }}/'+ apiUrlAll);
                     request.setRequestHeader('Content-Type', 'application/json');
                     request.setRequestHeader('X-CSRFToken', csrfToken);
                     request.send(JSON.stringify(data));
@@ -340,24 +341,6 @@
 
                 reader.readAsText(file);
             }
-        });
-
-        // Setup export
-        const exportButton = document.getElementById('exportButton');
-        exportButton.addEventListener('click', async (event) => {
-            event.preventDefault();
-
-            Swal.fire({
-                toast: true,
-                icon: 'success',
-                title: '{% translate "Downloading started.." %}',
-                position: 'bottom-right',
-                showConfirmButton: false,
-                timerProgressBar: true,
-                timer: 2000,
-            })
-
-            window.location.assign(`/api/table/parts/?download`);
         });
     </script>
 {% endblock javascripts %}

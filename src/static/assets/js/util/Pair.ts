@@ -1,4 +1,6 @@
 module Dashboard {
+    export type Callback = () => void;
+
     export class Pair<A, B> {
         private readonly first: A;
         private readonly second: B;

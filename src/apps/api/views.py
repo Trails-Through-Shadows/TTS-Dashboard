@@ -10,6 +10,7 @@ from requests import request as req
 from src.core.settings import TEMPLATE_DIR, API_URL
 from django.http import JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render
+import time
 
 
 def requestAPI(method, url, data=None):
@@ -75,7 +76,7 @@ class ApiView(View):
         if download is not None:
             return JsonFile(
                 table + '-' + str(id) + '.json' if id is not None else table + '.json',
-                responseData['entry'] if id is not None else responseData['entries'],
+                responseData if id is not None else responseData['entries'],
             )
 
         # Return raw json data
@@ -134,3 +135,14 @@ class ApiView(View):
 
         return JsonResponse(responseData, status=responseCode)
 
+def validateTable(request, table):
+    time.sleep(1)
+    return JsonResponse({
+            "status": "success",
+            "message": f"{table} is not ok!",
+            "errors": [
+                "Part must larger then 1 hex!",
+                "Part is too wide, max 10 hexes!",
+            ]
+        }, status=400
+    )

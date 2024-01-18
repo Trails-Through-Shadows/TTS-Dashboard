@@ -44,8 +44,8 @@
                                     </button>
                                 </a>
 
-                                <a href="javascript:void(0)">
-                                    <button class="btn btn-link text-dark m-0 p-0" data-action="edit" data-part="{{ part.id }}">
+                                <a href="{% url 'partEditor' id=part.id %}">
+                                    <button class="btn btn-link text-dark m-0 p-0">
                                         <span class="icon icon-lg text-success">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </span>
@@ -60,8 +60,8 @@
                                     </button>
                                 </a>
 
-                                <a href="javascript:void(0)">
-                                    <button class="btn btn-link text-dark m-0 p-0" data-action="download" data-part="{{ part.id }}">
+                                <a href="{% url 'apiQueryTableID' table='parts' id=part.id %}?download" target="_top">
+                                    <button class="btn btn-link text-dark m-0 p-0">
                                         <span class="icon icon-lg">
                                             <i class="fa-solid fa-download"></i>
                                         </span>

@@ -28,7 +28,7 @@ module Dashboard {
         }
 
         constructor(
-            private canvas: HTMLCanvasElement,
+            private readonly canvas: HTMLCanvasElement,
             private def?: ScreenText
         ) {
             this.canvas = canvas;
@@ -68,8 +68,8 @@ module Dashboard {
             this.clear();
 
             const ctx = this.getContext();
-            ctx.fillStyle = new Dashboard.Color(255, 255, 255, 0.1).toString();
-            ctx.shadowColor = new Dashboard.Color(0, 0, 0, 0.75).toString();
+            ctx.fillStyle = new Dashboard.Color(255, 255, 255, 0.1).toRGB();
+            ctx.shadowColor = new Dashboard.Color(0, 0, 0, 0.75).toRGB();
             ctx.shadowBlur = 5;
             ctx.shadowOffsetX = 5;
             ctx.shadowOffsetY = 5;
@@ -104,8 +104,10 @@ module Dashboard {
         }
 
         private registerListeners(): void {
-            // Resize listener
-            window.addEventListener('resize', () => {
+            const parent = this.canvas.parentElement;
+
+            // Window resize observer
+            const observer = new ResizeObserver(() => {
                 this.resize();
 
                 if (!this.written && !this.loading) {
@@ -114,6 +116,7 @@ module Dashboard {
 
                 this.onSizeListeners.forEach(listener => listener());
             });
+            observer.observe(this.canvas);
 
             // Mouse hover listener
             this.canvas.addEventListener('mousemove', (event: MouseEvent) => {
@@ -195,8 +198,16 @@ module Dashboard {
             this.written = true;
         }
 
+        public isDrawn(): boolean {
+            return this.written;
+        }
+
         public setLoading(loading: boolean): void {
             this.loading = loading;
+        }
+
+        public isLoading(): boolean {
+            return this.loading;
         }
     }
 }

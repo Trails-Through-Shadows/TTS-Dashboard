@@ -2,10 +2,10 @@
 
 from django.urls import path
 
-from .views import partViewer, partEditor
+from .views import partViewer, parkWorkbench
 
 urlpatterns = [
     path('dungeon/parts/', partViewer, name="partViewer"),
-    path('dungeon/parts/create/', partEditor, name="partCreator"),
-    path('dungeon/parts/edit/<int:id>/', partEditor, name="partEditor"),
+    path('dungeon/parts/workbench/', parkWorkbench, name="partCreator"),
+    path('dungeon/parts/workbench/<int:id>/', parkWorkbench, name="partEditor"),
 ]

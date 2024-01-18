@@ -11,7 +11,7 @@ def partViewer(request):
     return render(request, TEMPLATE_DIR + "/dungeon/parts/partsView.html")
 
 @login_required(login_url="/login/")
-def partEditor(request, id=None):
+def parkWorkbench(request, id=None):
     context = {
         "partId": id,
     }

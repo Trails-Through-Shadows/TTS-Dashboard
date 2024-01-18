@@ -44,7 +44,7 @@ module Dashboard {
         draw(ctx: CanvasRenderingContext2D, fillColor: Color, borderColor: Color, offset: Offset): void {
             const {x, y} = this.coords.to2D(this.hexSize);
 
-            // Draw hex vertices
+            // Draw hex edges
             ctx.beginPath();
             this.vertices.forEach((vertex, index) => {
                 if (index === 0) {
