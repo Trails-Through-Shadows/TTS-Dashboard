@@ -60,4 +60,17 @@
 .popup-input {
   padding: 10px;
 }
+.orderable {
+  cursor: default;
+}
+.orderable:hover {
+  cursor: pointer;
+  color: #eee;
+}
+.orderable.asc::after {
+  content: "▲";
+}
+.orderable.desc::after {
+  content: "▼";
+}
 /*# sourceMappingURL=style.css.map */

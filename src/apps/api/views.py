@@ -58,11 +58,12 @@ class ApiView(View):
         page = max(int(request.GET.get('page', 0)), 1)
         limit = max(int(request.GET.get('limit', 10)), 1)
         filtering = request.GET.get('filter', '')
+        sort = request.GET.get('sort', '')
         download = request.GET.get('download', None)
         templateFile = request.GET.get('template', None)
 
         if id is None:
-            url = f"{API_URL}/{table}?limit={limit}&page={page - 1}&filter={filtering}"
+            url = f"{API_URL}/{table}?limit={limit}&page={page - 1}&filter={filtering}&sort={sort}"
         else:
             url = f"{API_URL}/{table}/{id}"
 
@@ -70,10 +71,12 @@ class ApiView(View):
 
         # Return error
         if responseCode < 200 or responseCode >= 300:
+            print(" --> Error: ", responseData)
             return JsonResponse(responseData, status=responseCode)
 
         # Download single data
         if download is not None:
+            print(" --> Downloading data...")
             return JsonFile(
                 table + '-' + str(id) + '.json' if id is not None else table + '.json',
                 responseData if id is not None else responseData['entries'],
@@ -81,6 +84,7 @@ class ApiView(View):
 
         # Return raw json data
         if templateFile is None:
+            print(" --> Returning raw data...")
             return JsonResponse(responseData)
 
         # Append pagination data
@@ -101,6 +105,7 @@ class ApiView(View):
                 'prev': max(page - 1, 1)
             }
 
+        print(" --> Rendering template...")
         return render(request, TEMPLATE_DIR + templateFile, responseData)
 
     @staticmethod

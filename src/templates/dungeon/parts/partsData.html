@@ -6,11 +6,11 @@
     <table class="table table-hover">
         <thead>
             <tr>
-                <th class="border-gray-200">#</th>
-                <th class="border-gray-200">{% translate 'Tag' %}</th>
-                <th class="border-gray-200 text-center">{% translate 'Hexes' %}</th>
-                <th class="border-gray-200 text-center">{% translate 'Usage' %}</th>
-                <th class="border-gray-200 text-center">{% translate 'Action' %}</th>
+                <th class="border-gray-200" id="cellId">#</th>
+                <th class="border-gray-200 orderable" data-key="tag">{% translate 'Tag' %}</th>
+                <th class="border-gray-200 orderable text-center" data-key="hexes">{% translate 'Hexes' %}</th>
+                <th class="border-gray-200 orderable text-center" data-key="usages">{% translate 'Usage' %}</th>
+                <th class="border-gray-200 text-center" id="cellActions">{% translate 'Action' %}</th>
             </tr>
         </thead>
 
@@ -25,15 +25,19 @@
                         <td>
                             <span class="fw-normal">{{ part.id }}</span>
                         </td>
+                        
                         <td>
                             <span class="fw-normal">{{ part.tag }}</span>
                         </td>
+                        
                         <td class="text-center">
                             <span class="fw-normal">{{ part.hexes|length }}</span>
                         </td>
+                        
                         <td class="text-center">
                             <span class="fw-normal">{{ part.usages }}</span>
                         </td>
+                        
                         <td>
                             <div class="btn-group d-flex align-items-center justify-content-evenly" id="tableActions">
                                 <a href="javascript:void(0)">

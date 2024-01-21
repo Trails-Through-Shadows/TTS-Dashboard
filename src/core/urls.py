@@ -6,10 +6,10 @@ from django.urls import path, include
 
 urlpatterns = i18n_patterns(
     path('admin/', admin.site.urls),
-    path("", include("src.apps.authentication.urls")),
-    path("", include("src.apps.dungeon.urls")),
-    path("", include("src.apps.api.urls")),
+    path("", include("src.pages.authentication.urls")),
+    path("", include("src.pages.dungeon.urls")),
+    path("", include("src.pages.api.urls")),
 
     # Default home urls
-    path("", include("src.apps.index.urls"))
+    path("", include("src.pages.index.urls"))
 )

@@ -4,3 +4,20 @@
 .popup-input {
   padding: 10px;
 }
+
+.orderable {
+  cursor: default;
+
+  &:hover {
+    cursor: pointer;
+    color: #eee;
+  }
+
+  &.asc::after {
+    content: "▲";
+  }
+
+  &.desc::after {
+      content: "▼";
+  }
+}

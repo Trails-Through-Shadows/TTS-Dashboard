@@ -1,0 +1,267 @@
+{% extends "layouts/base.html" %}
+{% load filters %}
+{% load i18n %}
+
+{% block title %} Dungeon - Parts {% endblock %}
+
+{% block stylesheets %}
+    <!-- Empty -->
+{% endblock stylesheets %}
+
+{% block content %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+        <div class="d-block mb-4 mb-md-0">
+            <h2 class="h4">{% translate 'All Parts' %}</h2>
+            <p class="mb-0">{% translate 'Manage all parts in database.' %}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-xl-6" id="table">
+            <div class="table-settings mb-2" id="tableSettings">
+                <div class="row align-items-center justify-content-between">
+                    <div class="col-12 col-sm-6">
+                        <div class="input-group fmxw-500">
+                            <span class="input-group-text">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+
+                            <a href="javascript:void(0)" class="input-group-text align-items-center" id="tableFilterButton">
+                                <i class="fa-solid fa-filter me-1"></i>
+                                <span>{% trans 'Filter' %}</span>
+                            </a>
+
+                            <input class="form-control" type="text" placeholder="{% trans 'Search' %}" id="tableSearchInput" value="{{ SEARCH }}">
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6">
+                        <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
+                            <a href="{% url 'partCreator' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                                <i class="fa-solid fa-plus me-1"></i>
+                                {% trans 'New Part' %}
+                            </a>
+
+                            <a href="{% url 'apiQueryTable' table='parts' %}?download" target="_top" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center ms-2">
+                                <i class="fa-solid fa-cloud-arrow-down me-1"></i>
+                                {% trans 'Export All' %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tableDataReplacement">
+                <div class="table-wrapper table-responsive card card-body border-0 shadow" id="tableData">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th class="border-gray-200" id="cellId">#</th>
+                                <th class="border-gray-200 orderable" data-key="tag">{% translate 'Tag' %}</th>
+                                <th class="border-gray-200 orderable text-center" data-key="hexes">{% translate 'Hexes' %}</th>
+                                <th class="border-gray-200 orderable text-center" data-key="usages">{% translate 'Usage' %}</th>
+                                <th class="border-gray-200 text-center" id="cellActions">{% translate 'Action' %}</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for i in 10|range %}
+                                <tr>
+                                    {% for y in 5|range %}
+                                        <td class="text-center">
+                                            <span class="skeleton-line"></span>
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-pagination mt-2 d-flex flex-column flex-lg-row align-items-center justify-content-between" id="tableNavigation">
+                    <nav aria-label="Table navigation">
+                        <ul class="pagination mb-0">
+                            <li class="page-item">
+                                <a class="page-link" href="#">{% translate 'Previous' %}</a>
+                            </li>
+
+                            {% for i in 5|range %}
+                                <li class="page-item {% if i == 0 %} active {% endif %}">
+                                    <a class="page-link" href="#">{{ i|increment }}</a>
+                                </li>
+                            {% endfor %}
+
+                            <li class="page-item">
+                                <a class="page-link" href="#">{% translate 'Next' %}</a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <div class="fw-normal small mt-4 mt-lg-0">
+                        {% translate 'Showing' %} <b>10</b> {% translate 'of' %} <b>10</b> {% translate 'entries' %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-6">
+            <div class="card card-body border-0 shadow h-100">
+                <canvas id="hexGridView"></canvas>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block javascripts %}
+    <script async>
+        const urlParams = new URLSearchParams(window.location.search);
+        let page = urlParams.get('page') || 1;
+        let limit = urlParams.get('limit') || 10;
+        let filter = urlParams.get('filter') || '';
+        let sort = urlParams.get('sort') || '';
+
+        const apiUrlAll = `{% url 'apiQueryTable' table='parts' %}`;
+        const apiUrlSingle = `{% url 'apiQueryTableID' table='parts' id=0 %}`;
+        const template = '/dungeon/parts/partsData.html';
+
+        // ---- | Canvas
+
+        const canvasRoot = document.getElementById('hexGridView');
+        const canvas = new Dashboard.Canvas(canvasRoot, {
+            title: '{% trans 'No Data' %}',
+            subtitle: '{% trans 'Please select a part to render.' %}',
+            spacer: 100
+        });
+
+        // ---- | Hex Grid
+
+        const hexGridSize = 30;
+        const hexGrid = new Dashboard.HexGrid(canvas, hexGridSize, []);
+        hexGrid.draw();
+
+        canvas.addOnSizeListener(() => {
+            if (!canvas.isDrawn()) {
+                return;
+            }
+
+            canvas.clear();
+            hexGrid.draw();
+        });
+
+        // ---- | Table
+
+        const tableRoot = document.getElementById('table');
+        const tableFilter = new Dashboard.TableFilter(["tag:has"]);
+        const table = new Dashboard.Table(tableRoot, template, tableFilter);
+
+        table.setOnDataLoad(() => {
+            table.setAction("view", (event, element) => {
+                const id = element.getAttribute('data-part');
+                event.preventDefault();
+
+                hexGrid.readData(apiUrlSingle.replace(0, id), () => {
+                    canvas.clear();
+                    hexGrid.draw();
+                });
+            });
+
+            table.setAction("delete", (event, element) => {
+                const id = element.getAttribute('data-part');
+                event.preventDefault();
+
+                Swal.fire({
+                    title: "{% translate "Are you sure?" %}",
+                    text: "{% translate "You won't be able to revert this!" %}",
+                    icon: "warning",
+                    reverseButtons: true,
+                    showCancelButton: true,
+                    confirmButtonColor: Dashboard.Color.GREEN.lighten(0.2).toRGB(),
+                    cancelButtonColor: '#D33',
+                    confirmButtonText: "{% translate "Yes, delete it!" %}",
+                    cancelButtonText: "{% translate "No, cancel!" %}",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const csrfToken = tableRoot.querySelector('#csrftoken').value;
+
+                        console.log(`Button | Deleting part ${id}`);
+                        Swal.fire({
+                            title: '{% translate "Deleting..." %}',
+                            text: '{% translate "The part is being deleted." %}',
+                            icon: 'info',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            allowEnterKey: false,
+                            showConfirmButton: false
+                        });
+
+                        const request = new XMLHttpRequest();
+                        request.onreadystatechange = () => {
+                            if (request.readyState === 4) {
+                                if (request.status === 200) {
+                                    console.log(`Button | Deleting part ${id} successful`);
+                                    Swal.fire({
+                                        title: '{% translate "Success!" %}',
+                                        text: '{% translate "The part has been deleted." %}',
+                                        icon: 'success',
+                                        confirmButtonText: '{% translate "Ok" %}',
+                                        timer: 5000
+                                    });
+
+                                    table.queryData(apiUrlAll, page, limit);
+                                } else {
+                                    const data = JSON.parse(request.responseText);
+
+                                    console.log(`Button | Deleting part ${id} failed`);
+                                    Swal.fire({
+                                        title: '{% translate "The part could not be deleted." %}',
+                                        text: data["message"],
+                                        icon: 'error',
+                                        confirmButtonText: '{% translate "Ok" %}',
+                                        timer: 5000
+                                    });
+                                }
+                            }
+                        };
+
+                        request.open('DELETE', apiUrlSingle.replace(0, id));
+                        request.setRequestHeader('X-CSRFToken', csrfToken);
+                        request.send();
+                    }
+                });
+            });
+        })
+
+        table.getFilter().set('tag', filter)
+        table.queryData(apiUrlAll, page, limit);
+
+        // ----
+
+        // Setup search
+        /*
+        const searchInput = document.getElementById('tableSearch');
+        searchInput.addEventListener('keyup', () => {
+            let timeout = null;
+
+            function process() {
+                filter = searchInput.value;
+
+                // Update filter param in URL
+                const pageUrl = new URL(window.location.href);
+                filter ? pageUrl.searchParams.set('filter', filter) : pageUrl.searchParams.delete('filter');
+                window.history.replaceState({}, '', pageUrl.toString());
+
+                table.getFilter().set('tag', filter);
+                table.queryData(apiUrlAll, 0, limit);
+            }
+
+            if (event.keyCode === 13) { // Enter pressed
+                clearTimeout(timeout);
+                process();
+            } else {
+                clearTimeout(timeout);
+                timeout = setTimeout(process, 500);
+            }
+        });
+         */
+    </script>
+{% endblock javascripts %}

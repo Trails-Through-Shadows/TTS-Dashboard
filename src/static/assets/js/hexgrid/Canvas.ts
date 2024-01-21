@@ -9,6 +9,9 @@ module Dashboard {
         private written = false;
         private loading = false;
 
+        private backgroundImage: any;
+        private imageLoaded = false;
+
         private width: number;
         private height: number;
 
@@ -64,6 +67,15 @@ module Dashboard {
             this.registerListeners();
         }
 
+        public setBackgroundImage(src: string, callback?: () => void): void {
+            this.backgroundImage = new Image();
+            this.backgroundImage.src = src;
+            this.backgroundImage.onload = () => {
+                this.imageLoaded = true;
+                if (callback) callback();
+            };
+        }
+
         public title(text: string, subtitle: string): void {
             this.clear();
 
@@ -93,6 +105,10 @@ module Dashboard {
         public clear(): void {
             const ctx = this.getContext();
             ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+            if (this.imageLoaded) {
+                ctx.drawImage(this.backgroundImage, 0, 0, this.canvas.width, this.canvas.height);
+            }
         }
 
         public resize(width?: number, height?: number): void {

@@ -1,92 +1,104 @@
 module Dashboard {
-    export class TableFilter {
-        private map: Map<Pair<string, string>, string>;
-
-        constructor(list: string[]) {
-            this.map = new Map(list.map(pairStr => {
-                const [first, second] = pairStr.split(':');
-                return [new Pair(first, second), null];
-            }));
-        }
-
-        public set(key: string, value: string) : void {
-            const existingPair = Array.from(this.map.keys())
-                .find(pair => pair.getFirst() === key);
-
-            if (existingPair) {
-                this.map.set(existingPair, value);
-            }
-        }
-
-        toString(): string {
-            return Array.from(this.map)
-                .filter(([_, value]) => value !== null && value !== '')
-                .map(([key, value]) => `${key.toString()}:${value}`)
-                .join(',') || '';
-        }
-    }
 
     export class Table {
-        private root: HTMLElement;
-        private readonly filter: TableFilter;
-        private readonly template: string;
         private took: number = 0;
+        private sort: TableSorter = new TableSorter()
+        private url: string = '';
+        private page: number = 1;
+        private limit: number = 10;
 
         private onDataLoad: () => void = () => {};
         public setOnDataLoad(onDataLoad: () => void): void {
             this.onDataLoad = onDataLoad;
         }
 
-        constructor(root: HTMLElement, template: string, filter: TableFilter = new TableFilter([])) {
-            this.root = root;
-            this.template = template;
-            this.filter = filter;
+        constructor(
+            private root: HTMLElement,
+            private template: string,
+            private filter: TableFilter = new TableFilter([])
+        ) {
+            const tableSearchInput = this.root.querySelector('#tableSearchInput');
+            console.log(tableSearchInput);
+
+            const tableFilterButton = this.root.querySelector('#tableFilterButton');
+            console.log(tableFilterButton);
         }
 
         public getFilter(): TableFilter {
             return this.filter;
         }
 
+        public getSorter(): TableSorter {
+            return this.sort;
+        };
+
+        private setupOrdering() : void {
+            if (this.url === '') {
+                return;
+            }
+
+            const tableHeaders = this.root.querySelectorAll('.orderable');
+            tableHeaders.forEach((tableHeader) => {
+                this.sort.setup(tableHeader, () => {
+                    this.queryData(this.url, this.page, this.limit);
+                });
+            });
+        }
+
+        private setupPagination() : void {
+            const pageLinks = this.root.querySelectorAll('.page-link');
+            pageLinks.forEach((pageLink) => {
+                pageLink.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const newPage = pageLink.getAttribute('data-page');
+
+                    // Change url
+                    const pageUrl = new URL(window.location.href);
+                    pageUrl.searchParams.set('page', newPage);
+                    window.history.replaceState({}, '', pageUrl.toString());
+
+                    this.queryData(this.url, parseInt(newPage), this.limit);
+                });
+            });
+        }
+
         public queryData(url: string, page: number, limit: number) : void {
             const currentTime = new Date().getTime();
 
-            page = Math.max(page, 1);
-            limit = Math.max(limit, 1);
-
-            console.log(`Table | Querying data from ${url} with page=${page} and limit=${limit}`);
+            this.url = url;
+            this.page = Math.max(page, 1);
+            this.limit = Math.max(limit, 1);
 
             const request = new XMLHttpRequest();
             request.onreadystatechange = () => {
-                if (request.readyState === 4 && request.status === 200) {
-                    const tableDataElement = this.root.querySelector('#tableData');
+                if (request.readyState === 4) {
+                    const status = request.status;
+
+                    const tableDataElement = this.root.querySelector('#tableDataReplacement');
                     tableDataElement.innerHTML = request.responseText;
 
-                    // Setup pagination
-                    const pageLinks = this.root.querySelectorAll('.page-link');
-                    for (let i = 0; i < pageLinks.length; i++) {
-                        const pageLink = pageLinks[i];
+                    if (status === 200) {
+                        this.took = new Date().getTime() - currentTime;
+                        console.log(`Table | Query took ${this.took}ms`);
 
-                        pageLink.addEventListener('click', (event) => {
-                            event.preventDefault();
-                            const newPage = pageLink.getAttribute('data-page');
-
-                            // Change url
-                            const pageUrl = new URL(window.location.href);
-                            pageUrl.searchParams.set('page', newPage);
-                            window.history.replaceState({}, '', pageUrl.toString());
-
-                            this.queryData(url, parseInt(newPage), limit);
-                        });
+                        this.setupOrdering();
+                        this.setupPagination();
+                        this.onDataLoad();
+                    } else {
+                        console.log(`Table | Query failed with status ${request.status}`);
                     }
-
-                    this.took = new Date().getTime() - currentTime;
-                    console.log(`Table | Query took ${this.took}ms`);
-
-                    this.onDataLoad();
                 }
             }
 
-            request.open('GET', `${url}?page=${page}&limit=${limit}&filter=${this.filter.toString()}&template=${this.template}`);
+            let newUrl = url;
+            newUrl += "?page=" + page
+            newUrl += "&limit=" + limit
+            newUrl += "&filter=" + this.filter.toString()
+            newUrl += "&sort=" + this.sort.toString()
+            newUrl += "&template=" + this.template
+
+            console.log(`Table | Querying data from ${newUrl}`);
+            request.open('GET', newUrl);
             request.send();
         }
 
