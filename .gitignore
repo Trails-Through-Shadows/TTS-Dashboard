@@ -1,9 +1,10 @@
 __pycache__/
+*.log
+.idea
 
 # Database
 *.db
 *.sqlite3
-*.log
 
 # Environment
 env
@@ -11,6 +12,11 @@ venv*
 .env
 
 # Compiled typescript libraries
-src/static/assets/js/dashboard.js
+static/js/*.js
+static/js/*.js.map
+!static/js/volt.js
 
-.idea
+# Compiled less stylesheets
+static/css/*.css
+static/css/*.css.map
+!static/css/volt.css
