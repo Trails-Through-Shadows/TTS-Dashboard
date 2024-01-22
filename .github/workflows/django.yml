@@ -1,0 +1,50 @@
+name: Django Admin
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:10.5
+        env:
+          MYSQL_DATABASE: djangoDatabase
+          MYSQL_USER: djangoUser
+          MYSQL_PASSWORD: yourPassword
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Copy .env file
+        run: cp .env.example .env
+
+      - name: Setup Environment settings
+        run: |
+          sed -i "s/DB_ENGINE=.*/DB_ENGINE=mysql/g" .env
+          sed -i "s/SECRET_KEY=.*/SECRET_KEY=django-insecure-$(openssl rand -base64 32)/g" .env
+
+      - name: Apply migrations
+        run: python manage.py migrate
+
+      - name: Run tests
+        run: |
+          python manage.py test
