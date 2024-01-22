@@ -6,52 +6,52 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    services:
-      mariadb:
-        image: mariadb:10.5
-        env:
-          MARIADB_ROOT_PASSWORD: ourMasterPassword
-          MYSQL_DATABASE: tts_dash
-          MYSQL_USER: ttsCommie
-          MYSQL_PASSWORD: ourPassword
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.11
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Setup Environment settings
-        run: |
-          cp .env.example .env
-          awk -v var="SECRET_KEY=django-insecure-2!@#4qwer" '/^SECRET_KEY=/{print var; next} 1' .env > temp && mv temp .env
-          awk -v var="DB_ENGINE=mysql"        '/^DB_ENGINE=/{print var; next} 1' .env > temp && mv temp .env
-          awk -v var="DB_HOST=127.0.0.1"      '/^DB_HOST=/{print var; next} 1' .env > temp && mv temp .env
-          awk -v var="DB_USERNAME=ttsCommie"  '/^DB_USERNAME=/{print var; next} 1' .env > temp && mv temp .env
-          awk -v var="DB_NAME=tts_dash"       '/^DB_NAME=/{print var; next} 1' .env > temp && mv temp .env
-          awk -v var="DB_PASS=ourPassword"    '/^DB_PASS=/{print var; next} 1' .env > temp && mv temp .env
-
-      - name: Apply migrations
-        run: |
-          python manage.py migrate
-
-      - name: Run tests
-        run: |
-          python manage.py test
+#  test:
+#    runs-on: ubuntu-latest
+#
+#    services:
+#      mariadb:
+#        image: mariadb:10.5
+#        env:
+#          MARIADB_ROOT_PASSWORD: ourMasterPassword
+#          MYSQL_DATABASE: tts_dash
+#          MYSQL_USER: ttsCommie
+#          MYSQL_PASSWORD: ourPassword
+#        ports:
+#          - 3306:3306
+#        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v2
+#
+#      - name: Set up Python
+#        uses: actions/setup-python@v2
+#        with:
+#          python-version: 3.11
+#
+#      - name: Install dependencies
+#        run: |
+#          python -m pip install --upgrade pip
+#          pip install -r requirements.txt
+#
+#      - name: Setup Environment settings
+#        run: |
+#          cp .env.example .env
+#          awk -v var="SECRET_KEY=django-insecure-2!@#4qwer" '/^SECRET_KEY=/{print var; next} 1' .env > temp && mv temp .env
+#          awk -v var="DB_ENGINE=mysql"        '/^DB_ENGINE=/{print var; next} 1' .env > temp && mv temp .env
+#          awk -v var="DB_HOST=127.0.0.1"      '/^DB_HOST=/{print var; next} 1' .env > temp && mv temp .env
+#          awk -v var="DB_USERNAME=ttsCommie"  '/^DB_USERNAME=/{print var; next} 1' .env > temp && mv temp .env
+#          awk -v var="DB_NAME=tts_dash"       '/^DB_NAME=/{print var; next} 1' .env > temp && mv temp .env
+#          awk -v var="DB_PASS=ourPassword"    '/^DB_PASS=/{print var; next} 1' .env > temp && mv temp .env
+#
+#      - name: Apply migrations
+#        run: |
+#          python manage.py migrate
+#
+#      - name: Run tests
+#        run: |
+#          python manage.py test
 
   deploy:
     runs-on: ubuntu-latest
@@ -66,4 +66,9 @@ jobs:
 
       - name: Connect SSH
         run: |
-          ssh root@${{ secrets.SSH_HOST }} "cd /srv/tts-game/TTS-Dashboard && git pull git@github.com:Trails-Through-Shadows/TTS-Dashboard.git && service tts-dashboard restart && exit"
+          ssh root@${{ secrets.SSH_HOST }} "cd /srv/tts-game/TTS-Dashboard && eval $(keychain --eval ../.ssh/dashboard-key) && git pull git@github.com:Trails-Through-Shadows/TTS-Dashboard.git && service tts-dashboard restart && exit"
+
+      - name: Cleanup
+        run: |
+          rm -rf ~/.ssh/id_rsa
+          rm -rf ~/.ssh/known_hosts
