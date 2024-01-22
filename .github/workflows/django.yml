@@ -18,6 +18,7 @@ jobs:
       mariadb:
         image: mariadb:10.5
         env:
+          MARIADB_ROOT_PASSWORD: ourRootPassword
           MYSQL_DATABASE: djangoDatabase
           MYSQL_USER: djangoUser
           MYSQL_PASSWORD: yourPassword
