@@ -11,8 +11,8 @@
 {% block content %}
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div class="d-block mb-4 mb-md-0">
-            <h2 class="h4">{% translate 'All Parts' %}</h2>
-            <p class="mb-0">{% translate 'Manage all parts in database.' %}</p>
+            <h2 class="h4">{% trans 'All Parts' %}</h2>
+            <p class="mb-0">{% trans 'Manage all parts in database.' %}</p>
         </div>
     </div>
 
@@ -37,7 +37,7 @@
 
                     <div class="col-12 col-sm-6">
                         <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
-                            <a href="{% url 'partCreator' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                            <a href="{% url 'partWorkbench' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
                                 <i class="fa-solid fa-plus me-1"></i>
                                 {% trans 'New Part' %}
                             </a>
@@ -57,10 +57,10 @@
                         <thead>
                             <tr>
                                 <th class="border-gray-200" id="cellId">#</th>
-                                <th class="border-gray-200 orderable" data-key="tag">{% translate 'Tag' %}</th>
-                                <th class="border-gray-200 orderable text-center" data-key="hexes">{% translate 'Hexes' %}</th>
-                                <th class="border-gray-200 orderable text-center" data-key="usages">{% translate 'Usage' %}</th>
-                                <th class="border-gray-200 text-center" id="cellActions">{% translate 'Action' %}</th>
+                                <th class="border-gray-200 orderable" data-key="tag">{% trans 'Tag' %}</th>
+                                <th class="border-gray-200 orderable text-center" data-key="hexes">{% trans 'Hexes' %}</th>
+                                <th class="border-gray-200 orderable text-center" data-key="usages">{% trans 'Usage' %}</th>
+                                <th class="border-gray-200 text-center" id="cellActions">{% trans 'Action' %}</th>
                             </tr>
                         </thead>
 
@@ -82,7 +82,7 @@
                     <nav aria-label="Table navigation">
                         <ul class="pagination mb-0">
                             <li class="page-item">
-                                <a class="page-link" href="#">{% translate 'Previous' %}</a>
+                                <a class="page-link" href="#">{% trans 'Previous' %}</a>
                             </li>
 
                             {% for i in 5|range %}
@@ -92,13 +92,13 @@
                             {% endfor %}
 
                             <li class="page-item">
-                                <a class="page-link" href="#">{% translate 'Next' %}</a>
+                                <a class="page-link" href="#">{% trans 'Next' %}</a>
                             </li>
                         </ul>
                     </nav>
 
                     <div class="fw-normal small mt-4 mt-lg-0">
-                        {% translate 'Showing' %} <b>10</b> {% translate 'of' %} <b>10</b> {% translate 'entries' %}
+                        {% trans 'Showing' %} <b>10</b> {% trans 'of' %} <b>10</b> {% trans 'entries' %}
                     </div>
                 </div>
             </div>
@@ -122,7 +122,7 @@
 
         const apiUrlAll = `{% url 'apiQueryTable' table='parts' %}`;
         const apiUrlSingle = `{% url 'apiQueryTableID' table='parts' id=0 %}`;
-        const template = '/dungeon/parts/partsData.html';
+        const template = 'dungeon/parts/partsData.html';
 
         // ---- | Canvas
 
@@ -137,7 +137,6 @@
 
         const hexGridSize = 30;
         const hexGrid = new Dashboard.HexGrid(canvas, hexGridSize, []);
-        hexGrid.draw();
 
         canvas.addOnSizeListener(() => {
             if (!canvas.isDrawn()) {
@@ -151,7 +150,7 @@
         // ---- | Table
 
         const tableRoot = document.getElementById('table');
-        const tableFilter = new Dashboard.TableFilter(["tag:has"]);
+        const tableFilter = new Dashboard.TableFilter(["tag:has", "usage:between", "hexes:between"]);
         const table = new Dashboard.Table(tableRoot, template, tableFilter);
 
         table.setOnDataLoad(() => {
@@ -170,23 +169,23 @@
                 event.preventDefault();
 
                 Swal.fire({
-                    title: "{% translate "Are you sure?" %}",
-                    text: "{% translate "You won't be able to revert this!" %}",
+                    title: "{% trans "Are you sure?" %}",
+                    text: "{% trans "You won't be able to revert this!" %}",
                     icon: "warning",
                     reverseButtons: true,
                     showCancelButton: true,
-                    confirmButtonColor: Dashboard.Color.GREEN.lighten(0.2).toRGB(),
-                    cancelButtonColor: '#D33',
-                    confirmButtonText: "{% translate "Yes, delete it!" %}",
-                    cancelButtonText: "{% translate "No, cancel!" %}",
+                    confirmButtonColor: Dashboard.Color.GREEN.darken(0.3).toRGB(),
+                    cancelButtonColor: Dashboard.Color.RED.toRGB(),
+                    confirmButtonText: "{% trans "Yes, delete it!" %}",
+                    cancelButtonText: "{% trans "No, cancel!" %}",
                 }).then((result) => {
                     if (result.isConfirmed) {
                         const csrfToken = tableRoot.querySelector('#csrftoken').value;
 
                         console.log(`Button | Deleting part ${id}`);
                         Swal.fire({
-                            title: '{% translate "Deleting..." %}',
-                            text: '{% translate "The part is being deleted." %}',
+                            title: '{% trans "Deleting..." %}',
+                            text: '{% trans "The part is being deleted." %}',
                             icon: 'info',
                             allowOutsideClick: false,
                             allowEscapeKey: false,
@@ -197,33 +196,50 @@
                         const request = new XMLHttpRequest();
                         request.onreadystatechange = () => {
                             if (request.readyState === 4) {
+                                Swal.close();
+
+                                const notyf = new Notyf({
+                                    position: {
+                                        x: 'right',
+                                        y: 'top',
+                                    },
+                                    ripple: true,
+                                    dismissible: true
+                                });
+
                                 if (request.status === 200) {
                                     console.log(`Button | Deleting part ${id} successful`);
-                                    Swal.fire({
-                                        title: '{% translate "Success!" %}',
-                                        text: '{% translate "The part has been deleted." %}',
-                                        icon: 'success',
-                                        confirmButtonText: '{% translate "Ok" %}',
-                                        timer: 5000
+                                    notyf.success({
+                                        message: '{% trans "Success, part deleted!" %}',
+                                        duration: 5000,
                                     });
 
                                     table.queryData(apiUrlAll, page, limit);
                                 } else {
-                                    const data = JSON.parse(request.responseText);
-
                                     console.log(`Button | Deleting part ${id} failed`);
-                                    Swal.fire({
-                                        title: '{% translate "The part could not be deleted." %}',
-                                        text: data["message"],
-                                        icon: 'error',
-                                        confirmButtonText: '{% translate "Ok" %}',
-                                        timer: 5000
+                                    const notification = notyf.error({
+                                        message: '{% trans "Error, deletion failed! Click for more information." %}',
+                                        duration: 30000
+                                    });
+
+                                    notification.on('click', ({target, event}) => {
+                                        const data = JSON.parse(request.responseText);
+                                        const string = JSON.stringify(data, null, 4);
+
+                                        notyf.dismiss(notification);
+                                        Swal.fire({
+                                            text: string,
+                                            customClass: {
+                                                htmlContainer: 'text-start text-pre'
+                                            },
+                                            showConfirmButton: false,
+                                        });
                                     });
                                 }
                             }
                         };
 
-                        request.open('DELETE', apiUrlSingle.replace(0, id));
+                        request.open('DELETE', apiUrlSingle.replace(2, id));
                         request.setRequestHeader('X-CSRFToken', csrfToken);
                         request.send();
                     }
@@ -231,37 +247,7 @@
             });
         })
 
-        table.getFilter().set('tag', filter)
+        tableFilter.parse(filter);
         table.queryData(apiUrlAll, page, limit);
-
-        // ----
-
-        // Setup search
-        /*
-        const searchInput = document.getElementById('tableSearch');
-        searchInput.addEventListener('keyup', () => {
-            let timeout = null;
-
-            function process() {
-                filter = searchInput.value;
-
-                // Update filter param in URL
-                const pageUrl = new URL(window.location.href);
-                filter ? pageUrl.searchParams.set('filter', filter) : pageUrl.searchParams.delete('filter');
-                window.history.replaceState({}, '', pageUrl.toString());
-
-                table.getFilter().set('tag', filter);
-                table.queryData(apiUrlAll, 0, limit);
-            }
-
-            if (event.keyCode === 13) { // Enter pressed
-                clearTimeout(timeout);
-                process();
-            } else {
-                clearTimeout(timeout);
-                timeout = setTimeout(process, 500);
-            }
-        });
-         */
     </script>
 {% endblock javascripts %}

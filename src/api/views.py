@@ -2,6 +2,7 @@
 import json
 
 from django.contrib.auth.decorators import login_required
+from django.template import loader
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -9,7 +10,6 @@ from requests import request as req
 
 from dashboard.settings import API_URL
 from django.http import JsonResponse, HttpResponse, FileResponse
-from django.shortcuts import render
 import time
 
 
@@ -73,12 +73,12 @@ class ApiView(View):
 
         # Return error
         if responseCode < 200 or responseCode >= 300:
-            print(" --> Error: ", responseData)
+            print(" --> Errored... ", responseData)
             return JsonResponse(responseData, status=responseCode)
 
         # Download single data
         if download is not None:
-            print(" --> Downloading data...")
+            print(" --> Downloading data...", responseData)
             return JsonFile(
                 table + '-' + str(id) + '.json' if id is not None else table + '.json',
                 responseData if id is not None else responseData['entries'],
@@ -107,8 +107,9 @@ class ApiView(View):
                 'prev': max(page - 1, 1)
             }
 
-        print(" --> Rendering template...")
-        return render(request, templateFile, responseData)
+        print(" --> Rendering template...", templateFile)
+        html_template = loader.get_template(templateFile)
+        return HttpResponse(html_template.render(responseData, request))
 
     @staticmethod
     def post(request, *args, **kwargs):

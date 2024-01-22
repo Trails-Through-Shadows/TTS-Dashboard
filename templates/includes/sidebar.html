@@ -31,21 +31,21 @@
                         {{ request.user.username }}
 
                         {% if request.user.is_superuser %}
-                            <small class="text-gray-500">{% translate 'Administrator' %}</small>
+                            <small class="text-gray-500">{% trans 'Administrator' %}</small>
                         {% else %}
-                            <small class="text-gray-500">{% translate 'User' %}</small>
+                            <small class="text-gray-500">{% trans 'User' %}</small>
                         {% endif %}
                     </h2>
 
                     <a href="{% url 'logout' %}" class="btn btn-secondary btn-sm d-inline-flex align-items-center">
                         <i class="fa-solid fa-right-from-bracket me-1"></i>
-                        {% translate 'Logout' %}
+                        {% trans 'Logout' %}
                     </a>
 
                     {% if request.user.is_superuser %}
                         <a href="{% url 'admin:index' %}" class="btn btn-danger btn-sm d-inline-flex align-items-center">
                             <i class="fa-solid fa-user-tie me-1"></i>
-                            {% translate 'Django Admin' %}
+                            {% trans 'Django Admin' %}
                         </a>
                     {% endif %}
                 </div>

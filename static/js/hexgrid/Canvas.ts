@@ -16,7 +16,7 @@ module Dashboard {
         private height: number;
 
         private onSizeListeners: (() => void)[] = [];
-        public addOnSizeListener(listener: () => void): void {
+        public addOnSizeListener(listener: Function): void {
             this.onSizeListeners.push(listener);
         }
 
@@ -123,7 +123,10 @@ module Dashboard {
             const parent = this.canvas.parentElement;
 
             // Window resize observer
-            const observer = new ResizeObserver(() => {
+            const observer = new ResizeObserver(debounce(() => {
+                this.canvas.height = 0;
+                this.canvas.height = this.canvas.offsetHeight;
+
                 this.resize();
 
                 if (!this.written && !this.loading) {
@@ -131,7 +134,7 @@ module Dashboard {
                 }
 
                 this.onSizeListeners.forEach(listener => listener());
-            });
+            }, 100));
             observer.observe(this.canvas);
 
             // Mouse hover listener
