@@ -66,7 +66,7 @@ jobs:
 
       - name: Connect SSH
         run: |
-          ssh root@${{ secrets.SSH_HOST }} &&
+          ssh root@${{ secrets.SSH_HOST }} "
           cd /srv/tts-game/TTS-Dashboard &&
           git pull origin master &&
           cp .env.example .env &&
@@ -77,4 +77,4 @@ jobs:
           awk -v var="DB_NAME=tts_dash"       '/^DB_USERNAME=/{print var; next} 1' .env > temp && mv temp .env &&
           awk -v var="DB_PASS=ourPassword"    '/^DB_USERNAME=/{print var; next} 1' .env > temp && mv temp .env &&
           service tts-dashboard restart &&
-          exit
+          exit"
