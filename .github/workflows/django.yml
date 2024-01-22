@@ -66,27 +66,15 @@ jobs:
 
       - name: Connect SSH
         run: |
-          ssh root@${{ secrets.SSH_HOST }}
-
-      - name: Change directory
-        run: |
-          cd /srv/tts-game/TTS-Dashboard
-          git pull origin master
-
-      - name: Setup Environment settings
-        run: |
-          cp .env.example .env
-          awk -v var="SECRET_KEY={{ secrets.SECRET_KEY }}" '/^SECRET_KEY=/{print var; next} 1' .env > temp && mv temp .env
-          awk -v var="DB_ENGINE=mysql"        '/^DB_ENGINE=/{print var; next} 1' .env > temp && mv temp .env
-          awk -v var="DB_HOST=10.0.0.2"       '/^DB_HOST=/{print var; next} 1' .env > temp && mv temp .env
-          awk -v var="DB_USERNAME=ttsCommie"  '/^DB_USERNAME=/{print var; next} 1' .env > temp && mv temp .env
-          awk -v var="DB_NAME=tts_dash"       '/^DB_USERNAME=/{print var; next} 1' .env > temp && mv temp .env
-          awk -v var="DB_PASS=ourPassword"    '/^DB_USERNAME=/{print var; next} 1' .env > temp && mv temp .env
-
-      - name: Restart server
-        run: |
-          service tts-dashboard restart
-
-      - name: Disconnect SSH
-        run: |
+          ssh root@${{ secrets.SSH_HOST }} &&
+          cd /srv/tts-game/TTS-Dashboard &&
+          git pull origin master &&
+          cp .env.example .env &&
+          awk -v var="SECRET_KEY={{ secrets.SECRET_KEY }}" '/^SECRET_KEY=/{print var; next} 1' .env > temp && mv temp .env &&
+          awk -v var="DB_ENGINE=mysql"        '/^DB_ENGINE=/{print var; next} 1' .env > temp && mv temp .env &&
+          awk -v var="DB_HOST=10.0.0.2"       '/^DB_HOST=/{print var; next} 1' .env > temp && mv temp .env &&
+          awk -v var="DB_USERNAME=ttsCommie"  '/^DB_USERNAME=/{print var; next} 1' .env > temp && mv temp .env &&
+          awk -v var="DB_NAME=tts_dash"       '/^DB_USERNAME=/{print var; next} 1' .env > temp && mv temp .env &&
+          awk -v var="DB_PASS=ourPassword"    '/^DB_USERNAME=/{print var; next} 1' .env > temp && mv temp .env &&
+          service tts-dashboard restart &&
           exit
