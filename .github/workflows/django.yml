@@ -66,4 +66,4 @@ jobs:
 
       - name: Connect SSH
         run: |
-          ssh root@${{ secrets.SSH_HOST }} "cd /srv/tts-game/TTS-Dashboard && git pull origin master && service tts-dashboard restart && exit"
+          ssh root@${{ secrets.SSH_HOST }} "cd /srv/tts-game/TTS-Dashboard && git pull git@github.com:Trails-Through-Shadows/TTS-Dashboard.git && service tts-dashboard restart && exit"
