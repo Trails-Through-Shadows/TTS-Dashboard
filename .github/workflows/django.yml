@@ -1,8 +1,13 @@
 name: Django Admin
 
+#on:
+#  push:
+#    branches: [ master ]
+#  workflow_dispatch:
+
 on:
   push:
-    branches: [ master ]
+    branches: [ testWorkflow ]
   workflow_dispatch:
 
 jobs:
