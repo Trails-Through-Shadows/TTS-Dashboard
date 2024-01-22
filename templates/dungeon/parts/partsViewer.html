@@ -110,10 +110,58 @@
             </div>
         </div>
     </div>
+
+    <div class="modal" id="test1" aria-hidden="true">
+        <div class="modal-overlay" tabindex="-1" data-micromodal-close>
+            <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-1-title">
+                <header class="modal-header border-0">
+                    <h2 class="modal-title" id="modal-1-title">
+                        {% trans 'Filter Settings' %}
+                    </h2>
+
+                    <button class="modal-close hvr-grow" aria-label="Close modal">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </header>
+
+                <main class="modal-body">
+                    <div id="slider"></div>
+                </main>
+
+                <div class="modal-footer border-0">
+                    <a href="#" target="_top" class="btn btn-sm btn-gray-800">
+                        <i class="fa-solid fa-filter me-1"></i>
+                        {% trans 'Filter' %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
 
 {% block javascripts %}
     <script async>
+        const clickPipsSlider = document.getElementById('slider');
+
+        noUiSlider.create(clickPipsSlider, {
+            start: [0, 90],
+            step: 30,
+            range: {
+                'min': 0,
+                'max': 210
+            },
+            pips: {
+                mode: 'steps',
+                density: 3,
+                format: wNumb({
+                    decimals: 2,
+                    prefix: '€'
+                })
+            }
+        });
+        
+        // ---- | aaa
+    
         const urlParams = new URLSearchParams(window.location.search);
         let page = urlParams.get('page') || 1;
         let limit = urlParams.get('limit') || 10;
@@ -152,7 +200,7 @@
         const tableRoot = document.getElementById('table');
         const tableFilter = new Dashboard.TableFilter(["tag:has", "usage:between", "hexes:between"]);
         const table = new Dashboard.Table(tableRoot, template, tableFilter);
-
+        
         table.setOnDataLoad(() => {
             table.setAction("view", (event, element) => {
                 const id = element.getAttribute('data-part');
@@ -239,7 +287,7 @@
                             }
                         };
 
-                        request.open('DELETE', apiUrlSingle.replace(2, id));
+                        request.open('DELETE', apiUrlSingle.replace(0, id));
                         request.setRequestHeader('X-CSRFToken', csrfToken);
                         request.send();
                     }

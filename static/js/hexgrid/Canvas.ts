@@ -158,37 +158,6 @@ module Dashboard {
 
         // ------------------------------
 
-        public getContentBoundingBox(): BoundingBox {
-            const imageData = this.getContext().getImageData(0, 0, this.canvas.width, this.canvas.height);
-            const data = imageData.data;
-            const width = imageData.width;
-            const height = imageData.height;
-
-            let minX = width;
-            let minY = height;
-            let maxX = 0;
-            let maxY = 0;
-
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const alpha = data[(width * y + x) * 4 + 3];
-                    if (alpha > 0) {
-                        if (x < minX) minX = x;
-                        if (y < minY) minY = y;
-                        if (x > maxX) maxX = x;
-                        if (y > maxY) maxY = y;
-                    }
-                }
-            }
-
-            return {
-                minX,
-                minY,
-                maxX,
-                maxY,
-            };
-        }
-
         public getContext(): CanvasRenderingContext2D {
             const ctx =  this.canvas.getContext('2d');
             ctx.globalAlpha = 1;

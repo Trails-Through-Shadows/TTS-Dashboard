@@ -12,11 +12,11 @@ venv*
 .env
 
 # Compiled typescript libraries
-static/js/*.js
-static/js/*.js.map
+static/js/**/*.js
+static/js/**/*.js.map
 !static/js/volt.js
 
 # Compiled less stylesheets
-static/css/*.css
-static/css/*.css.map
+static/css/**/*.css
+static/css/**/*.css.map
 !static/css/volt.css
