@@ -1,14 +1,6 @@
-name: Django Admin
+name: Django Admin - Test
 
-#on:
-#  push:
-#    branches: [ master ]
-#  workflow_dispatch:
-
-on:
-  push:
-    branches: [ testWorkflow ]
-  workflow_dispatch:
+on: [push, workflow_dispatch]
 
 jobs:
   test:
@@ -53,3 +45,6 @@ jobs:
       - name: Run tests
         run: |
           python manage.py test
+
+  deploy:
+    runs-on: ubuntu-latest

@@ -1,0 +1,25 @@
+name: Django Admin - Deploy
+
+on:
+  push:
+#    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install SSH Key
+      run: |
+        install -m 600 -D /dev/null ~/.ssh/id_rsa
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+
+    - name: Connect SSH
+      run: |
+        ssh root@${{ secrets.SSH_HOST }}
+
+    - name: Disconnect SSH
+      run: |
+        exit
