@@ -15,19 +15,19 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 DEBUG = os.environ.get('DEBUG')
 SECRET_KEY = os.environ.get('SECRET_KEY', default='JustMeAnSecretKey')
 ALLOWED_HOSTS = ['localhost', 'localhost:8080', '127.0.0.1', os.environ.get('SERVER', default='127.0.0.1')]
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8080', 'http://127.0.0.1', 'https://' + os.environ.get('SERVER', default='127.0.0.1')]
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8080', 'http://127.0.0.1', 'https://' + os.environ.get('DOMAIN', default='127.0.0.1')]
 
 # ==============================================================================
 
 # API
-# TODO: url
+# https://api.tts-game.fun/swagger-ui/index.html#/
 
 API_URL = os.environ.get('API_URL', 'http://localhost:8000')
 if API_URL[-1] == '/':
     API_URL = API_URL[:-1]
 
 # Installed web
-# TODO: url
+# https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -42,7 +42,7 @@ INSTALLED_APPS = [
 ]
 
 # Middleware
-# TODO: url
+# https://docs.djangoproject.com/en/dev/ref/settings/#middleware
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -57,7 +57,7 @@ MIDDLEWARE = [
 ]
 
 # Templates
-# TODO: url
+# https://docs.djangoproject.com/en/dev/ref/settings/#templates
 
 TEMPLATES = [
     {
@@ -155,7 +155,6 @@ LANGUAGE_CODE = 'en'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-# STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATIC_ROOT = ''
 STATIC_URL = '/static/'
 STATICFILES_DIRS = ('static',)
