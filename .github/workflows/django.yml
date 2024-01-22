@@ -69,14 +69,15 @@ jobs:
           echo "cd /srv/tts-game/TTS-Dashboard" >> deploy.sh
           echo "git pull origin master" >> deploy.sh
           echo "cp .env.example .env" >> deploy.sh
-          echo "awk -v var="SECRET_KEY={{ secrets.SECRET_KEY }}" '/^SECRET_KEY=/{print var; next} 1' .env > temp && mv temp .env" >> deploy.sh
+          echo "awk -v var=\"SECRET_KEY={{ secrets.SECRET_KEY }}\" '/^SECRET_KEY=/{print var; next} 1' .env > temp && mv temp .env" >> deploy.sh
           echo "awk -v var=\"DB_ENGINE=mysql\"        '/^DB_ENGINE=/{print var; next} 1'   .env > temp && mv temp .env" >> deploy.sh
           echo "awk -v var=\"DB_HOST=10.0.0.2\"       '/^DB_HOST=/{print var; next} 1'     .env > temp && mv temp .env" >> deploy.sh
           echo "awk -v var=\"DB_USERNAME=ttsCommie\"  '/^DB_USERNAME=/{print var; next} 1' .env > temp && mv temp .env" >> deploy.sh
           echo "awk -v var=\"DB_NAME=tts_dash\"       '/^DB_USERNAME=/{print var; next} 1' .env > temp && mv temp .env" >> deploy.sh
           echo "awk -v var=\"DB_PASS=ourPassword\"    '/^DB_USERNAME=/{print var; next} 1' .env > temp && mv temp .env" >> deploy.sh
           echo "service tts-dashboard restart" >> deploy.sh
+          cat deploy.sh
 
       - name: Connect SSH
         run: |
-          cat deploy.sh | ssh -i ~/.ssh/id_rsa root@${{ secrets.SSH_HOST }} 'bash -s'
+          cat deploy.sh | ssh -i ~/.ssh/id_rsa root@${{ secrets.SSH_HOST }} 'bash -s' && exit
