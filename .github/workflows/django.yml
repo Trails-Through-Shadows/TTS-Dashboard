@@ -44,6 +44,7 @@ jobs:
         run: |
           cp .env.example .env
           awk -v var="DB_ENGINE=mysql" '/^DB_ENGINE=/{print var; next} 1' .env > temp && mv temp .env
+          awk -v var="SECRET_KEY=django-insecure-2!@#4qwer" '/^SECRET_KEY=/{print var; next} 1' .env > temp && mv temp .env
           cat .env
 
       - name: Apply migrations
