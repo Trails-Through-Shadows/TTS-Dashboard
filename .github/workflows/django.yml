@@ -65,7 +65,11 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            echo "Hello World"
+            cd /srv/tts-game/TTS-Dashboard 
+            pwd
+            git pull origin master
+            service tts-dashboard restart
+            echo "Executed!"
 
 #  deploy:
 #    runs-on: ubuntu-latest
