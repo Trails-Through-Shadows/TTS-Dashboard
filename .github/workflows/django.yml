@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Execute Command
+      - name: Execute SSH Commands
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -67,6 +67,7 @@ jobs:
           script: |
             cd /srv/tts-game/TTS-Dashboard 
             pwd
+            eval $(keychain --eval ../.ssh/dashboard-key)
             git pull origin master
             service tts-dashboard restart
             echo "Executed!"
