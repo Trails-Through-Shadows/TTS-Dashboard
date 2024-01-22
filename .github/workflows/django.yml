@@ -7,9 +7,8 @@ on:
       - 'development'
   pull_request:
     branches:
-      - '!master'
-      - '!development'
-      - '*'
+      - 'master'
+      - 'development'
   workflow_dispatch:
 
 jobs:
