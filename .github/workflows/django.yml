@@ -2,6 +2,9 @@ name: Django Admin
 
 on:
   push:
+    branches:
+      - 'master'
+      - 'development'
   workflow_dispatch:
 
 jobs:
