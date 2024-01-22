@@ -55,20 +55,34 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-#    needs: test
 
     steps:
-      - name: Install SSH Key
-        run: |
-          install -m 600 -D /dev/null ~/.ssh/id_rsa
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+      - name: Execute Command
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "Hello World"
 
-      - name: Connect SSH
-        run: |
-          ssh root@${{ secrets.SSH_HOST }} "cd /srv/tts-game/TTS-Dashboard && eval $(keychain --eval ../.ssh/dashboard-key) && git pull git@github.com:Trails-Through-Shadows/TTS-Dashboard.git && service tts-dashboard restart && exit"
-
-      - name: Cleanup
-        run: |
-          rm -rf ~/.ssh/id_rsa
-          rm -rf ~/.ssh/known_hosts
+#  deploy:
+#    runs-on: ubuntu-latest
+##    needs: test
+#
+#    steps:
+#      - name: Install SSH Key
+#        run: |
+#          install -m 600 -D /dev/null ~/.ssh/id_rsa
+#          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+#          ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+#
+#      - name: Connect SSH
+#        run: |
+#          ssh root@${{ secrets.SSH_HOST }} "cd /srv/tts-game/TTS-Dashboard && eval $(keychain --eval ../.ssh/dashboard-key) && git pull git@github.com:Trails-Through-Shadows/TTS-Dashboard.git && service tts-dashboard restart && exit"
+#
+#      - name: Cleanup
+#        run: |
+#          rm -rf ~/.ssh/id_rsa
+#          rm -rf ~/.ssh/known_hosts
