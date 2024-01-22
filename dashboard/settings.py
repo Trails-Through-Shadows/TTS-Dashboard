@@ -14,7 +14,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 DEBUG = os.environ.get('DEBUG')
 SECRET_KEY = os.environ.get('SECRET_KEY', default='JustMeAnSecretKey')
-ALLOWED_HOSTS = ['localhost', 'localhost:8080', '127.0.0.1', os.environ.get('SERVER', default='127.0.0.1')]
+ALLOWED_HOSTS = ['localhost', 'localhost:8080', '127.0.0.1', os.environ.get('DOMAIN', default='127.0.0.1'), os.environ.get('SERVER', default='127.0.0.1')]
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8080', 'http://127.0.0.1', 'https://' + os.environ.get('DOMAIN', default='127.0.0.1')]
 
 # ==============================================================================
