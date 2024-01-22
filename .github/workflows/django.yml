@@ -55,6 +55,8 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    needs: [ test ]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
     steps:
       - name: Execute SSH Commands
@@ -64,6 +66,7 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
+          script_stop: true
           script: |
             cd /srv/tts-game/TTS-Dashboard 
             eval $(keychain --eval ../.ssh/dashboard-key)
