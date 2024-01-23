@@ -25,5 +25,8 @@ module Dashboard {
                 .map(([key, value]) => `${key.toString()}:${value}`)
                 .join(',') || '';
         }
+
+        public parse(str: string): void {
+        }
     }
 }

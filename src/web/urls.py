@@ -6,4 +6,10 @@ from src.web import views
 
 urlpatterns = [
     path('', views.index, name='home'),
+
+    # Dungeon
+    path('dungeon/parts/', views.partViewer, name="partViewer"),
+    path('dungeon/parts/workbench/', views.parkWorkbench, name="partWorkbench"),
+    path('dungeon/parts/workbench/<int:id>/', views.parkWorkbench, name="partWorkbenchEdit"),
+    path('dungeon/enemies/', views.enemyViewer, name="enemyViewer"),
 ]

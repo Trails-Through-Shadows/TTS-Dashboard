@@ -1,8 +1,14 @@
 @import "buttons";
 @import "skeleton";
+@import "modal";
+@import "hover/hover";
 
 .popup-input {
   padding: 10px;
+}
+
+.text-pre {
+  white-space: pre;
 }
 
 .orderable {
@@ -20,4 +26,10 @@
   &.desc::after {
       content: "▼";
   }
+}
+
+.btn-xs, .btn-group-xs > .btn {
+  padding: 0.375rem 0.625rem;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
 }

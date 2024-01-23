@@ -9,3 +9,22 @@ from django.template import loader
 def index(request):
     html_template = loader.get_template('home/dashboard.html')
     return HttpResponse(html_template.render(None, request))
+
+@login_required(login_url="/login/")
+def partViewer(request):
+    html_template = loader.get_template('dungeon/parts/partsViewer.html')
+    return HttpResponse(html_template.render(None, request))
+
+@login_required(login_url="/login/")
+def parkWorkbench(request, id=None):
+    context = {
+        "partId": id,
+    }
+
+    html_template = loader.get_template('dungeon/parts/partWorkbench.html')
+    return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url="/login/")
+def enemyViewer(request):
+    html_template = loader.get_template('dungeon/enemies/enemiesViewer.html')
+    return HttpResponse(html_template.render(None, request))

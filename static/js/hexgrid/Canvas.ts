@@ -16,7 +16,7 @@ module Dashboard {
         private height: number;
 
         private onSizeListeners: (() => void)[] = [];
-        public addOnSizeListener(listener: () => void): void {
+        public addOnSizeListener(listener: Function): void {
             this.onSizeListeners.push(listener);
         }
 
@@ -123,7 +123,10 @@ module Dashboard {
             const parent = this.canvas.parentElement;
 
             // Window resize observer
-            const observer = new ResizeObserver(() => {
+            const observer = new ResizeObserver(debounce(() => {
+                this.canvas.height = 0;
+                this.canvas.height = this.canvas.offsetHeight;
+
                 this.resize();
 
                 if (!this.written && !this.loading) {
@@ -131,7 +134,7 @@ module Dashboard {
                 }
 
                 this.onSizeListeners.forEach(listener => listener());
-            });
+            }, 100));
             observer.observe(this.canvas);
 
             // Mouse hover listener
@@ -154,37 +157,6 @@ module Dashboard {
         }
 
         // ------------------------------
-
-        public getContentBoundingBox(): BoundingBox {
-            const imageData = this.getContext().getImageData(0, 0, this.canvas.width, this.canvas.height);
-            const data = imageData.data;
-            const width = imageData.width;
-            const height = imageData.height;
-
-            let minX = width;
-            let minY = height;
-            let maxX = 0;
-            let maxY = 0;
-
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const alpha = data[(width * y + x) * 4 + 3];
-                    if (alpha > 0) {
-                        if (x < minX) minX = x;
-                        if (y < minY) minY = y;
-                        if (x > maxX) maxX = x;
-                        if (y > maxY) maxY = y;
-                    }
-                }
-            }
-
-            return {
-                minX,
-                minY,
-                maxX,
-                maxY,
-            };
-        }
 
         public getContext(): CanvasRenderingContext2D {
             const ctx =  this.canvas.getContext('2d');

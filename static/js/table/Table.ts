@@ -15,13 +15,10 @@ module Dashboard {
         constructor(
             private root: HTMLElement,
             private template: string,
-            private filter: TableFilter = new TableFilter([])
+            private filter: TableFilter = new TableFilter([]),
+            private searchCallback: (search: string) => void = () => {}
         ) {
-            const tableSearchInput = this.root.querySelector('#tableSearchInput');
-            console.log(tableSearchInput);
-
-            const tableFilterButton = this.root.querySelector('#tableFilterButton');
-            console.log(tableFilterButton);
+            this.setupSearch();
         }
 
         public getFilter(): TableFilter {
@@ -59,6 +56,20 @@ module Dashboard {
 
                     this.queryData(this.url, parseInt(newPage), this.limit);
                 });
+            });
+        }
+
+        private setupSearch() : void {
+            const tableSearchInput = this.root.querySelector('#tableSearchInput');
+            const tableFilterButton = this.root.querySelector('#tableFilterButton');
+
+            const modalRoot = document.getElementById('test1');
+            const modal = new Dashboard.Modal(modalRoot);
+
+            tableFilterButton.addEventListener('click', (event) => {
+                event.preventDefault();
+
+                modal.open();
             });
         }
 
