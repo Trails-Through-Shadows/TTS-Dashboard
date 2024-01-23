@@ -77,4 +77,7 @@ jobs:
             cd /srv/tts-game/TTS-Dashboard 
             eval $(keychain --eval ../.ssh/dashboard-key)
             git pull origin master
+            npm install
+            tsc -p tsconfig.json
+            lessc static/css/src/style.less static/css/style.css
             service tts-dashboard restart

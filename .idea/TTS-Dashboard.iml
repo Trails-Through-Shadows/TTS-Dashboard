@@ -19,7 +19,10 @@
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/venvNT" />
       <excludeFolder url="file://$MODULE_DIR$/venvPC" />
+      <excludeFolder url="file://$MODULE_DIR$/node_modules/@types" />
     </content>
+    <content url="file://$MODULE_DIR$/node_modules/@types" />
+    <content url="file://$MODULE_DIR$/node_modules/nouislider" />
     <orderEntry type="jdk" jdkName="Python 3.11 (TTS-Dashboard) (2)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Django Lib" level="project" />
