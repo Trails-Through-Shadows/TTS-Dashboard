@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "outFile": "static/js/dashboard.js",
+    "allowJs": true,
+    "checkJs": true,
+    "declaration": true,
+    "sourceMap": true,
+    "module": "amd",
+    "target": "es5",
+    "lib": ["es5", "es6", "dom"]
+  },
+  "include": [
+    "static/js/src/**/*.ts"
+  ]
+}

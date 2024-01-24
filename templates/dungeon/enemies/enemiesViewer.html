@@ -130,7 +130,7 @@
 
         const tableRoot = document.getElementById('table');
         const tableFilter = new Dashboard.TableFilter(["tag:has"]);
-        const tableSort = new Dashboard.TableSort(["combatStyle", "health", "defence", "usages"]);
+        const tableSort = new Dashboard.TableSorter(["combatStyle", "health", "defence", "usages"]);
         const table = new Dashboard.Table(tableRoot, template, tableFilter);
 
         table.getFilter().set('tag', filter)
