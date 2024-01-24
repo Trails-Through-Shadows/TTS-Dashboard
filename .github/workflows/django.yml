@@ -79,6 +79,7 @@ jobs:
             git pull origin master
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
             su root
+            bash update.sh
             npm -v
             nvm list
             nvm install 20.11.0
