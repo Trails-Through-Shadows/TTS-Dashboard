@@ -155,3 +155,13 @@ def validateTable(request, table):
             ]
         }, status=400
     )
+
+@csrf_exempt
+def createFilter(request):
+    data = {}
+
+    if request.body:
+        data = json.loads(request.body)
+
+    html_template = loader.get_template("includes/filter.html")
+    return HttpResponse(html_template.render(data, request))

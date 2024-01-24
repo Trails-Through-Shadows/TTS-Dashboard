@@ -3,7 +3,7 @@
     "outFile": "static/js/dashboard.js",
     "allowJs": true,
     "checkJs": true,
-    "declaration": true,
+    "declaration": false,
     "sourceMap": true,
     "module": "amd",
     "target": "es5",

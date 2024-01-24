@@ -16,7 +16,7 @@ module Dashboard {
         private height: number;
 
         private onSizeListeners: (() => void)[] = [];
-        public addOnSizeListener(listener: Function): void {
+        public addOnSizeListener(listener: Callback): void {
             this.onSizeListeners.push(listener);
         }
 

@@ -1,0 +1,20 @@
+.orderable {
+  cursor: default;
+
+  &:hover {
+    cursor: pointer;
+    color: #eee;
+  }
+
+  &.asc::after {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    content: "\f0de";
+  }
+
+  &.desc::after {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    content: "\f0dd";
+  }
+}

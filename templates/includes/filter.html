@@ -1,0 +1,89 @@
+{% load filters %}
+{% load i18n %}
+
+<div class="modal" id="filterModal" aria-hidden="true">
+    <div class="modal-overlay" tabindex="-1" data-micromodal-close>
+        <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-1-title">
+            <header class="modal-header border-0">
+                <h2 class="modal-title" id="modal-1-title">
+                    {% trans 'Filter Settings' %}
+                </h2>
+
+                <button class="modal-close hvr-grow" aria-label="Close modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </header>
+
+            <main class="modal-body">
+                {% for item in filters %}
+                    <div class="row">
+                        {% switch item.type %}
+                            {% case "bwn" %}
+                                <div class="col-12">
+                                    {{ item.key }}
+                                </div>
+                                <div class="col-12">
+                                    <div class="row">
+                                        <div class="col-2">
+                                            <label for="first_name">min:</label>
+                                            <input class="form-control" id="sliderFrom" type="text" value="{{ item.value.min }}" required>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="slider" id="slider-fit"></div>
+                                        </div>
+                                        <div class="col-2">
+                                            <label for="first_name">max:</label>
+                                            <input class="form-control" id="sliderFrom" type="text" value="{{ item.value.max }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endcase %}
+
+                            {% case "has" %}
+                                <div class="col-12">
+                                    <label for="first_name">{{ item.key }}</label>
+                                    <input class="form-control" id="first_name" type="text" placeholder="{{ item.type }}" required>
+                                </div>
+                            {% endcase %}
+
+                            {% default %}
+                                No case matched.
+                            {% enddefault %}
+                        {% endswitch %}
+                    </div>
+                {% endfor %}
+            </main>
+
+            <div class="modal-footer border-0">
+                <a href="#" target="_top" class="btn btn-sm btn-gray-800">
+                    <i class="fa-solid fa-filter me-1"></i>
+                    {% trans 'Filter' %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="filterScript">
+    const sliders = document.getElementsByClassName('slider');
+    for (const slider of sliders) {
+        noUiSlider.create(slider, {
+            start: [0, 60],
+            orientation: "horizontal",
+            behavior: 'drag',
+            connect: true,
+            range: {
+                'min': 0,
+                'max': 100
+            },
+            pips: {
+                mode: 'steps',
+                density: 5,
+                format: wNumb({
+                    decimals: 0,
+                    prefix: ''
+                })
+            }
+        });
+    }
+</script>

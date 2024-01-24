@@ -7,6 +7,11 @@ module Dashboard {
         private opening: boolean = false;
         private closing: boolean = false;
 
+        private onClose: Callback | null = null;
+        public setOnClose(callback: Callback): void {
+            this.onClose = callback;
+        }
+
         constructor(
             private readonly modal: HTMLElement,
             private closeOnEscape: boolean = true,
@@ -49,6 +54,7 @@ module Dashboard {
                     this.modal.classList.remove('is-open');
                     this.modalContainer.classList.remove('animate__animated', 'animate__zoomOut');
                     this.closing = false;
+                    this.onClose();
                 }
 
                 this.modalContainer.removeEventListener('animationend', () => {});

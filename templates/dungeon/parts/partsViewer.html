@@ -56,11 +56,11 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th class="border-gray-200" id="cellId">#</th>
-                                <th class="border-gray-200 orderable" data-key="tag">{% trans 'Tag' %}</th>
-                                <th class="border-gray-200 orderable text-center" data-key="hexes">{% trans 'Hexes' %}</th>
-                                <th class="border-gray-200 orderable text-center" data-key="usages">{% trans 'Usage' %}</th>
-                                <th class="border-gray-200 text-center" id="cellActions">{% trans 'Action' %}</th>
+                                <th class="border-gray-200 orderable" data-order-key="id" data-order-dir="desc" id="cellId">#</th>
+                                <th class="border-gray-200 orderable" data-order-key="tag">{% translate 'Tag' %}</th>
+                                <th class="border-gray-200 orderable text-center" data-order-key="hexes">{% translate 'Hexes' %}</th>
+                                <th class="border-gray-200 orderable text-center" data-order-key="usages">{% translate 'Usage' %}</th>
+                                <th class="border-gray-200 text-center" id="cellActions">{% translate 'Action' %}</th>
                             </tr>
                         </thead>
 
@@ -105,35 +105,8 @@
         </div>
 
         <div class="col-12 col-xl-6">
-            <div class="card card-body border-0 shadow h-100">
+            <div class="card card-body border-0 shadow h-100" style="min-height: 400px">
                 <canvas id="hexGridView"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="test1" aria-hidden="true">
-        <div class="modal-overlay" tabindex="-1" data-micromodal-close>
-            <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-1-title">
-                <header class="modal-header border-0">
-                    <h2 class="modal-title" id="modal-1-title">
-                        {% trans 'Filter Settings' %}
-                    </h2>
-
-                    <button class="modal-close hvr-grow" aria-label="Close modal">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </header>
-
-                <main class="modal-body">
-                    <div id="slider"></div>
-                </main>
-
-                <div class="modal-footer border-0">
-                    <a href="#" target="_top" class="btn btn-sm btn-gray-800">
-                        <i class="fa-solid fa-filter me-1"></i>
-                        {% trans 'Filter' %}
-                    </a>
-                </div>
             </div>
         </div>
     </div>
@@ -141,6 +114,7 @@
 
 {% block javascripts %}
     <script async>
+    /*
         const clickPipsSlider = document.getElementById('slider');
 
         noUiSlider.create(clickPipsSlider, {
@@ -159,7 +133,8 @@
                 })
             }
         });
-        
+    */
+
         // ---- | aaa
     
         const urlParams = new URLSearchParams(window.location.search);
@@ -198,8 +173,15 @@
         // ---- | Table
 
         const tableRoot = document.getElementById('table');
-        const tableFilter = new Dashboard.TableFilter(["tag:has", "usage:between", "hexes:between"]);
-        const table = new Dashboard.Table(tableRoot, template, tableFilter);
+        const tableFilter = new Dashboard.TableFilter([
+            { title: "Tag contains:", key: 'tag', type: 'has' },
+            { title: "Hexes between:", key: 'hexes', type: 'bwn', bounds: {min: 0, max: 100} },
+            {#{ title: "Usages between:", key: 'usages', type: 'bwn', bounds: {min: 0, max: 100} },#}
+        ]);
+        const table = new Dashboard.Table(tableRoot, template, tableFilter, (string) => {
+            tableFilter.set("tag", string);
+            table.queryData(apiUrlAll, page, limit);
+        });
         
         table.setOnDataLoad(() => {
             table.setAction("view", (event, element) => {
@@ -259,7 +241,7 @@
                                     console.log(`Button | Deleting part ${id} successful`);
                                     notyf.success({
                                         message: '{% trans "Success, part deleted!" %}',
-                                        duration: 5000,
+                                        duration: 2500,
                                     });
 
                                     table.queryData(apiUrlAll, page, limit);
@@ -267,7 +249,7 @@
                                     console.log(`Button | Deleting part ${id} failed`);
                                     const notification = notyf.error({
                                         message: '{% trans "Error, deletion failed! Click for more information." %}',
-                                        duration: 30000
+                                        duration: 10000
                                     });
 
                                     notification.on('click', ({target, event}) => {

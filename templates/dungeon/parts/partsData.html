@@ -6,10 +6,10 @@
     <table class="table table-hover">
         <thead>
             <tr>
-                <th class="border-gray-200" id="cellId">#</th>
-                <th class="border-gray-200 orderable" data-key="tag">{% translate 'Tag' %}</th>
-                <th class="border-gray-200 orderable text-center" data-key="hexes">{% translate 'Hexes' %}</th>
-                <th class="border-gray-200 orderable text-center" data-key="usages">{% translate 'Usage' %}</th>
+                <th class="border-gray-200 orderable" data-order-key="id" data-order-dir="asc" id="cellId">#</th>
+                <th class="border-gray-200 orderable" data-order-key="tag">{% translate 'Tag' %}</th>
+                <th class="border-gray-200 orderable text-center" data-order-key="hexes">{% translate 'Hexes' %}</th>
+                <th class="border-gray-200 orderable text-center" data-order-key="usages">{% translate 'Usage' %}</th>
                 <th class="border-gray-200 text-center" id="cellActions">{% translate 'Action' %}</th>
             </tr>
         </thead>
@@ -39,7 +39,7 @@
                         </td>
                         
                         <td>
-                            <div class="btn-group d-flex align-items-center justify-content-evenly" id="tableActions">
+                            <div class="btn-group d-flex align-items-center justify-content-evenly tableActions">
                                 <a href="javascript:void(0)">
                                     <button class="btn btn-link text-dark m-0 p-0" data-action="view" data-part="{{ part.id }}">
                                         <span class="icon icon-lg text-secondary">

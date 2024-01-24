@@ -15,62 +15,32 @@ module Dashboard {
         constructor(
             private root: HTMLElement,
             private template: string,
-            private filter: TableFilter = new TableFilter([]),
+            private filter: TableFilter,
             private searchCallback: (search: string) => void = () => {}
         ) {
-            this.setupSearch();
-        }
-
-        public getFilter(): TableFilter {
-            return this.filter;
-        }
-
-        public getSorter(): TableSorter {
-            return this.sort;
-        };
-
-        private setupOrdering() : void {
-            if (this.url === '') {
-                return;
-            }
-
-            const tableHeaders = this.root.querySelectorAll('.orderable');
-            tableHeaders.forEach((tableHeader) => {
-                this.sort.setup(tableHeader, () => {
-                    this.queryData(this.url, this.page, this.limit);
-                });
-            });
-        }
-
-        private setupPagination() : void {
-            const pageLinks = this.root.querySelectorAll('.page-link');
-            pageLinks.forEach((pageLink) => {
-                pageLink.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    const newPage = pageLink.getAttribute('data-page');
-
-                    // Change url
-                    const pageUrl = new URL(window.location.href);
-                    pageUrl.searchParams.set('page', newPage);
-                    window.history.replaceState({}, '', pageUrl.toString());
-
-                    this.queryData(this.url, parseInt(newPage), this.limit);
-                });
-            });
-        }
-
-        private setupSearch() : void {
-            const tableSearchInput = this.root.querySelector('#tableSearchInput');
-            const tableFilterButton = this.root.querySelector('#tableFilterButton');
-
-            const modalRoot = document.getElementById('test1');
-            const modal = new Dashboard.Modal(modalRoot);
-
+            // Setup filter button
+            const tableFilterButton = this.root.querySelector('#tableFilterButton') as HTMLButtonElement;
             tableFilterButton.addEventListener('click', (event) => {
                 event.preventDefault();
 
-                modal.open();
+                this.filter.open(() => {
+                    this.queryData(this.url, this.page, this.limit);
+                });
             });
+
+            // Setup search input
+            const tableSearchInput = this.root.querySelector('#tableSearchInput') as HTMLInputElement;
+            tableSearchInput.addEventListener('keyup', debounce((event) => {
+                event.preventDefault();
+
+                const inputVal = tableSearchInput.value;
+                this.searchCallback(inputVal);
+
+                // Update search param in URL
+                const pageUrl = new URL(window.location.href);
+                inputVal ? pageUrl.searchParams.set('search', inputVal) : pageUrl.searchParams.delete('search');
+                window.history.replaceState({}, '', pageUrl.toString());
+            }, 300));
         }
 
         public queryData(url: string, page: number, limit: number) : void {
@@ -92,8 +62,30 @@ module Dashboard {
                         this.took = new Date().getTime() - currentTime;
                         console.log(`Table | Query took ${this.took}ms`);
 
-                        this.setupOrdering();
-                        this.setupPagination();
+                        // Setup table headers for sorting
+                        const tableHeaders = this.root.querySelectorAll('.orderable');
+                        tableHeaders.forEach((tableHeader) => {
+                            this.sort.setup(tableHeader, () => {
+                                this.queryData(this.url, this.page, this.limit);
+                            });
+                        });
+
+                        // Setup pagination
+                        const pageLinks = this.root.querySelectorAll('.page-link');
+                        pageLinks.forEach((pageLink) => {
+                            pageLink.addEventListener('click', (event) => {
+                                event.preventDefault();
+                                const newPage = pageLink.getAttribute('data-page');
+
+                                // Change url
+                                const pageUrl = new URL(window.location.href);
+                                pageUrl.searchParams.set('page', newPage);
+                                window.history.replaceState({}, '', pageUrl.toString());
+
+                                this.queryData(this.url, parseInt(newPage), this.limit);
+                            });
+                        });
+
                         this.onDataLoad();
                     } else {
                         console.log(`Table | Query failed with status ${request.status}`);
@@ -114,7 +106,7 @@ module Dashboard {
         }
 
         public setAction(actionType: string, callback: (event: Event, element: Element) => void) : void {
-            const tableActions = this.root.querySelectorAll('#tableActions');
+            const tableActions = this.root.querySelectorAll('.tableActions');
 
             for (let i = 0; i < tableActions.length; i++) {
                 const buttons = tableActions[i].querySelectorAll(`[data-action="${actionType}"]`);
