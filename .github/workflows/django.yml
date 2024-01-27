@@ -78,14 +78,7 @@ jobs:
             eval $(keychain --eval ../.ssh/dashboard-key)
             git pull origin master
             source ~/.nvm/nvm.sh
-            su root
-            bash update.sh
-            npm -v
-            nvm list
-            nvm install 20.11.0
             nvm use 20.11.0
-            npm install
-            npm -v
             tsc -p tsconfig.json
             lessc static/css/src/style.less static/css/style.css
             service tts-dashboard restart
