@@ -14,76 +14,145 @@
                 </button>
             </header>
 
-            <main class="modal-body">
-                {% for item in filters %}
-                    <div class="row">
-                        {% switch item.type %}
-                            {% case "bwn" %}
-                                <div class="col-12">
-                                    {{ item.key }}
-                                </div>
-                                <div class="col-12">
-                                    <div class="row">
-                                        <div class="col-2">
-                                            <label for="first_name">min:</label>
-                                            <input class="form-control" id="sliderFrom" type="text" value="{{ item.value.min }}" required>
-                                        </div>
-                                        <div class="col-8">
-                                            <div class="slider" id="slider-fit"></div>
-                                        </div>
-                                        <div class="col-2">
-                                            <label for="first_name">max:</label>
-                                            <input class="form-control" id="sliderFrom" type="text" value="{{ item.value.max }}" required>
+            <main class="modal-body pt-0 pb-0">
+                <form id="filterForm">
+                    {% for item in filters %}
+                        <div class="row mt-3">
+                            {% switch item.type %}
+                                {% case "bwn" %}
+                                    <div class="col-12">
+                                        {{ item.title }}
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="row slider-row" id="input-{{ item.key }}">
+                                            <div class="col-2 text-center mt-2 pt-1">
+                                                <input class="form-control text-center slider-from" type="text" value="{{ item.value.min }}" data-bound="{{ item.bounds.min }}" required>
+                                            </div>
+    
+                                            <div class="col-8 slider-col">
+                                                <div class="slider" id="slider-body"></div>
+                                            </div>
+    
+                                            <div class="col-2 text-center mt-2 pt-1">
+                                                <input class="form-control text-center slider-to" type="text" value="{{ item.value.max }}" data-bound="{{ item.bounds.max }}" required>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            {% endcase %}
-
-                            {% case "has" %}
-                                <div class="col-12">
-                                    <label for="first_name">{{ item.key }}</label>
-                                    <input class="form-control" id="first_name" type="text" placeholder="{{ item.type }}" required>
-                                </div>
-                            {% endcase %}
-
-                            {% default %}
-                                No case matched.
-                            {% enddefault %}
-                        {% endswitch %}
-                    </div>
-                {% endfor %}
+                                {% endcase %}
+    
+                                {% case "has" %}
+                                    <div class="col-4 text-center align-self-center">
+                                        <p class="m-0">{{ item.title }}</p>
+                                    </div>
+    
+                                    <div class="col-8 text-center">
+                                        <input class="form-control" id="input-{{ item.key }}" type="text" placeholder="String.." value="{{ item.value }}">
+                                    </div>
+                                {% endcase %}
+    
+                                {% case "lt" "lte" "eq" "gt" "gte" %}
+                                    <div class="col-4 text-center align-self-center">
+                                        <p class="m-0">{{ item.title }}</p>
+                                    </div>
+    
+                                    <div class="col-8 text-center">
+                                        <input class="form-control" id="input-{{ item.key }}" type="text" placeholder="Number.." value="{{ item.value }}">
+                                    </div>
+                                {% endcase %}
+    
+                                {% default %}
+                                    No case matched.
+                                {% enddefault %}
+                            {% endswitch %}
+                        </div>
+                    {% endfor %}
+                
+                    <input type="submit" hidden>
+                </form>
             </main>
 
-            <div class="modal-footer border-0">
-                <a href="#" target="_top" class="btn btn-sm btn-gray-800">
+            <footer class="modal-footer border-0">
+                <a href="#" target="_top" id="filterSubmit" class="btn btn-sm btn-gray-800">
                     <i class="fa-solid fa-filter me-1"></i>
                     {% trans 'Filter' %}
                 </a>
-            </div>
+            </footer>
         </div>
     </div>
 </div>
 
 <script id="filterScript">
-    const sliders = document.getElementsByClassName('slider');
+    const sliders = document.getElementsByClassName('slider-row');
+
     for (const slider of sliders) {
-        noUiSlider.create(slider, {
-            start: [0, 60],
-            orientation: "horizontal",
+        const sliderBody = slider.querySelector('#slider-body');
+
+        const sliderFrom = slider.querySelector('.slider-from');
+        const minBound = parseInt(sliderFrom.getAttribute('data-bound'));
+        const minVal = parseInt(sliderFrom.value);
+
+        const sliderTo = slider.querySelector('.slider-to');
+        const maxBound = parseInt(sliderTo.getAttribute('data-bound'));
+        const maxVal = parseInt(sliderTo.value);
+
+        const sliderItem = noUiSlider.create(sliderBody, {
+            start: [minVal || minBound, maxVal || maxBound],
             behavior: 'drag',
             connect: true,
             range: {
-                'min': 0,
-                'max': 100
+                'min': minBound,
+                'max': maxBound
             },
             pips: {
                 mode: 'steps',
-                density: 5,
-                format: wNumb({
-                    decimals: 0,
-                    prefix: ''
-                })
+                density: 3
             }
         });
+
+        sliderBody.noUiSlider.on('update', function (values, handle) {
+            if (handle) {
+                sliderTo.value = Math.floor(values[handle]);
+            } else {
+                sliderFrom.value = Math.floor(values[handle]);
+            }
+        });
+
+        sliderFrom.addEventListener('change', function () {
+            sliderBody.noUiSlider.set([this.value, null]);
+        });
+
+        sliderTo.addEventListener('change', function () {
+            sliderBody.noUiSlider.set([null, this.value]);
+        });
+
+        const shake = Dashboard.debounce((element) => {
+            element.classList.add('animate__animated', 'animate__headShake');
+
+            setTimeout(() => {
+                element.classList.remove('animate__animated', 'animate__headShake');
+            }, 200);
+        }, 100);
+
+        function validateSliderInput(event) {
+            const element = event.target;
+            element.value = element.value.replace(/[^0-9]/g, '');
+
+            if (isNaN(event.data)) {
+                shake(element);
+                return;
+            }
+
+            if (event.data == null && element.value === '') {
+                element.value = 0;
+                return;
+            }
+
+            if (element.value.startsWith('0')) {
+                element.value = element.value.substring(1);
+            }
+        }
+
+        sliderFrom.addEventListener('input', validateSliderInput);
+        sliderTo.addEventListener('input', validateSliderInput);
     }
 </script>

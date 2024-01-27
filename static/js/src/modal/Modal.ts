@@ -1,8 +1,6 @@
 module Dashboard {
 
     export class Modal {
-        private static pageModals: Modal[] = [];
-        private static activeModal: Modal | null = null;
         private modalContainer: HTMLElement | null = null;
         private opening: boolean = false;
         private closing: boolean = false;
@@ -18,7 +16,6 @@ module Dashboard {
             private closeOnBackdrop: boolean = true
         ) {
             this.modalContainer = this.modal.querySelector('.modal-container');
-            Modal.pageModals.push(this);
 
             // Click close button close modal
             const closeButtons = modal.querySelectorAll('.modal-close');
@@ -64,31 +61,17 @@ module Dashboard {
         public open(): void {
             this.opening = true;
             this.modal.classList.add('is-open');
-            this.modalContainer.classList.add('animate__animated', 'animate__bounceIn');
-            this.modal.style.setProperty('--animate-duration', '0.75s');
+            this.modalContainer.classList.add('animate__animated', 'animate__zoomIn');
+            this.modal.style.setProperty('--animate-duration', '0.25s');
 
             this.modalContainer.addEventListener('animationend', () => {
                 if (this.opening) {
-                    this.modalContainer.classList.remove('animate__animated', 'animate__bounceIn');
+                    this.modalContainer.classList.remove('animate__animated', 'animate__zoomIn');
                     this.opening = false;
                 }
 
                 this.modalContainer.removeEventListener('animationend', () => {});
             });
-        }
-
-        public static closeActiveModal(): void {
-            if (Modal.activeModal) {
-                Modal.activeModal.close();
-            }
-        }
-
-        public static openModal(modalId: string): void {
-            const modal = Modal.pageModals.find((modal) => modal.modal.id === modalId);
-
-            if (modal) {
-                modal.open();
-            }
         }
     }
 }

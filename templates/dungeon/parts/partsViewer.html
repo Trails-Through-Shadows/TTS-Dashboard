@@ -17,8 +17,8 @@
     </div>
 
     <div class="row">
-        <div class="col-12 col-xl-6" id="table">
-            <div class="table-settings mb-2" id="tableSettings">
+        <div class="col-12 col-xl-6" id="partsTable">
+            <div class="table-settings mb-2">
                 <div class="row align-items-center justify-content-between">
                     <div class="col-12 col-sm-6">
                         <div class="input-group fmxw-500">
@@ -26,12 +26,12 @@
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </span>
 
-                            <a href="javascript:void(0)" class="input-group-text align-items-center" id="tableFilterButton">
+                            <a href="javascript:void(0)" class="input-group-text align-items-center table-filter">
                                 <i class="fa-solid fa-filter me-1"></i>
                                 <span>{% trans 'Filter' %}</span>
                             </a>
 
-                            <input class="form-control" type="text" placeholder="{% trans 'Search' %}" id="tableSearchInput" value="{{ SEARCH }}">
+                            <input class="form-control table-search" type="text" placeholder="{% trans 'Input search keyword..' %}" value="{{ SEARCH }}">
                         </div>
                     </div>
 
@@ -78,7 +78,7 @@
                     </table>
                 </div>
 
-                <div class="table-pagination mt-2 d-flex flex-column flex-lg-row align-items-center justify-content-between" id="tableNavigation">
+                <div class="table-pagination mt-2 d-flex flex-column flex-lg-row align-items-center justify-content-between">
                     <nav aria-label="Table navigation">
                         <ul class="pagination mb-0">
                             <li class="page-item">
@@ -114,34 +114,12 @@
 
 {% block javascripts %}
     <script async>
-    /*
-        const clickPipsSlider = document.getElementById('slider');
-
-        noUiSlider.create(clickPipsSlider, {
-            start: [0, 90],
-            step: 30,
-            range: {
-                'min': 0,
-                'max': 210
-            },
-            pips: {
-                mode: 'steps',
-                density: 3,
-                format: wNumb({
-                    decimals: 2,
-                    prefix: '€'
-                })
-            }
-        });
-    */
-
-        // ---- | aaa
-    
         const urlParams = new URLSearchParams(window.location.search);
         let page = urlParams.get('page') || 1;
         let limit = urlParams.get('limit') || 10;
-        let filter = urlParams.get('filter') || '';
-        let sort = urlParams.get('sort') || '';
+        let filter = decodeURIComponent(urlParams.get('filter')) || '';
+        let sort = decodeURIComponent(urlParams.get('sort')) || '';
+        let search = urlParams.get('search') || '';
 
         const apiUrlAll = `{% url 'apiQueryTable' table='parts' %}`;
         const apiUrlSingle = `{% url 'apiQueryTableID' table='parts' id=0 %}`;
@@ -172,21 +150,24 @@
 
         // ---- | Table
 
-        const tableRoot = document.getElementById('table');
+        const tableRoot = document.getElementById('partsTable');
         const tableFilter = new Dashboard.TableFilter([
             { title: "Tag contains:", key: 'tag', type: 'has' },
             { title: "Hexes between:", key: 'hexes', type: 'bwn', bounds: {min: 0, max: 100} },
-            {#{ title: "Usages between:", key: 'usages', type: 'bwn', bounds: {min: 0, max: 100} },#}
+            { title: "Usages between:", key: 'usages', type: 'bwn', bounds: {min: 0, max: 20} },
         ]);
-        const table = new Dashboard.Table(tableRoot, template, tableFilter, (string) => {
+        const tableSorter = new Dashboard.TableSorter(["id", "tag", "hexes", "usages"], ["asc"], true);
+        const table = new Dashboard.Table(tableRoot, template, tableFilter, tableSorter, (string) => {
             tableFilter.set("tag", string);
             table.queryData(apiUrlAll, page, limit);
         });
+
+        tableFilter.set("tag", search);
+        tableFilter.parse(filter);
         
         table.setOnDataLoad(() => {
-            table.setAction("view", (event, element) => {
+            table.setAction("view", (element) => {
                 const id = element.getAttribute('data-part');
-                event.preventDefault();
 
                 hexGrid.readData(apiUrlSingle.replace(0, id), () => {
                     canvas.clear();
@@ -194,9 +175,8 @@
                 });
             });
 
-            table.setAction("delete", (event, element) => {
+            table.setAction("delete", (element) => {
                 const id = element.getAttribute('data-part');
-                event.preventDefault();
 
                 Swal.fire({
                     title: "{% trans "Are you sure?" %}",
@@ -277,7 +257,6 @@
             });
         })
 
-        tableFilter.parse(filter);
         table.queryData(apiUrlAll, page, limit);
     </script>
 {% endblock javascripts %}

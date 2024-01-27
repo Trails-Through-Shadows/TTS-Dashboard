@@ -2,13 +2,9 @@
   padding: 0 16px;
 }
 
-.slider-row {
-  height: 5rem;
-  align-content: center;
-}
-
-.slider {
-  margin-top: 40px;
+.slider-col {
+  align-self: center;
+  margin-top: 10px;
 }
 
 .noUi-pips-horizontal:last-child .noUi-marker-large, .noUi-marker-sub {
@@ -21,4 +17,24 @@
 
 .noUi-marker-normal {
   top: 40px !important;
+}
+
+.slider-row > div {
+    &:first-child:after {
+      content: "min";
+      position: relative;
+      top: -53px;
+      font-size: 0.75rem;
+      background-color: #FFF;
+      padding: 0 5px;
+    }
+
+    &:last-child:after {
+      content: "max";
+      position: relative;
+      top: -53px;
+      font-size: 0.75rem;
+      background-color: #FFF;
+      padding: 0 5px;
+    }
 }

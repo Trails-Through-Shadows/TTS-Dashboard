@@ -1,14 +1,12 @@
 module Dashboard {
 
     export class Table {
-        private took: number = 0;
-        private sort: TableSorter = new TableSorter()
         private url: string = '';
         private page: number = 1;
         private limit: number = 10;
 
-        private onDataLoad: () => void = () => {};
-        public setOnDataLoad(onDataLoad: () => void): void {
+        private onDataLoad: Function = () => {};
+        public setOnDataLoad(onDataLoad: Function): void {
             this.onDataLoad = onDataLoad;
         }
 
@@ -16,24 +14,15 @@ module Dashboard {
             private root: HTMLElement,
             private template: string,
             private filter: TableFilter,
-            private searchCallback: (search: string) => void = () => {}
+            private sort: TableSorter,
+            private searchCallback: Function
         ) {
-            // Setup filter button
-            const tableFilterButton = this.root.querySelector('#tableFilterButton') as HTMLButtonElement;
-            tableFilterButton.addEventListener('click', (event) => {
-                event.preventDefault();
-
-                this.filter.open(() => {
-                    this.queryData(this.url, this.page, this.limit);
-                });
-            });
-
             // Setup search input
-            const tableSearchInput = this.root.querySelector('#tableSearchInput') as HTMLInputElement;
+            const tableSearchInput = this.root.querySelector('.table-search');
             tableSearchInput.addEventListener('keyup', debounce((event) => {
                 event.preventDefault();
 
-                const inputVal = tableSearchInput.value;
+                const inputVal = (tableSearchInput as HTMLInputElement).value;
                 this.searchCallback(inputVal);
 
                 // Update search param in URL
@@ -41,6 +30,19 @@ module Dashboard {
                 inputVal ? pageUrl.searchParams.set('search', inputVal) : pageUrl.searchParams.delete('search');
                 window.history.replaceState({}, '', pageUrl.toString());
             }, 300));
+
+            // Setup filter button
+            const tableFilterButton = this.root.querySelector('.table-filter');
+            tableFilterButton.addEventListener('click', (event) => {
+                event.preventDefault();
+
+                this.filter.open(() => {
+                    // Update filter param in URL
+                    filter.updateURL();
+
+                    this.queryData(this.url, this.page, this.limit);
+                });
+            });
         }
 
         public queryData(url: string, page: number, limit: number) : void {
@@ -59,8 +61,8 @@ module Dashboard {
                     tableDataElement.innerHTML = request.responseText;
 
                     if (status === 200) {
-                        this.took = new Date().getTime() - currentTime;
-                        console.log(`Table | Query took ${this.took}ms`);
+                        const took = new Date().getTime() - currentTime;
+                        console.log(`Table | Query took ${took}ms`);
 
                         // Setup table headers for sorting
                         const tableHeaders = this.root.querySelectorAll('.orderable');
@@ -96,16 +98,22 @@ module Dashboard {
             let newUrl = url;
             newUrl += "?page=" + page
             newUrl += "&limit=" + limit
-            newUrl += "&filter=" + this.filter.toString()
-            newUrl += "&sort=" + this.sort.toString()
             newUrl += "&template=" + this.template
+
+            if (this.filter.toString() !== '') {
+                newUrl += "&filter=" + this.filter.toString()
+            }
+
+            if (this.sort.toString() !== '') {
+                newUrl += "&sort=" + this.sort.toString()
+            }
 
             console.log(`Table | Querying data from ${newUrl}`);
             request.open('GET', newUrl);
             request.send();
         }
 
-        public setAction(actionType: string, callback: (event: Event, element: Element) => void) : void {
+        public setAction(actionType: string, callback: Function) : void {
             const tableActions = this.root.querySelectorAll('.tableActions');
 
             for (let i = 0; i < tableActions.length; i++) {
@@ -114,9 +122,9 @@ module Dashboard {
                 for (let i = 0; i < buttons.length; i++) {
                     const button = buttons[i];
 
-                    button.addEventListener('click', (event) => {
+                    button.addEventListener('click', event => {
                         event.preventDefault();
-                        callback(event, button);
+                        callback(button);
                     });
                 }
             }

@@ -1,6 +1,6 @@
 module Dashboard {
 
-    enum Order {
+    export enum Order {
         ASC = 'asc',
         DESC = 'desc',
         NONE = 'none'
@@ -19,17 +19,35 @@ module Dashboard {
 
     export class TableSorter {
         private map: Map<string, Order> = new Map();
+        private singleOnly: boolean = false;
 
-        constructor() {
+        constructor(keys: string[], orders: Order[], singleOnly: boolean) {
+            let i = 0;
+            keys.forEach(key => {
+                this.map.set(key, orders[i++] || Order.NONE);
+            });
+
             const pageUrl = new URL(window.location.href);
-            const sort = pageUrl.searchParams.get('sort');
+            this.parse(pageUrl.searchParams.get('sort'));
 
-            if (sort) {
-                sort.split(',').forEach(pair => {
-                    const [key, value] = pair.split(':');
-                    this.map.set(key, value as Order);
-                });
+            this.singleOnly = singleOnly;
+        }
+
+        private parse(str: string): void {
+            if (!str || str.length === 0) {
+                return;
             }
+
+            str.split(',').forEach(pair => {
+                const [key, value] = pair.split(':');
+
+                if (!this.map.has(key)) {
+                    console.error(`Invalid key ${key} in sort param`);
+                    return;
+                }
+
+                this.map.set(key, value as Order);
+            });
         }
 
         private set(key: string, order: Order) : void {
@@ -60,6 +78,15 @@ module Dashboard {
 
             tableHeader.addEventListener('click', debounce((event) => {
                 event.preventDefault();
+
+                // Set all other keys to NONE if singleOnly is true
+                if (this.singleOnly) {
+                    this.map.forEach((value, key) => {
+                        if (key !== tableHeader.getAttribute('data-order-key')) {
+                            this.map.set(key, Order.NONE);
+                        }
+                    });
+                }
 
                 this.map.set(key, next(this.map.get(key)));
                 tableHeader.setAttribute('data-order-dir', this.map.get(key) || Order.NONE);
