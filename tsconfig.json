@@ -9,10 +9,11 @@
     "target": "es5",
     "lib": ["es5", "es6", "dom"],
     "paths": {
-      "*": ["node_modules/*"]
+      "*": ["node_modules/*", "static/js/src/*"]
     }
   },
   "include": [
+    "node_modules/**/*.d.ts",
     "static/js/src/**/*.ts"
   ]
 }

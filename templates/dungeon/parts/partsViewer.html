@@ -56,7 +56,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th class="border-gray-200 orderable" data-order-key="id" data-order-dir="desc" id="cellId">#</th>
+                                <th class="border-gray-200 orderable" data-order-key="id">#</th>
                                 <th class="border-gray-200 orderable" data-order-key="tag">{% translate 'Tag' %}</th>
                                 <th class="border-gray-200 orderable text-center" data-order-key="hexes">{% translate 'Hexes' %}</th>
                                 <th class="border-gray-200 orderable text-center" data-order-key="usages">{% translate 'Usage' %}</th>
@@ -117,8 +117,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         let page = urlParams.get('page') || 1;
         let limit = urlParams.get('limit') || 10;
-        let filter = decodeURIComponent(urlParams.get('filter')) || '';
-        let sort = decodeURIComponent(urlParams.get('sort')) || '';
         let search = urlParams.get('search') || '';
 
         const apiUrlAll = `{% url 'apiQueryTable' table='parts' %}`;
@@ -140,7 +138,7 @@
         const hexGrid = new Dashboard.HexGrid(canvas, hexGridSize, []);
 
         canvas.addOnSizeListener(() => {
-            if (!canvas.isDrawn()) {
+            if (!canvas.isDrawn() || canvas.isLoading()) {
                 return;
             }
 
@@ -152,19 +150,30 @@
 
         const tableRoot = document.getElementById('partsTable');
         const tableFilter = new Dashboard.TableFilter([
-            { title: "Tag contains:", key: 'tag', type: 'has' },
+            { title: "Tag contains:", key: 'tag', type: 'has', hidden: true },
             { title: "Hexes between:", key: 'hexes', type: 'bwn', bounds: {min: 0, max: 100} },
             { title: "Usages between:", key: 'usages', type: 'bwn', bounds: {min: 0, max: 20} },
         ]);
-        const tableSorter = new Dashboard.TableSorter(["id", "tag", "hexes", "usages"], ["asc"], true);
-        const table = new Dashboard.Table(tableRoot, template, tableFilter, tableSorter, (string) => {
-            tableFilter.set("tag", string);
-            table.queryData(apiUrlAll, page, limit);
-        });
+        const tableSorter = new Dashboard.TableSorter([
+            { key: "id", order: "asc" },
+            { key: "tag" },
+            { key: "hexes" },
+            { key: "usages" }], 
+            true // Allow multiple
+        );
+        const tableSearch = new Dashboard.TableSearch(
+            (input) => { // On Search input
+                tableFilter.set("tag", input);
+            },
+            () => { // On filter change
+                return tableFilter.get("tag");
+            }
+        )
+        const table = new Dashboard.Table(tableRoot, template, tableFilter, tableSorter, tableSearch);
 
+        {#tableSearch.set(search);#}
         tableFilter.set("tag", search);
-        tableFilter.parse(filter);
-        
+
         table.setOnDataLoad(() => {
             table.setAction("view", (element) => {
                 const id = element.getAttribute('data-part');

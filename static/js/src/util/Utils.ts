@@ -1,6 +1,6 @@
 module Dashboard {
 
-    export type Callback = (...args: any[]) => any;
+    type Callback = (...args: any[]) => any;
 
     /**
      * Debounce function to prevent multiple calls to a function within a given time frame
@@ -8,7 +8,7 @@ module Dashboard {
      * @param wait time to wait before calling function again
      * @param immediate whether to call the function at the start of the wait period
      */
-    export function debounce(callback: Callback, wait: number, immediate?: boolean): Callback {
+    export function debounce(callback: Function, wait: number, immediate?: boolean): Callback {
         let timeout: number;
 
         return function() {

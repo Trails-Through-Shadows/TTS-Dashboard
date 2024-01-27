@@ -15,28 +15,42 @@ module Dashboard {
             private template: string,
             private filter: TableFilter,
             private sort: TableSorter,
-            private searchCallback: Function
+            private search: TableSearch
         ) {
+            const notyf = new window['Notyf']({
+                position: {
+                    x: 'right',
+                    y: 'top',
+                },
+                ripple: true,
+                dismissible: true
+            });
+
             // Setup search input
             const tableSearchInput = this.root.querySelector('.table-search');
-            tableSearchInput.addEventListener('keyup', debounce((event) => {
+            tableSearchInput.addEventListener('keyup', debounce((event: Event) => {
                 event.preventDefault();
 
                 const inputVal = (tableSearchInput as HTMLInputElement).value;
-                this.searchCallback(inputVal);
+                this.search.set(inputVal);
 
                 // Update search param in URL
-                const pageUrl = new URL(window.location.href);
-                inputVal ? pageUrl.searchParams.set('search', inputVal) : pageUrl.searchParams.delete('search');
-                window.history.replaceState({}, '', pageUrl.toString());
+                this.search.updateURL();
+
+                this.queryData(this.url, this.page, this.limit);
             }, 300));
 
             // Setup filter button
             const tableFilterButton = this.root.querySelector('.table-filter');
-            tableFilterButton.addEventListener('click', (event) => {
+            tableFilterButton.addEventListener('click', (event: Event) => {
                 event.preventDefault();
 
                 this.filter.open(() => {
+                    notyf.success({
+                        message: 'Filter set successfully.',
+                        duration: 2500,
+                    });
+
                     // Update filter param in URL
                     filter.updateURL();
 
@@ -47,6 +61,9 @@ module Dashboard {
 
         public queryData(url: string, page: number, limit: number) : void {
             const currentTime = new Date().getTime();
+
+            const Notiflix = window['Notiflix'];
+            Notiflix.Block.circle("#tableData", 'Loading...');
 
             this.url = url;
             this.page = Math.max(page, 1);
@@ -108,7 +125,8 @@ module Dashboard {
                 newUrl += "&sort=" + this.sort.toString()
             }
 
-            console.log(`Table | Querying data from ${newUrl}`);
+            console.log(`Table | Querying data from ${url}`);
+            console.log(`Table |  - Params: ${newUrl.replace(url, '')}`);
             request.open('GET', newUrl);
             request.send();
         }

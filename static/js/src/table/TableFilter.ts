@@ -19,15 +19,19 @@ module Dashboard {
         type: FilterType,
         bounds?: Bounds | undefined,
         value?: any | undefined,
+        hidden?: boolean | false,
     };
 
     export class TableFilter {
 
         constructor(
-            private filters: Filter[] = []
-        ) {}
+            private readonly filters: Filter[] = []
+        ) {
+            const pageUrl = new URL(window.location.href);
+            this.parse(decodeURIComponent(pageUrl.searchParams.get('filter')));
+        }
 
-        public open(submitCallback: Callback): void {
+        public open(submitCallback: Function): void {
             const request = new XMLHttpRequest();
             request.onreadystatechange = () => {
                 if (request.readyState === 4) {
@@ -41,22 +45,36 @@ module Dashboard {
                         body.insertAdjacentHTML('beforeend', htmlContent);
 
                         // Select modal
-                        const modalDiv = body.querySelector('#filterModal') as HTMLDivElement;
-                        const modal = new Modal(modalDiv, true, true);
-                        modal.setOnClose(() => {
-                            modalDiv.remove();
-                        });
+                        const modalDiv = body.querySelector('#filterModal');
+                        const modal = new Modal(modalDiv as HTMLElement, true, true);
 
                         // Evaluate the script
-                        const filterScript = document.querySelector('#filterScript') as HTMLScriptElement;
+                        const filterScript = document.querySelector('#filterScript');
                         eval(filterScript.innerHTML);
 
+                        // Add event listener to the form
+                        const filterForm = document.querySelector('#filterForm');
+                        filterForm.addEventListener('submit', (event: Event) => {
+                            event.preventDefault();
+                            submit();
+                        });
+
+                        // Add event listener to the submit button
+                        const filterSubmit = document.querySelector('#filterSubmit');
+                        filterSubmit.addEventListener('click', (event: Event) => {
+                            event.preventDefault();
+                            submit();
+                        });
+
                         // Submit function
-                        const filterForm = document.querySelector('#filterForm') as HTMLFormElement;
                         const submit = () => {
 
                             // For every filter in this.filters
                             for (const filter of this.filters) {
+                                if (filter.hidden) {
+                                    continue;
+                                }
+
                                 const input = filterForm.querySelector(`#input-${filter.key}`) as HTMLInputElement;
                                 let value: number | {} = input.value;
 
@@ -74,18 +92,8 @@ module Dashboard {
                             }
 
                             submitCallback();
-                            modal.close();
+                            modal.close(true);
                         }
-
-                        // Add event listener to the submit button
-                        const filterSubmit = document.querySelector('#filterSubmit') as HTMLButtonElement;
-                        filterSubmit.addEventListener('click', submit);
-
-                        // Add event listener to the form
-                        filterForm.addEventListener('submit', (event) => {
-                            event.preventDefault();
-                            submit();
-                        });
 
                         modal.open();
                     }
@@ -98,7 +106,7 @@ module Dashboard {
         }
 
         public parse(str: string): void {
-            if (!str || str.length === 0) {
+            if (str == null || str == "null" || str.length === 0) {
                 return;
             }
 
@@ -123,20 +131,25 @@ module Dashboard {
 
         public updateURL(): void {
             const pageUrl = new URL(window.location.href);
-            this.toString() ? pageUrl.searchParams.set('filter', this.toString()) : pageUrl.searchParams.delete('filter');
+            this.toString(true) ? pageUrl.searchParams.set('filter', this.toString(true)) : pageUrl.searchParams.delete('filter');
             window.history.replaceState({}, '', pageUrl.toString());
+        }
+
+        public get(key: string): any {
+            const filter = this.filters.find(filter => filter.key === key);
+
+            if (filter) {
+                return filter.value;
+            }
+
+            return undefined;
         }
 
         public set(key: string, value: any): void {
             const filter = this.filters.find(filter => filter.key === key);
 
             if (filter) {
-                if (value === '') {
-                    filter.value = undefined;
-                    return;
-                }
-
-                filter.value = value;
+                filter.value = value === '' ? undefined : value
             }
         }
 
@@ -148,25 +161,41 @@ module Dashboard {
             }
         }
 
-        toString(): string {
+        public toString(ignoreHidden: boolean = false): string {
             return Array.from(this.filters)
                 .filter(f => {
+                    // Ignore if value is undefined
+                    if (f.value === undefined) {
+                        return false;
+                    }
+
+                    // Ignore if hidden
+                    if (f.hidden && ignoreHidden) {
+                        return false;
+                    }
+
+                    // Ignore if value is empty string
                     if (f.type === FilterType.CONTAINS) {
-                        return f.value != undefined && f.value != '';
+                        return f.value != '';
                     }
 
+                    // Ignore if value is same as bounds
                     if (f.type === FilterType.BETWEEN) {
-                        return f.value != undefined && (f.value.min != f.bounds.min || f.value.max != f.bounds.max);
+                        return (f.value.min != f.bounds.min || f.value.max != f.bounds.max);
                     }
 
-                    return f.value != undefined;
-                }).map(filter => {
-                    if (filter.type !== FilterType.BETWEEN) {
-                        return `${filter.key}:${filter.type}:${filter.value}`;
+                    return true
+                }).map(f => {
+                    if (f.type === FilterType.BETWEEN) {
+                        return `${f.key}:${f.type}:${f.value.min}_${f.value.max}`;
                     }
 
-                    return `${filter.key}:${filter.type}:${filter.value.min}_${filter.value.max}`;
+                    return `${f.key}:${f.type}:${f.value}`;
                 }).join(',');
+        }
+
+        private clone(): TableFilter {
+            return this;
         }
     }
 }

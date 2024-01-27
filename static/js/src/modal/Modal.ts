@@ -5,9 +5,14 @@ module Dashboard {
         private opening: boolean = false;
         private closing: boolean = false;
 
-        private onClose: Callback | null = null;
-        public setOnClose(callback: Callback): void {
+        private onClose: Function = () => {};
+        public setOnClose(callback: Function): void {
             this.onClose = callback;
+        }
+
+        private onOpen: Function = () => {};
+        public setOnOpen(callback: Function): void {
+            this.onOpen = callback;
         }
 
         constructor(
@@ -27,7 +32,7 @@ module Dashboard {
 
             // Click outside modal close modal
             const modalOverlay = modal.querySelector('.modal-overlay');
-            document.addEventListener('click', (event) => {
+            document.addEventListener('mousedown', (event) => {
                 if (event.target === modalOverlay && this.closeOnBackdrop) {
                     this.close();
                 }
@@ -41,7 +46,7 @@ module Dashboard {
             });
         }
 
-        public close(): void {
+        public close(autoRemove: boolean = true): void {
             this.closing = true;
             this.modalContainer.classList.add('animate__animated', 'animate__zoomOut');
             this.modal.style.setProperty('--animate-duration', '0.5s');
@@ -52,6 +57,10 @@ module Dashboard {
                     this.modalContainer.classList.remove('animate__animated', 'animate__zoomOut');
                     this.closing = false;
                     this.onClose();
+
+                    if (autoRemove) {
+                        this.modal.remove();
+                    }
                 }
 
                 this.modalContainer.removeEventListener('animationend', () => {});
@@ -68,6 +77,7 @@ module Dashboard {
                 if (this.opening) {
                     this.modalContainer.classList.remove('animate__animated', 'animate__zoomIn');
                     this.opening = false;
+                    this.onOpen();
                 }
 
                 this.modalContainer.removeEventListener('animationend', () => {});
