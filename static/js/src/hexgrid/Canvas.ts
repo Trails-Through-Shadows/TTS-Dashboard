@@ -48,21 +48,6 @@ module Dashboard {
                 };
             }
 
-            // Loading animation task repeating every 10ms
-            let counter = 0;
-            setInterval(() => {
-                if (this.loading) {
-                    // this.clear();
-
-                    const top = 'Loading';
-                    const bottom = '□'.repeat(15).split('');
-                    bottom[counter % 15] = '■';
-                    counter = (counter + 1) % 15;
-
-                    this.title(top, bottom.join(''));
-                }
-            }, 100);
-
             // Register listeners
             this.registerListeners();
         }
@@ -77,7 +62,7 @@ module Dashboard {
         }
 
         public title(text: string, subtitle: string): void {
-            this.clear();
+            // this.clear();
 
             const ctx = this.getContext();
             ctx.fillStyle = new Dashboard.Color(255, 255, 255, 0.1).toRGB();
@@ -104,10 +89,24 @@ module Dashboard {
 
         public clear(): void {
             const ctx = this.getContext();
-            ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            ctx.clearRect(0, 0, this.width, this.height);
 
             if (this.imageLoaded) {
-                ctx.drawImage(this.backgroundImage, 0, 0, this.canvas.width, this.canvas.height);
+                ctx.drawImage(this.backgroundImage, 0, 0, this.width, this.height);
+            }
+        }
+
+        private counter = 0;
+        private draw(): void {
+            if (this.loading) {
+                this.clear();
+
+                const top = 'Loading';
+                const bottom = '□'.repeat(15).split('');
+                bottom[this.counter % 15] = '■';
+                this.counter = (this.counter + 1) % 15;
+
+                this.title(top, bottom.join(''));
             }
         }
 
@@ -117,10 +116,16 @@ module Dashboard {
 
             this.canvas.width = this.width;
             this.canvas.height = this.height;
+
+            this.draw();
         }
 
         private registerListeners(): void {
             const parent = this.canvas.parentElement;
+
+
+            // Loading animation task repeating every 10ms
+            setInterval(() => this.draw(), 100);
 
             // Window resize observer
             const observer = new ResizeObserver(debounce(() => {
@@ -130,6 +135,7 @@ module Dashboard {
                 this.resize();
 
                 if (!this.written && !this.loading) {
+                    this.clear();
                     this.title(this.def.title, this.def.subtitle);
                 }
 
