@@ -130,7 +130,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         let page = urlParams.get('page') || 1;
         let limit = urlParams.get('limit') || 10;
-        {#let search = urlParams.get('search') || '';#}
 
         const apiUrlAll = `{% url 'apiQueryTable' table='parts' %}`;
         const apiUrlSingle = `{% url 'apiQueryTableID' table='parts' id=0 %}`;
@@ -196,12 +195,11 @@
         )
         const table = new Dashboard.Table(tableRoot, template, tableFilter, tableSorter, tableSearch);
 
-        {#tableFilter.set("tag", search);#}
-
         table.setOnDataLoad(() => {
             table.setAction("download", (element) => {
                 const id = element.getAttribute('data-part');
 
+                console.log(`Button | Downloading part ${id}`);
                 notyf.success({
                     message: '{% trans "Downloading started, please wait." %}',
                     duration: 5000,
@@ -213,6 +211,7 @@
             table.setAction("view", (element) => {
                 const id = element.getAttribute('data-part');
 
+                console.log(`Button | Viewing part ${id}`);
                 hexGrid.readData(apiUrlSingle.replace(0, id), () => {
                     canvas.clear();
                     hexGrid.draw();
@@ -234,7 +233,7 @@
                     cancelButtonText: "{% trans "No, cancel!" %}",
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        const csrfToken = tableRoot.querySelector('#csrftoken').value;
+                        const csrfToken = document.querySelector('#csrftoken').value;
 
                         console.log(`Button | Deleting part ${id}`);
                         Swal.fire({
@@ -254,14 +253,46 @@
 
                                 if (request.status === 200) {
                                     console.log(`Button | Deleting part ${id} successful`);
-                                    notyf.success({
-                                        message: '{% trans "Success, part deleted!" %}',
-                                        duration: 2500,
-                                    });
+                                    Swal.fire({
+                                        icon: 'success',
+                                        toast: true,
+                                        position: 'top-end',
+                                        text: '{% trans "Success, part deleted!" %}',
+                                        showConfirmButton: false,
+                                        timer: 2500
+                                    })
 
                                     table.queryData(apiUrlAll, page, limit);
                                 } else {
                                     console.log(`Button | Deleting part ${id} failed`);
+                                    Swal.mixin({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 10000,
+                                        timerProgressBar: true,
+                                        didOpen: (toast) => {
+                                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                            toast.addEventListener('click', () => {
+                                                const data = JSON.parse(request.responseText);
+                                                const string = JSON.stringify(data, null, 4);
+
+                                                Swal.fire({
+                                                    text: string,
+                                                    customClass: {
+                                                        htmlContainer: 'text-start text-pre'
+                                                    },
+                                                    showConfirmButton: false,
+                                                });
+                                            })
+                                        }
+                                    }).fire({
+                                        icon: "error",
+                                        title: '{% trans "Error, deletion failed! Click for more information." %}'
+                                    });
+
+                                    /*
                                     const notification = notyf.error({
                                         message: '{% trans "Error, deletion failed! Click for more information." %}',
                                         duration: 10000
@@ -280,6 +311,7 @@
                                             showConfirmButton: false,
                                         });
                                     });
+                                    */
                                 }
                             }
                         };
