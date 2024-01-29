@@ -20,7 +20,7 @@ def requestAPI(method, url, data=None):
         response = req(
             method=method,
             url=url,
-            json=data,
+            data=data,
             headers={
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
@@ -32,7 +32,8 @@ def requestAPI(method, url, data=None):
 
         if responseCode != 204:
             responseData = response.json()
-    except (Exception,):
+    except Exception as e:
+        print(e)
         return 404, {'error': "Could to make connection to '" + url + "'"}
 
     return responseCode, responseData
@@ -113,25 +114,27 @@ class ApiView(View):
 
     @staticmethod
     def post(request, *args, **kwargs):
-        table = kwargs['table']
+        table = kwargs.get('table', None)
         jsonData = json.loads(request.body)
 
         # Make Array or data if not
         if not isinstance(jsonData, list):
             jsonData = [jsonData]
 
-        # Remove id field
-        for data in jsonData:
-            data.pop('id', None)
-
-        url = f"{API_URL}/{table}/"
+        url = f"{API_URL}/{table}"
         responseCode, responseData = requestAPI("post", url, jsonData)
 
         return JsonResponse(responseData, status=responseCode)
 
     @staticmethod
     def put(request, *args, **kwargs):
-        return JsonResponse({'error': 'PUT METHOD'}, status=201)
+        table = kwargs.get('table', None)
+        id = kwargs.get('id', None)
+
+        url = f"{API_URL}/{table}/{id}"
+        responseCode, responseData = requestAPI("put", url, request.body)
+
+        return JsonResponse(responseData, status=responseCode)
 
     @staticmethod
     def delete(request, *args, **kwargs):
@@ -145,18 +148,21 @@ class ApiView(View):
 
 
 def validateTable(request, table):
-    time.sleep(1)
-    return JsonResponse({
-            "status": "success",
-            "message": f"{table} is not ok!",
-            "errors": [
-                "Part must larger then 1 hex!",
-                "Part is too wide, max 10 hexes!",
-            ]
-        }, status=400
-    )
+    data = {}
 
-@csrf_exempt
+    if request.body:
+        data = json.loads(request.body)
+    else:
+        return JsonResponse({'error': 'No data provided'}, status=400)
+
+    # Wait for 1 second
+    time.sleep(1)
+
+    url = f"{API_URL}/validate/{table}"
+    responseCode, responseData = requestAPI("post", url, data)
+
+    return JsonResponse(responseData, status=200)
+
 def createFilter(request):
     data = {}
 

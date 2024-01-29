@@ -1,8 +1,8 @@
 module Dashboard {
 
     export class Validator {
-        private valid = true;
-        private validating = false;
+        private valid = false;
+        private validating = true;
         private errors: string[] = [];
 
         private lineHeight = 24;
@@ -46,7 +46,7 @@ module Dashboard {
                     ctx.fillText(msg, 0, this.canvas.getHeight() - 8 - this.errors.length * 24);
 
                     this.errors.forEach((error, index) => {
-                        const errorMSG = ' » '+ error;
+                        const errorMSG = ' » '+ error['message'];
                         this.lineWidth = Math.max(this.lineWidth, ctx.measureText(errorMSG).width);
 
                         ctx.fillText(errorMSG, 0, this.canvas.getHeight() - 8 - index * 24);
@@ -62,19 +62,23 @@ module Dashboard {
                 validator.draw();
 
                 startCall();
+                const csrfToken = (document.querySelector('#csrftoken') as HTMLInputElement).value;
 
                 const request = new XMLHttpRequest();
                 request.open('POST', validator.apiUrl, true);
                 request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+                request.setRequestHeader('X-CSRFToken', csrfToken);
                 request.send(JSON.stringify(data));
 
                 request.onreadystatechange = () => {
                     if (request.readyState === XMLHttpRequest.DONE) {
+                        const jsonResponse = JSON.parse(request.responseText);
+
                         validator.validating = false;
-                        validator.valid = request.status === 200;
+                        validator.valid = jsonResponse['status'] === 'OK';
 
                         if (!validator.valid) {
-                            validator.errors = JSON.parse(request.responseText)['errors'];
+                            validator.errors = jsonResponse['errors'];
                         } else {
                             validator.errors = [];
                         }

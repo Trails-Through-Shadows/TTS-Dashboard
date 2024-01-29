@@ -60,6 +60,7 @@ module Dashboard {
                     const took = new Date().getTime() - currentTime;
                     console.log(`HexGrid | Data read in ${took}ms`);
                     this.canvas.setLoading(false);
+                    this.canvas.setDrawn();
 
                     if (callback) callback();
                 }
@@ -74,10 +75,41 @@ module Dashboard {
             const data = {
                 id: id,
                 tag: this.tag,
-                hexes: this.hexes.map(hex => hex.coords)
+                hexes: this.hexes.map((hex, index) => {
+                    return {
+                        key: {
+                            idPart: id,
+                            id: index,
+                        },
+                        q: hex.coords.q,
+                        r: hex.coords.r,
+                        s: hex.coords.s,
+                    };
+                }),
             };
 
-            return JSON.stringify(data, null, 4);
+            return JSON.stringify(data);
+        }
+
+        saveData(url: string, callback?: () => void): void {
+            const currentTime = new Date().getTime();
+
+            const request = new XMLHttpRequest();
+            request.onreadystatechange = () => {
+                if (request.readyState === 4 && request.status === 200) {
+                    const took = new Date().getTime() - currentTime;
+                    console.log(`HexGrid | Data saved in ${took}ms`);
+
+                    if (callback) callback();
+                }
+            };
+
+            console.log(`HexGrid | Saving data to ${url}`);
+            request.open(this.id == 0 ? 'POST' : 'PUT', url, true);
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.send(this.exportData(this.id));
+
+            console.log(this.exportData(this.id));
         }
 
         draw(): void {
@@ -233,6 +265,10 @@ module Dashboard {
 
         getTag(): string {
             return this.tag;
+        }
+
+        setTag(tag: string): void {
+            this.tag = tag;
         }
     }
 }

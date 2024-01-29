@@ -1,8 +1,6 @@
 {% load i18n %}
 
 <div class="table-wrapper table-responsive card card-body border-0 shadow" id="tableData">
-    <input type="hidden" value="{{ csrf_token }}" id="csrftoken" readonly/>
-
     <table class="table table-hover">
         <thead>
             <tr>
@@ -10,7 +8,7 @@
                 <th class="border-gray-200 orderable" data-order-key="tag">{% translate 'Tag' %}</th>
                 <th class="border-gray-200 orderable text-center" data-order-key="hexes">{% translate 'Hexes' %}</th>
                 <th class="border-gray-200 orderable text-center" data-order-key="usages">{% translate 'Usage' %}</th>
-                <th class="border-gray-200 text-center" id="cellActions">{% translate 'Action' %}</th>
+                <th class="border-gray-200 table-actions">{% translate 'Action' %}</th>
             </tr>
         </thead>
 
@@ -64,7 +62,7 @@
                                     </button>
                                 </a>
 
-                                <a href="{% url 'apiQueryTableID' table='parts' id=part.id %}?download" target="_top">
+                                <a href="{% url 'apiQueryTableID' table='parts' id=part.id %}?download" target="_top" data-action="download" data-part="{{ part.id }}">
                                     <button class="btn btn-link text-dark m-0 p-0">
                                         <span class="icon icon-lg">
                                             <i class="fa-solid fa-download"></i>

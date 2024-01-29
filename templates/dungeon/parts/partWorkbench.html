@@ -10,6 +10,8 @@
 {% endblock stylesheets %}
 
 {% block content %}
+    <input type="hidden" value="{{ csrf_token }}" id="csrftoken" readonly/>
+    
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div class="d-block mb-4 mb-md-0">
             <h2 class="h4 mb-0">{% trans 'Part Workbench' %}</h2>
@@ -17,7 +19,7 @@
         </div>
     </div>
 
-    <form>
+    <form id="partWorkbench">
         <div class="row">
             <div class="col-12 col-xl-3" id="partInformation">
                 <div class="row flex-column h-100">
@@ -46,13 +48,13 @@
                     <div class="col-12">
                         <div class="card card-body border-0 shadow">
                             <div class="row justify-content-evenly">
-                                <div class="col-6">
+                                <div class="col-lg-6 col-12">
                                     <button class="btn btn-red-100 animate-up-2 w-100" type="reset" id="cancelButton">
                                         {% trans 'Cancel' %}
                                     </button>
                                 </div>
 
-                                <div class="col-6">
+                                <div class="col-lg-6 col-12 mt-2 mt-lg-0">
                                     <button class="btn btn-green-100 animate-up-2 w-100" type="submit" id="saveButton">
                                         {% if partId is not None %}
                                             Save
@@ -67,8 +69,8 @@
                 </div>
             </div>
 
-            <div class="col-12 col-xl-9">
-                <div class="card card-body border-0 shadow h-100">
+            <div class="col-12 col-xl-9 mt-4 mt-xl-0" id="canvasHolder">
+                <div class="card card-body border-0 shadow h-100" style="min-height: 600px">
                     <canvas id="editorCanvas"></canvas>
                 </div>
             </div>
@@ -91,8 +93,16 @@
         const hexGrid = new Dashboard.HexGrid(canvas, hexGridSize, [
             new Dashboard.Hex(new Dashboard.CubeCoordinate(0, 0, 0), hexGridSize, [])
         ]);
-
         const gridEditor = new Dashboard.GridEditor(canvas, hexGrid);
+
+        canvas.addOnSizeListener(() => {
+            if (!canvas.isDrawn() || canvas.isLoading()) {
+                return;
+            }
+
+            canvas.clear();
+            gridEditor.draw();
+        });
 
         {% if partId is not None %}
             hexGrid.readData("{% url 'apiQueryTableID' table="parts" id=partId %}", () => {
@@ -103,15 +113,11 @@
                 canvas.clear();
                 gridEditor.calculatePlaceholderHexes();
                 gridEditor.draw();
+                gridEditor.validate();
             });
         {% else %}
             gridEditor.draw();
         {% endif %}
-
-        canvas.addOnSizeListener(() => {
-            canvas.clear();
-            gridEditor.draw();
-        });
 
         // ----
 
@@ -123,8 +129,8 @@
                 icon: 'warning',
                 reverseButtons: true,
                 showCancelButton: true,
-                confirmButtonColor: '#D33',
-                cancelButtonColor: '#AAA',
+                confirmButtonColor: Dashboard.Color.RED.lighten(0.2).toRGB(),
+                cancelButtonColor: Dashboard.Color.GREY.lighten(0.2).toRGB(),
                 confirmButtonText: '{% trans 'Yes, cancel!' %}',
                 cancelButtonText: '{% trans 'No, keep editing' %}',
             }).then((result) => {
@@ -137,7 +143,69 @@
         const saveButton = document.getElementById('saveButton');
         saveButton.addEventListener('click', (event) => {
             event.preventDefault();
-            console.log(hexGrid.exportData(1));
+
+            // Check form validity
+            const form = document.getElementById('partWorkbench');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // Check if the grid is valid
+            if (!gridEditor.isValid()) {
+                const notyf = new window['Notyf']({
+                    position: {
+                        x: 'right',
+                        y: 'top',
+                    },
+                    ripple: true,
+                    dismissible: true
+                });
+
+                notyf.error({
+                    message: 'Grid is not valid!',
+                    duration: 2500,
+                });
+
+                return;
+            }
+
+            const Notiflix = window['Notiflix'];
+            Notiflix.Block.circle("#canvasHolder", 'Saving...');
+
+            const partIdInput = form.querySelector('#partID');
+            const partId = partIdInput.value;
+            
+            // Update the part tag
+            const partTagInput = form.querySelector('#partTag');
+            const partTag = partTagInput.value;
+            hexGrid.setTag(partTag);
+
+            let url = "{% url 'apiQueryTable' table="parts" %}";
+            {% if partId is not undefined %}
+                url = "{% url 'apiQueryTableID' table="parts" id=0 %}".replace(0, partId);
+            {% endif %}
+            
+            hexGrid.saveData(url, () => {
+
+                const notyf = new window['Notyf']({
+                    position: {
+                        x: 'right',
+                        y: 'top',
+                    },
+                    ripple: true,
+                    dismissible: true
+                });
+
+                notyf.success({
+                    message: 'Part saved!',
+                    duration: 2500,
+                });
+
+                setTimeout(() => {
+                    window.location.href = "{% url 'partViewer' %}";
+                }, 1000);
+            });
         });
 
         // Setup upload

@@ -9,7 +9,7 @@ module Dashboard {
             private readonly canvas: Canvas,
             private readonly hexGrid: HexGrid,
         ) {
-            this.validator = new Validator(canvas, '/api/validate/part');
+            this.validator = new Validator(canvas, '/en/api/validate/part/');
 
             this.canvas.addOnMouseClickListener(() => {
                 if (this.hoveredHex) {
@@ -23,13 +23,10 @@ module Dashboard {
                         this.hexGrid.addHex(this.hoveredHex);
                     }
 
-                    this.validator.requestValidation(this.hexGrid.exportData(0),
-                        () => this.redraw(),
-                        () => this.redraw()
-                    );
-
+                    this.validate();
                     this.calculatePlaceholderHexes();
-                    this.redraw();
+                    this.canvas.clear();
+                    this.draw();
                 }
             });
 
@@ -60,6 +57,13 @@ module Dashboard {
             this.calculatePlaceholderHexes();
         }
 
+        public validate(): void {
+            this.validator.requestValidation(this.hexGrid.exportData(0),
+                () => this.validator.draw(),
+                () => this.validator.draw()
+            );
+        }
+
         public draw(): void {
             this.canvas.setDrawn();
 
@@ -80,11 +84,6 @@ module Dashboard {
 
             this.hexGrid.draw();
             this.validator.draw();
-        }
-
-        private redraw(): void {
-            this.canvas.clear();
-            this.draw();
         }
 
         private getHexAt(coords: CubeCoordinate): Hex | null {
@@ -132,6 +131,10 @@ module Dashboard {
                 minY: minY - this.hexGrid.getHexSize(),
                 maxY: maxY + this.hexGrid.getHexSize(),
             };
+        }
+
+        public isValid(): boolean {
+            return this.validator.isValid();
         }
     }
 }

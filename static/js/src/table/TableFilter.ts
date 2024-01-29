@@ -32,6 +32,8 @@ module Dashboard {
         }
 
         public open(submitCallback: Function): void {
+            const csrfToken = (document.querySelector('#csrftoken') as HTMLInputElement).value;
+
             const request = new XMLHttpRequest();
             request.onreadystatechange = () => {
                 if (request.readyState === 4) {
@@ -102,6 +104,7 @@ module Dashboard {
 
             request.open('POST', '/en/api/filters');
             request.setRequestHeader('Content-Type', 'application/json');
+            request.setRequestHeader('X-CSRFToken', csrfToken);
             request.send(JSON.stringify(this));
         }
 
@@ -165,7 +168,7 @@ module Dashboard {
             return Array.from(this.filters)
                 .filter(f => {
                     // Ignore if value is undefined
-                    if (f.value === undefined) {
+                    if (f.value === undefined || f.value == "null") {
                         return false;
                     }
 

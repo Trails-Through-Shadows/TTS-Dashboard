@@ -52,7 +52,7 @@ module Dashboard {
             let counter = 0;
             setInterval(() => {
                 if (this.loading) {
-                    this.clear();
+                    // this.clear();
 
                     const top = 'Loading';
                     const bottom = '□'.repeat(15).split('');

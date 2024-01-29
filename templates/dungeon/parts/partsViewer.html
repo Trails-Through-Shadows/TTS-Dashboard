@@ -9,6 +9,8 @@
 {% endblock stylesheets %}
 
 {% block content %}
+    <input type="hidden" value="{{ csrf_token }}" id="csrftoken" readonly/>
+
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div class="d-block mb-4 mb-md-0">
             <h2 class="h4">{% trans 'All Parts' %}</h2>
@@ -42,7 +44,7 @@
                                 {% trans 'New Part' %}
                             </a>
 
-                            <a href="{% url 'apiQueryTable' table='parts' %}?download" target="_top" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center ms-2">
+                            <a href="javascript:void(0)" id="export-all" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center ms-2">
                                 <i class="fa-solid fa-cloud-arrow-down me-1"></i>
                                 {% trans 'Export All' %}
                             </a>
@@ -60,7 +62,7 @@
                                 <th class="border-gray-200 orderable" data-order-key="tag">{% translate 'Tag' %}</th>
                                 <th class="border-gray-200 orderable text-center" data-order-key="hexes">{% translate 'Hexes' %}</th>
                                 <th class="border-gray-200 orderable text-center" data-order-key="usages">{% translate 'Usage' %}</th>
-                                <th class="border-gray-200 text-center" id="cellActions">{% translate 'Action' %}</th>
+                                <th class="border-gray-200 table-actions">{% translate 'Action' %}</th>
                             </tr>
                         </thead>
 
@@ -105,7 +107,7 @@
         </div>
 
         <div class="col-12 col-xl-6">
-            <div class="card card-body border-0 shadow h-100" style="min-height: 400px">
+            <div class="card card-body border-0 shadow h-100" style="min-height: 500px">
                 <canvas id="hexGridView"></canvas>
             </div>
         </div>
@@ -114,10 +116,21 @@
 
 {% block javascripts %}
     <script async>
+        const notyf = new Notyf({
+            position: {
+                x: 'right',
+                y: 'top',
+            },
+            ripple: true,
+            dismissible: true
+        });
+
+        // ---- | Urls
+
         const urlParams = new URLSearchParams(window.location.search);
         let page = urlParams.get('page') || 1;
         let limit = urlParams.get('limit') || 10;
-        let search = urlParams.get('search') || '';
+        {#let search = urlParams.get('search') || '';#}
 
         const apiUrlAll = `{% url 'apiQueryTable' table='parts' %}`;
         const apiUrlSingle = `{% url 'apiQueryTableID' table='parts' id=0 %}`;
@@ -146,6 +159,18 @@
             hexGrid.draw();
         });
 
+        // ---- | Table Buttons
+
+        const exportButton = document.getElementById('export-all');
+        exportButton.addEventListener('click', () => {
+            notyf.success({
+                message: '{% trans "Downloading started, please wait." %}',
+                duration: 5000,
+            });
+
+            window.location.assign("{% url 'apiQueryTable' table='parts' %}?download");
+        });
+
         // ---- | Table
 
         const tableRoot = document.getElementById('partsTable');
@@ -171,10 +196,20 @@
         )
         const table = new Dashboard.Table(tableRoot, template, tableFilter, tableSorter, tableSearch);
 
-        {#tableSearch.set(search);#}
-        tableFilter.set("tag", search);
+        {#tableFilter.set("tag", search);#}
 
         table.setOnDataLoad(() => {
+            table.setAction("download", (element) => {
+                const id = element.getAttribute('data-part');
+
+                notyf.success({
+                    message: '{% trans "Downloading started, please wait." %}',
+                    duration: 5000,
+                });
+
+                window.assign("{% url 'apiQueryTableID' table='parts' id=0 %}".replace(0, id));
+            })
+
             table.setAction("view", (element) => {
                 const id = element.getAttribute('data-part');
 
@@ -193,8 +228,8 @@
                     icon: "warning",
                     reverseButtons: true,
                     showCancelButton: true,
-                    confirmButtonColor: Dashboard.Color.GREEN.darken(0.3).toRGB(),
-                    cancelButtonColor: Dashboard.Color.RED.toRGB(),
+                    confirmButtonColor: Dashboard.Color.RED.lighten(0.2).toRGB(),
+                    cancelButtonColor: Dashboard.Color.GREY.lighten(0.2).toRGB(),
                     confirmButtonText: "{% trans "Yes, delete it!" %}",
                     cancelButtonText: "{% trans "No, cancel!" %}",
                 }).then((result) => {
@@ -216,15 +251,6 @@
                         request.onreadystatechange = () => {
                             if (request.readyState === 4) {
                                 Swal.close();
-
-                                const notyf = new Notyf({
-                                    position: {
-                                        x: 'right',
-                                        y: 'top',
-                                    },
-                                    ripple: true,
-                                    dismissible: true
-                                });
 
                                 if (request.status === 200) {
                                     console.log(`Button | Deleting part ${id} successful`);
