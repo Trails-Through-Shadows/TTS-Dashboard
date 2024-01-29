@@ -121,9 +121,6 @@ module Dashboard {
         }
 
         private registerListeners(): void {
-            const parent = this.canvas.parentElement;
-
-
             // Loading animation task repeating every 10ms
             setInterval(() => this.draw(), 100);
 
