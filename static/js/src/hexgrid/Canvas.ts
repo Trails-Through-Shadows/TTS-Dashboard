@@ -149,8 +149,15 @@ module Dashboard {
                 this.onMouseHoverListeners.forEach(listener => listener(x, y));
             });
 
+            // Disable double click selection
+            this.canvas.addEventListener('mousedown', (event: MouseEvent) => {
+                event.preventDefault();
+            });
+
             // Mouse click listener
             this.canvas.addEventListener('click', (event: MouseEvent) => {
+                event.preventDefault();
+
                 const rect = this.canvas.getBoundingClientRect();
                 const x = event.clientX - rect.left;
                 const y = event.clientY - rect.top;
