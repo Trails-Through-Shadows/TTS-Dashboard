@@ -3,12 +3,13 @@ module Dashboard {
     export class Validator {
         private valid = false;
         private validating = true;
-        private errors: string[] = [];
+        private errors: any[] = [];
 
         private lineHeight = 24;
         private lineWidth = 0;
 
         private timeout = null;
+        private firstTime = true;
 
         constructor(
             private readonly canvas: Canvas,
@@ -42,8 +43,13 @@ module Dashboard {
                     const msg = '❌ This scheme is invalid!';
                     this.lineWidth = Math.max(this.lineWidth, ctx.measureText(msg).width);
 
+                    let errorCount = 0;
+                    if (this.errors !== undefined) {
+                        errorCount = this.errors.length;
+                    }
+
                     ctx.fillStyle = Color.RED.lighten(0.2).toRGB();
-                    ctx.fillText(msg, 0, this.canvas.getHeight() - 8 - this.errors.length * 24);
+                    ctx.fillText(msg, 0, this.canvas.getHeight() - 8 - errorCount * 24);
 
                     this.errors.forEach((error, index) => {
                         const errorMSG = ' » '+ error['message'];
@@ -58,6 +64,14 @@ module Dashboard {
 
         requestValidation(data: any, startCall: () => void, callback: (success: boolean, errors: string[]) => void): void {
             function validate(validator: Validator) {
+                if (validator.validating && !validator.firstTime) {
+                    return;
+                }
+
+                console.log(`Validator | Validating data on ${validator.apiUrl}`);
+                console.log('- Data: ', data);
+
+                validator.firstTime = false;
                 validator.validating = true;
                 validator.draw();
 
@@ -65,17 +79,23 @@ module Dashboard {
                 const csrfToken = (document.querySelector('#csrftoken') as HTMLInputElement).value;
 
                 const request = new XMLHttpRequest();
-                request.open('POST', validator.apiUrl, true);
-                request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-                request.setRequestHeader('X-CSRFToken', csrfToken);
-                request.send(JSON.stringify(data));
-
                 request.onreadystatechange = () => {
                     if (request.readyState === XMLHttpRequest.DONE) {
+                        if (request.status !== 200 && request.status !== 406) {
+                            validator.validating = false;
+                            validator.valid = false;
+                            validator.errors = [{
+                                    'message': 'An unknown error occurred. Please try again later.'
+                            }];
+
+                            callback(validator.valid, validator.errors);
+                            return;
+                        }
+
                         const jsonResponse = JSON.parse(request.responseText);
 
                         validator.validating = false;
-                        validator.valid = jsonResponse['status'] === 'OK';
+                        validator.valid = jsonResponse['status'] === 'OK'
 
                         if (!validator.valid) {
                             validator.errors = jsonResponse['errors'];
@@ -83,9 +103,21 @@ module Dashboard {
                             validator.errors = [];
                         }
 
+                        if (validator.valid) {
+                            console.log(`Validator | Data are valid`);
+                        } else {
+                            console.log(`Validator | Data are invalid`);
+                            console.log('- Errors: ', validator.errors);
+                        }
+
                         callback(validator.valid, validator.errors);
                     }
                 };
+
+                request.open('POST', validator.apiUrl, true);
+                request.setRequestHeader('Content-Type', 'application/json;');
+                request.setRequestHeader('X-CSRFToken', csrfToken);
+                request.send(JSON.stringify(data));
             }
 
             clearTimeout(this.timeout);

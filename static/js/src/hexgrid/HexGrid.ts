@@ -71,8 +71,8 @@ module Dashboard {
             request.send();
         }
 
-        exportData(id: number): string {
-            const data = {
+        exportData(id: number): {} {
+            return {
                 id: id,
                 tag: this.tag,
                 hexes: this.hexes.map((hex, index) => {
@@ -87,12 +87,16 @@ module Dashboard {
                     };
                 }),
             };
-
-            return JSON.stringify(data);
         }
 
         saveData(url: string, callback?: () => void): void {
             const currentTime = new Date().getTime();
+            const csrfToken = (document.querySelector('#csrftoken') as HTMLInputElement).value;
+
+            const data = this.exportData(this.id);
+
+            console.log(`HexGrid | Saving data to ${url}`);
+            console.log('- Data: ', data);
 
             const request = new XMLHttpRequest();
             request.onreadystatechange = () => {
@@ -104,12 +108,10 @@ module Dashboard {
                 }
             };
 
-            console.log(`HexGrid | Saving data to ${url}`);
             request.open(this.id == 0 ? 'POST' : 'PUT', url, true);
             request.setRequestHeader('Content-Type', 'application/json');
-            request.send(this.exportData(this.id));
-
-            console.log(this.exportData(this.id));
+            request.setRequestHeader('X-CSRFToken', csrfToken);
+            request.send(JSON.stringify(data));
         }
 
         draw(): void {

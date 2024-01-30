@@ -13,14 +13,22 @@ from django.http import JsonResponse, HttpResponse, FileResponse
 import time
 
 
-def requestAPI(method, url, data=None):
+def requestAPI(method, url, jsonData=None):
+    print("")
     print("Requesting: ", url)
+
+    # Decode data if binary
+    if isinstance(jsonData, bytes):
+        jsonData = jsonData.decode('utf-8')
+
+    if jsonData is not None:
+        print("- Data: ", jsonData)
 
     try:
         response = req(
             method=method,
             url=url,
-            data=data,
+            json=jsonData,
             headers={
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
@@ -36,6 +44,7 @@ def requestAPI(method, url, data=None):
         print(e)
         return 404, {'error': "Could to make connection to '" + url + "'"}
 
+    print("- Response: ", responseCode, responseData)
     return responseCode, responseData
 
 
@@ -74,12 +83,12 @@ class ApiView(View):
 
         # Return error
         if responseCode < 200 or responseCode >= 300:
-            print(" --> Errored... ", responseData)
+            print("--> Errored... ", responseData)
             return JsonResponse(responseData, status=responseCode)
 
         # Download single data
         if download is not None:
-            print(" --> Downloading data...", responseData)
+            print("--> Downloading data...", responseData)
             return JsonFile(
                 table + '-' + str(id) + '.json' if id is not None else table + '.json',
                 responseData if id is not None else responseData['entries'],
@@ -87,7 +96,7 @@ class ApiView(View):
 
         # Return raw json data
         if templateFile is None:
-            print(" --> Returning raw data...")
+            print("--> Returning raw data...")
             return JsonResponse(responseData)
 
         # Append pagination data
@@ -108,21 +117,26 @@ class ApiView(View):
                 'prev': max(page - 1, 1)
             }
 
-        print(" --> Rendering template...", templateFile)
+        print("--> Rendering template...", templateFile)
         html_template = loader.get_template(templateFile)
         return HttpResponse(html_template.render(responseData, request))
 
     @staticmethod
     def post(request, *args, **kwargs):
         table = kwargs.get('table', None)
-        jsonData = json.loads(request.body)
+        data = {}
+
+        if request.body:
+            data = json.loads(request.body)
+        else:
+            return JsonResponse({'error': 'No data provided'}, status=400)
 
         # Make Array or data if not
-        if not isinstance(jsonData, list):
-            jsonData = [jsonData]
+        if not isinstance(data, list):
+            data = [data]
 
         url = f"{API_URL}/{table}"
-        responseCode, responseData = requestAPI("post", url, jsonData)
+        responseCode, responseData = requestAPI("post", url, data)
 
         return JsonResponse(responseData, status=responseCode)
 
@@ -130,9 +144,15 @@ class ApiView(View):
     def put(request, *args, **kwargs):
         table = kwargs.get('table', None)
         id = kwargs.get('id', None)
+        data = {}
+
+        if request.body:
+            data = json.loads(request.body)
+        else:
+            return JsonResponse({'error': 'No data provided'}, status=400)
 
         url = f"{API_URL}/{table}/{id}"
-        responseCode, responseData = requestAPI("put", url, request.body)
+        responseCode, responseData = requestAPI("put", url, data)
 
         return JsonResponse(responseData, status=responseCode)
 
@@ -161,7 +181,7 @@ def validateTable(request, table):
     url = f"{API_URL}/validate/{table}"
     responseCode, responseData = requestAPI("post", url, data)
 
-    return JsonResponse(responseData, status=200)
+    return JsonResponse(responseData, status=responseCode)
 
 def createFilter(request):
     data = {}
