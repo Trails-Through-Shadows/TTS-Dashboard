@@ -54,6 +54,12 @@ module Dashboard {
             return {x, y};
         }
 
+        public toOffset(): Pixel {
+            const x = this.q + (this.r - (this.r & 1)) / 2;
+            const y = this.r;
+            return {x, y};
+        }
+
         public isZero(): boolean {
             return this.q === 0 && this.r === 0 && this.s === 0;
         }
