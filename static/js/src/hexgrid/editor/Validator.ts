@@ -28,11 +28,19 @@ module Dashboard {
             ctx.textAlign = 'left';
 
             if (this.validating) {
-                const msg = '⏳ Validating part scheme...';
-                this.lineWidth = Math.max(this.lineWidth, ctx.measureText(msg).width);
+                if (this.shouldRunAgain || (this.firstTime && !this.shouldRunAgain)) {
+                    const msg = '⏳❌ Validating interrupted... Waiting...';
+                    this.lineWidth = Math.max(this.lineWidth, ctx.measureText(msg).width);
 
-                ctx.fillStyle = Color.ORANGE.toRGB();
-                ctx.fillText(msg, 0, this.canvas.getHeight() - 8);
+                    ctx.fillStyle = Color.ORANGE.toRGB();
+                    ctx.fillText(msg, 0, this.canvas.getHeight() - 8);
+                } else {
+                    const msg = '⏳ Validating part scheme...';
+                    this.lineWidth = Math.max(this.lineWidth, ctx.measureText(msg).width);
+
+                    ctx.fillStyle = Color.ORANGE.toRGB();
+                    ctx.fillText(msg, 0, this.canvas.getHeight() - 8);
+                }
             } else {
                 if (this.valid) {
                     const msg = '✅ This scheme is valid!';
@@ -64,12 +72,13 @@ module Dashboard {
         }
 
         requestValidation(data: any, startCall: () => void, callback: (success: boolean, errors: string[]) => void): void {
-            // if (this.validating && !this.firstTime) {
-            // }
+            if (this.validating && !this.firstTime && !this.shouldRunAgain) {
+                startCall();
+                this.shouldRunAgain = true;
+            }
 
             function validate(validator: Validator) {
                 if (validator.validating && !validator.firstTime) {
-                    validator.shouldRunAgain = true;
                     return;
                 }
 
@@ -88,9 +97,9 @@ module Dashboard {
                     if (request.readyState === XMLHttpRequest.DONE) {
                         if (validator.shouldRunAgain) {
                             validator.shouldRunAgain = false;
-                            validator.validating = false;
-                            validate(validator);
+                            validator.firstTime = true;
                             console.log(`Validator | Running again...`);
+                            validator.requestValidation(data, startCall, callback);
                             return;
                         }
 
