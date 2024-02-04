@@ -10,6 +10,7 @@ module Dashboard {
 
         private timeout = null;
         private firstTime = true;
+        private shouldRunAgain = false;
 
         constructor(
             private readonly canvas: Canvas,
@@ -63,8 +64,12 @@ module Dashboard {
         }
 
         requestValidation(data: any, startCall: () => void, callback: (success: boolean, errors: string[]) => void): void {
+            // if (this.validating && !this.firstTime) {
+            // }
+
             function validate(validator: Validator) {
                 if (validator.validating && !validator.firstTime) {
+                    validator.shouldRunAgain = true;
                     return;
                 }
 
@@ -81,6 +86,14 @@ module Dashboard {
                 const request = new XMLHttpRequest();
                 request.onreadystatechange = () => {
                     if (request.readyState === XMLHttpRequest.DONE) {
+                        if (validator.shouldRunAgain) {
+                            validator.shouldRunAgain = false;
+                            validator.validating = false;
+                            validate(validator);
+                            console.log(`Validator | Running again...`);
+                            return;
+                        }
+
                         if (request.status !== 200) {
                             validator.validating = false;
                             validator.valid = false;
