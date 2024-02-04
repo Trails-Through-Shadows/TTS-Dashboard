@@ -111,11 +111,13 @@
 
         const tagInput = document.getElementById('partTag');
         tagInput.addEventListener('input', () => {
+            hexGrid.setTag(tagInput.value);
             gridEditor.validate();
         });
 
         const titleInput = document.getElementById('partTitle');
         titleInput.addEventListener('input', () => {
+            hexGrid.setTitle(titleInput.value);
             gridEditor.validate();
         });
 
@@ -196,11 +198,6 @@
 
             const partIdInput = form.querySelector('#partID');
             const partId = partIdInput.value;
-            
-            // Update the part tag
-            const partTagInput = form.querySelector('#partTag');
-            const partTag = partTagInput.value;
-            hexGrid.setTag(partTag);
 
             let url = "{% url 'apiQueryTable' table="parts" %}";
             {% if partId is not undefined %}
