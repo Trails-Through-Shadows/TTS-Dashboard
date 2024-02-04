@@ -180,8 +180,9 @@ def validateTable(request, table):
 
     url = f"{API_URL}/validate/{table}"
     responseCode, responseData = requestAPI("post", url, data)
+    status = responseCode == 200 or responseCode == 406
 
-    return JsonResponse(responseData, status=responseCode)
+    return JsonResponse(responseData, status=200 if status else responseCode)
 
 def createFilter(request):
     data = {}

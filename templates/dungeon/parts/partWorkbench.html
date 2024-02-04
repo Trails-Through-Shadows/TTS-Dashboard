@@ -38,7 +38,12 @@
 
                                     <div class="col-12 mb-3">
                                         <label for="partTag">Part Tag:</label>
-                                        <input class="form-control" id="partTag" type="text" placeholder="Enter short identifier" required="">
+                                        <input class="form-control" id="partTag" type="text" placeholder="Enter short identifier" required>
+                                    </div>
+
+                                    <div class="col-12 mb-3">
+                                        <label for="partTitle">Part Title:</label>
+                                        <input class="form-control" id="partTitle" type="text" placeholder="Enter title of part" required>
                                     </div>
                                 </div>
                             </div>
@@ -104,10 +109,20 @@
             gridEditor.draw();
         });
 
+        const tagInput = document.getElementById('partTag');
+        tagInput.addEventListener('input', () => {
+            gridEditor.validate();
+        });
+
+        const titleInput = document.getElementById('partTitle');
+        titleInput.addEventListener('input', () => {
+            gridEditor.validate();
+        });
+
         {% if partId is not None %}
             hexGrid.readData("{% url 'apiQueryTableID' table="parts" id=partId %}", () => {
-                const tagInput = document.getElementById('partTag');
                 tagInput.value = hexGrid.getTag();
+                titleInput.value = hexGrid.getTitle();
 
                 canvas.setLoading(false);
                 canvas.clear();
@@ -152,27 +167,32 @@
                 return;
             }
 
+            // Check if grid is validating
+            if (gridEditor.isValidating()) {
+                return Swal.fire({
+                    icon: 'warning',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Grid is validating, please wait!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
+                });
+            }
+            
             // Check if the grid is valid
             if (!gridEditor.isValid()) {
-                const notyf = new window['Notyf']({
-                    position: {
-                        x: 'right',
-                        y: 'top',
-                    },
-                    ripple: true,
-                    dismissible: true
+                return Swal.fire({
+                    icon: 'error',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Grid is not valid!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
                 });
-
-                notyf.error({
-                    message: 'Grid is not valid!',
-                    duration: 2500,
-                });
-
-                return;
             }
 
             const Notiflix = window['Notiflix'];
-            Notiflix.Block.circle("#canvasHolder", 'Saving...');
+            Notiflix.Block.circle("#partWorkbench", 'Saving...');
 
             const partIdInput = form.querySelector('#partID');
             const partId = partIdInput.value;
@@ -188,27 +208,51 @@
             {% endif %}
             
             hexGrid.saveData(url, () => {
-
-                const notyf = new window['Notyf']({
-                    position: {
-                        x: 'right',
-                        y: 'top',
-                    },
-                    ripple: true,
-                    dismissible: true
-                });
-
-                notyf.success({
-                    message: 'Part saved!',
-                    duration: 2500,
-                });
+                Swal.fire({
+                    icon: 'success',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Success, part saved!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
+                })
 
                 setTimeout(() => {
                     window.location.href = "{% url 'partViewer' %}";
                 }, 1000);
+            }, (responseText) => {
+                Notiflix.Block.remove("#canvasHolder");
+
+                Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 10000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        toast.addEventListener('click', () => {
+                            const data = JSON.parse(responseText);
+                            const string = JSON.stringify(data, null, 4);
+
+                            Swal.fire({
+                                text: string,
+                                customClass: {
+                                    htmlContainer: 'text-start text-pre'
+                                },
+                                showConfirmButton: false,
+                            });
+                        })
+                    }
+                }).fire({
+                    icon: "error",
+                    title: '{% trans "Error, saving failed! Click for more information." %}'
+                });
             });
         });
-
+        
+        //region Upload hidden button
         // Setup upload
         /*
         const uploadButton = document.getElementById('uploadButton');
@@ -292,5 +336,6 @@
             }
         });
         */
+//endregion
     </script>
 {% endblock javascripts %}

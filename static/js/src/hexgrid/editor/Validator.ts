@@ -81,7 +81,7 @@ module Dashboard {
                 const request = new XMLHttpRequest();
                 request.onreadystatechange = () => {
                     if (request.readyState === XMLHttpRequest.DONE) {
-                        if (request.status !== 200 && request.status !== 406) {
+                        if (request.status !== 200) {
                             validator.validating = false;
                             validator.valid = false;
                             validator.errors = [{
@@ -127,6 +127,9 @@ module Dashboard {
         isValid(): boolean {
             return this.valid;
         }
-    }
 
+        isValidating(): boolean {
+            return this.validating;
+        }
+    }
 }

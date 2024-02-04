@@ -44,7 +44,7 @@
                                 {% trans 'New Part' %}
                             </a>
 
-                            <a href="javascript:void(0)" id="export-all" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center ms-2">
+                            <a href="{% url 'apiQueryTable' table='parts' %}?download" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center ms-2">
                                 <i class="fa-solid fa-cloud-arrow-down me-1"></i>
                                 {% trans 'Export All' %}
                             </a>
@@ -59,6 +59,7 @@
                         <thead>
                             <tr>
                                 <th class="border-gray-200 orderable" data-order-key="id">#</th>
+                                <th class="border-gray-200 orderable" data-order-key="title">{% translate 'Title' %}</th>
                                 <th class="border-gray-200 orderable" data-order-key="tag">{% translate 'Tag' %}</th>
                                 <th class="border-gray-200 orderable text-center" data-order-key="hexes">{% translate 'Hexes' %}</th>
                                 <th class="border-gray-200 orderable text-center" data-order-key="usages">{% translate 'Usage' %}</th>
@@ -69,7 +70,7 @@
                         <tbody>
                             {% for i in 10|range %}
                                 <tr>
-                                    {% for y in 5|range %}
+                                    {% for y in 6|range %}
                                         <td class="text-center">
                                             <span class="skeleton-line"></span>
                                         </td>
@@ -116,14 +117,7 @@
 
 {% block javascripts %}
     <script async>
-        const notyf = new Notyf({
-            position: {
-                x: 'right',
-                y: 'top',
-            },
-            ripple: true,
-            dismissible: true
-        });
+        const csrfToken = document.querySelector('#csrftoken').value;
 
         // ---- | Urls
 
@@ -158,18 +152,6 @@
             hexGrid.draw();
         });
 
-        // ---- | Table Buttons
-
-        const exportButton = document.getElementById('export-all');
-        exportButton.addEventListener('click', () => {
-            notyf.success({
-                message: '{% trans "Downloading started, please wait." %}',
-                duration: 5000,
-            });
-
-            window.location.assign("{% url 'apiQueryTable' table='parts' %}?download");
-        });
-
         // ---- | Table
 
         const tableRoot = document.getElementById('partsTable');
@@ -196,18 +178,6 @@
         const table = new Dashboard.Table(tableRoot, template, tableFilter, tableSorter, tableSearch);
 
         table.setOnDataLoad(() => {
-            table.setAction("download", (element) => {
-                const id = element.getAttribute('data-part');
-
-                console.log(`Button | Downloading part ${id}`);
-                notyf.success({
-                    message: '{% trans "Downloading started, please wait." %}',
-                    duration: 5000,
-                });
-
-                window.assign("{% url 'apiQueryTableID' table='parts' id=0 %}".replace(0, id));
-            })
-
             table.setAction("view", (element) => {
                 const id = element.getAttribute('data-part');
 
@@ -233,8 +203,6 @@
                     cancelButtonText: "{% trans "No, cancel!" %}",
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        const csrfToken = document.querySelector('#csrftoken').value;
-
                         console.log(`Button | Deleting part ${id}`);
                         Swal.fire({
                             title: '{% trans "Deleting..." %}',
@@ -291,27 +259,6 @@
                                         icon: "error",
                                         title: '{% trans "Error, deletion failed! Click for more information." %}'
                                     });
-
-                                    /*
-                                    const notification = notyf.error({
-                                        message: '{% trans "Error, deletion failed! Click for more information." %}',
-                                        duration: 10000
-                                    });
-
-                                    notification.on('click', ({target, event}) => {
-                                        const data = JSON.parse(request.responseText);
-                                        const string = JSON.stringify(data, null, 4);
-
-                                        notyf.dismiss(notification);
-                                        Swal.fire({
-                                            text: string,
-                                            customClass: {
-                                                htmlContainer: 'text-start text-pre'
-                                            },
-                                            showConfirmButton: false,
-                                        });
-                                    });
-                                    */
                                 }
                             }
                         };

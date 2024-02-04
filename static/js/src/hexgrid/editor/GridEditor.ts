@@ -136,5 +136,9 @@ module Dashboard {
         public isValid(): boolean {
             return this.validator.isValid();
         }
+
+        public isValidating(): boolean {
+            return this.validator.isValidating();
+        }
     }
 }

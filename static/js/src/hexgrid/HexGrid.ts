@@ -11,6 +11,7 @@ module Dashboard {
         private hoveredHex: Hex | null = null;
         private id: number = 0;
         private tag: string = '';
+        private title: string = '';
 
         constructor(
             private canvas: Canvas,
@@ -48,6 +49,7 @@ module Dashboard {
                     // Map attributes
                     this.id = data['id'];
                     this.tag = data['tag'];
+                    this.title = data['title'];
 
                     // Map hexes
                     this.hexes = data['hexes'].map(({q, r, s}) => {
@@ -75,6 +77,7 @@ module Dashboard {
             return {
                 id: id,
                 tag: this.tag,
+                title: this.title,
                 hexes: this.hexes.map((hex, index) => {
                     return {
                         key: {
@@ -89,7 +92,7 @@ module Dashboard {
             };
         }
 
-        saveData(url: string, callback?: () => void): void {
+        saveData(url: string, success?: Function, fail?: Function): void {
             const currentTime = new Date().getTime();
             const csrfToken = (document.querySelector('#csrftoken') as HTMLInputElement).value;
 
@@ -100,11 +103,18 @@ module Dashboard {
 
             const request = new XMLHttpRequest();
             request.onreadystatechange = () => {
-                if (request.readyState === 4 && request.status === 200) {
+                if (request.readyState === 4) {
                     const took = new Date().getTime() - currentTime;
-                    console.log(`HexGrid | Data saved in ${took}ms`);
 
-                    if (callback) callback();
+                    if (request.status === 200) {
+                        console.log(`HexGrid | Data saved in ${took}ms`);
+                        if (success) success();
+                    } else {
+                        console.error(`HexGrid | Failed to save data in ${took}ms`);
+                        console.error('- Status: ', request.status);
+                        console.error('- Response: ', request.responseText);
+                        if (fail) fail(request.responseText);
+                    }
                 }
             };
 
@@ -271,6 +281,14 @@ module Dashboard {
 
         setTag(tag: string): void {
             this.tag = tag;
+        }
+
+        getTitle(): string {
+            return this.title;
+        }
+
+        setTitle(title: string): void {
+            this.title = title;
         }
     }
 }

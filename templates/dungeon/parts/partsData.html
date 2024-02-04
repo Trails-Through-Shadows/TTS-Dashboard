@@ -5,6 +5,7 @@
         <thead>
             <tr>
                 <th class="border-gray-200 orderable" data-order-key="id">#</th>
+                <th class="border-gray-200 orderable" data-order-key="title">{% translate 'Title' %}</th>
                 <th class="border-gray-200 orderable" data-order-key="tag">{% translate 'Tag' %}</th>
                 <th class="border-gray-200 orderable text-center" data-order-key="hexes">{% translate 'Hexes' %}</th>
                 <th class="border-gray-200 orderable text-center" data-order-key="usages">{% translate 'Usage' %}</th>
@@ -22,6 +23,10 @@
                     <tr>
                         <td>
                             <span class="fw-normal">{{ part.id }}</span>
+                        </td>
+
+                        <td>
+                            <span class="fw-normal">{{ part.title }}</span>
                         </td>
                         
                         <td>
@@ -62,7 +67,7 @@
                                     </button>
                                 </a>
 
-                                <a href="{% url 'apiQueryTableID' table='parts' id=part.id %}?download" target="_top" data-action="download" data-part="{{ part.id }}">
+                                <a href="{% url 'apiQueryTableID' table='parts' id=part.id %}?download" target="_top">
                                     <button class="btn btn-link text-dark m-0 p-0">
                                         <span class="icon icon-lg">
                                             <i class="fa-solid fa-download"></i>
