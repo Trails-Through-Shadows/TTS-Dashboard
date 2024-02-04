@@ -124,6 +124,15 @@ module Dashboard {
             request.send(JSON.stringify(data));
         }
 
+        reset(): void {
+            this.id = 0;
+            this.tag = '';
+            this.title = '';
+            this.hexes = [];
+
+            this.canvas.setDrawn(false);
+        }
+
         draw(): void {
             if (this.hexes.length === 0) return;
             const offset: Offset = this.getOffset();

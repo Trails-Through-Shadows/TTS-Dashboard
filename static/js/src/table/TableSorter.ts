@@ -66,10 +66,7 @@ module Dashboard {
                         if (sort.key !== key) {
                             sort.order = Order.NONE;
                         } else {
-                            console.log(sort.key);
-                            console.log(sort.order);
                             sort.order = next(sort.order);
-                            console.log(sort.order);
                         }
                     });
                 }

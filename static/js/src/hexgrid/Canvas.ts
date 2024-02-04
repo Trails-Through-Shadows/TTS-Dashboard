@@ -62,8 +62,6 @@ module Dashboard {
         }
 
         public title(text: string, subtitle: string): void {
-            // this.clear();
-
             const ctx = this.getContext();
             ctx.fillStyle = new Dashboard.Color(255, 255, 255, 0.1).toRGB();
             ctx.shadowColor = new Dashboard.Color(0, 0, 0, 0.75).toRGB();
@@ -192,8 +190,8 @@ module Dashboard {
             return this.height;
         }
 
-        public setDrawn(): void {
-            this.written = true;
+        public setDrawn(state: boolean = false): void {
+            this.written = state;
         }
 
         public isDrawn(): boolean {

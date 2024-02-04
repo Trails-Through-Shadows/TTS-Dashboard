@@ -131,12 +131,13 @@
 
         // ---- | Canvas
 
-        const canvasRoot = document.getElementById('hexGridView');
-        const canvas = new Dashboard.Canvas(canvasRoot, {
+        const title = {
             title: '{% trans 'No Data' %}',
             subtitle: '{% trans 'Please select a part to render.' %}',
             spacer: 100
-        });
+        }
+        const canvasRoot = document.getElementById('hexGridView');
+        const canvas = new Dashboard.Canvas(canvasRoot, title);
 
         // ---- | Hex Grid
 
@@ -162,6 +163,7 @@
         ]);
         const tableSorter = new Dashboard.TableSorter([
             { key: "id", order: "asc" },
+            { key: "title" },
             { key: "tag" },
             { key: "hexes" },
             { key: "usages" }], 
@@ -229,6 +231,12 @@
                                         showConfirmButton: false,
                                         timer: 2500
                                     })
+                                    
+                                    if (hexGrid.getID() == id) {
+                                        hexGrid.reset();
+                                        canvas.clear();
+                                        canvas.title(title.title, title.subtitle);
+                                    }
 
                                     table.queryData(apiUrlAll, page, limit);
                                 } else {
