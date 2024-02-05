@@ -1,4 +1,5 @@
 {% extends "layouts/base.html" %}
+{% load static %}
 {% load filters %}
 {% load i18n %}
 
@@ -9,6 +10,8 @@
 {% endblock stylesheets %}
 
 {% block content %}
+    <input type="hidden" value="{{ csrf_token }}" id="csrftoken" readonly/>
+
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div class="d-block mb-4 mb-md-0">
             <h2 class="h4">{% translate 'All Enemies' %}</h2>
@@ -17,8 +20,8 @@
     </div>
 
     <div class="row">
-        <div class="col-12 col-xl-8" id="table">
-            <div class="table-settings mb-2" id="tableSettings">
+        <div class="col-12 col-xl-8" id="enemiesTable">
+            <div class="table-settings mb-2">
                 <div class="row align-items-center justify-content-between">
                     <div class="col-12 col-sm-6">
                         <div class="input-group fmxw-500">
@@ -26,44 +29,45 @@
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </span>
 
-                            <input type="text" class="form-control" placeholder="{% translate 'Search' %}" id="tableSearch" value="{{ SEARCH }}">
+                            <a href="javascript:void(0)" class="input-group-text align-items-center table-filter">
+                                <i class="fa-solid fa-filter me-1"></i>
+                                <span>{% trans 'Filter' %}</span>
+                            </a>
+
+                            <input class="form-control table-search" type="text" placeholder="{% trans 'Input search keyword..' %}" value="{{ SEARCH }}">
                         </div>
                     </div>
 
                     <div class="col-12 col-sm-6">
                         <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
-{#                            <a href="{% url 'partCreator' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">#}
-{#                                <i class="fa-solid fa-plus me-1"></i>#}
-{#                                {% translate 'New Part' %}#}
-{#                            </a>#}
+                            <a href="{% url 'partWorkbench' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                                <i class="fa-solid fa-plus me-1"></i>
+                                {% trans 'New Enemy' %}
+                            </a>
 
-                            <div class="btn-group ms-2 ms-lg-3">
-                                <a href="javascript:void(0)" class="btn btn-sm btn-outline-gray-600" id="uploadButton">
-                                    {% translate 'Upload' %}
-                                </a>
-                                
-                                <a href="{% url 'apiQueryTable' table='parts' %}?download" target="_top" class="btn btn-sm btn-outline-gray-600" id="exportButton">
-                                    {% translate 'Export' %}
-                                </a>
-                            </div>
+                            <a href="{% url 'apiQueryTable' table='enemies' %}?download" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center ms-2">
+                                <i class="fa-solid fa-cloud-arrow-down me-1"></i>
+                                {% trans 'Export All' %}
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div id="tableData">
-                <div class="table-wrapper table-responsive card card-body border-0 shadow">
+            <div id="tableDataReplacement">
+                <div class="table-wrapper table-responsive card card-body border-0 shadow" id="tableData">
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th class="border-gray-200">#</th>
-                                <th class="border-gray-200">{% translate 'Name' %}</th>
+                                <th class="border-gray-200">{% translate 'Title' %}</th>
+                                <th class="border-gray-200">{% translate 'Tag' %}</th>
                                 <th class="border-gray-200 text-center">{% translate 'Health' %}</th>
                                 <th class="border-gray-200 text-center">{% translate 'Defence' %}</th>
                                 <th class="border-gray-200 text-center">{% translate 'Effects' %}</th>
                                 <th class="border-gray-200 text-center">{% translate 'Actions' %}</th>
                                 <th class="border-gray-200 text-center">{% translate 'Usages' %}</th>
-                                <th class="border-gray-200 text-center">{% translate 'Action' %}</th>
+                                <th class="border-gray-200 table-actions">{% translate 'Action' %}</th>
                             </tr>
                         </thead>
 
@@ -82,10 +86,10 @@
                 </div>
 
                 <div class="table-pagination mt-2 d-flex flex-column flex-lg-row align-items-center justify-content-between">
-                    <nav aria-label="Page navigation example">
+                    <nav aria-label="Table navigation">
                         <ul class="pagination mb-0">
                             <li class="page-item">
-                                <a class="page-link" href="#">{% translate 'Previous' %}</a>
+                                <a class="page-link" href="#">{% trans 'Previous' %}</a>
                             </li>
 
                             {% for i in 5|range %}
@@ -95,20 +99,65 @@
                             {% endfor %}
 
                             <li class="page-item">
-                                <a class="page-link" href="#">{% translate 'Next' %}</a>
+                                <a class="page-link" href="#">{% trans 'Next' %}</a>
                             </li>
                         </ul>
                     </nav>
 
                     <div class="fw-normal small mt-4 mt-lg-0">
-                        {% translate 'Showing' %} <b>10</b> {% translate 'of' %} <b>10</b> {% translate 'entries' %}
+                        {% trans 'Showing' %} <b>10</b> {% trans 'of' %} <b>10</b> {% trans 'entries' %}
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-12 col-xl-4">
-            <div class="card card-body border-0 shadow h-100">
+        <div class="col-12 col-xl-4" id="enemiesData">
+            <div class="card card-body border-0 shadow" id="entryDataReplacement">
+                <div class="row">
+                    <div class="col-4 align-self-center">
+                        <img src="{% static 'img/imgPlaceholder.png' %}" alt="Enemy Image" class="img-fluid rounded">
+                    </div>
+
+                    <div class="col-8 align-self-center">
+                        <div class="py-2">
+                            <h2 class="h5 mb-2"><span class="skeleton-line w-25"></span></h2>
+
+                            <div class="d-flex align-items-center">
+                                <span class="skeleton-line w-100"></span>
+                            </div>
+
+                            <div class="d-flex align-items-center mt-2">
+                                <span class="skeleton-line w-100" style="height: 6vh;"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <h5 class="mt-2 mb-0">{% trans 'Attributes:' %}</h5>
+
+                        <div class="accordion accordion-flush" id="entryAttributes">
+                            {% for i in 3|range %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-actions-{{ i }}" aria-expanded="false" aria-controls="flush-actions-{{ i }}">
+                                            <span class="badge bg-secondary me-1 rounded-1">?</span> <span class="skeleton-line w-25"></span>
+                                        </button>
+                                    </h2>
+
+                                    <div id="flush-actions-{{ i }}" class="accordion-collapse collapse" data-bs-parent="#entryAttributes">
+                                        <div class="accordion-body">
+                                            <div class="row row-cols-auto">
+                                                {% for y in 5|range %}
+                                                    <span class="skeleton-line"></span>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -116,24 +165,65 @@
 
 {% block javascripts %}
     <script async defer>
+        const csrfToken = document.querySelector('#csrftoken').value;
+
+        // ---- | Urls
+
         const urlParams = new URLSearchParams(window.location.search);
         let page = urlParams.get('page') || 1;
         let limit = urlParams.get('limit') || 10;
-        let filter = urlParams.get('filter') || '';
-        let sort = urlParams.get('sort') || '';
 
         const apiUrlAll = `{% url 'apiQueryTable' table='enemies' %}`;
         const apiUrlSingle = `{% url 'apiQueryTableID' table='enemies' id=0 %}`;
-        const template = '/dungeon/enemies/enemiesData.html';
+        const template = 'dungeon/enemies/enemyTable.html';
+        const templateInfo = 'dungeon/enemies/enemyEntry.html';
 
-        // ----
+        // ---- | Data
 
-        const tableRoot = document.getElementById('table');
-        const tableFilter = new Dashboard.TableFilter(["tag:has"]);
-        const tableSort = new Dashboard.TableSorter(["combatStyle", "health", "defence", "usages"]);
-        const table = new Dashboard.Table(tableRoot, template, tableFilter);
+        const dataRoot = document.getElementById('enemiesData');
+        const data = new Dashboard.Data(dataRoot, templateInfo);
 
-        table.getFilter().set('tag', filter)
+        // ---- | Table
+
+        const tableFilter = new Dashboard.TableFilter([
+            { title: 'Title contains:', key: 'title', type: 'has', hidden: true },
+            { title: 'Health between:', key: 'baseHealth', type: 'bwn', bounds: {min: 0, max: 50} },
+            { title: 'Defence between:', key: 'baseDefence', type: 'bwn', bounds: {min: 0, max: 50} },
+            { title: 'Usages between:', key: 'effects', type: 'bwn', bounds: {min: 0, max: 50} },
+            { title: 'Usages between:', key: 'actions', type: 'bwn', bounds: {min: 0, max: 50} },
+            { title: 'Usages between:', key: 'usages', type: 'bwn', bounds: {min: 0, max: 50} }
+        ]);
+        const tableSorter = new Dashboard.TableSorter([
+            { key: "id", order: "asc" },
+            { key: "title" },
+            { key: "tag" },
+            { key: "baseHealth" },
+            { key: "baseDefence" },
+            { key: "effects" },
+            { key: "actions" },
+            { key: "usages" }
+        ], true);
+        const tableSearch = new Dashboard.TableSearch(
+            (input) => { // On Search input
+                tableFilter.set("title", input);
+            },
+            () => { // On filter change
+                return tableFilter.get("title");
+            }
+        )
+
+        const tableRoot = document.getElementById('enemiesTable');
+        const table = new Dashboard.Table(tableRoot, template, tableFilter, tableSorter, tableSearch);
+
+        table.setOnDataLoad(() => {
+            table.setAction("view", (element) => {
+                const id = element.getAttribute('data-entry');
+
+                console.log(`Button | Viewing enemy ${id}`);
+                data.queryData(apiUrlSingle.replace('0', id));
+            });
+        });
+
         table.queryData(apiUrlAll, page, limit);
     </script>
 {% endblock javascripts %}

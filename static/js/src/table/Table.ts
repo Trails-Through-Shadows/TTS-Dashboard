@@ -74,12 +74,12 @@ module Dashboard {
                 if (request.readyState === 4) {
                     const status = request.status;
 
-                    const tableDataElement = this.root.querySelector('#tableDataReplacement');
-                    tableDataElement.innerHTML = request.responseText;
-
                     if (status === 200) {
                         const took = new Date().getTime() - currentTime;
                         console.log(`Table | Query took ${took}ms`);
+
+                        const tableDataElement = this.root.querySelector('#tableDataReplacement');
+                        tableDataElement.innerHTML = request.responseText;
 
                         // Setup table headers for sorting
                         const tableHeaders = this.root.querySelectorAll('.orderable');
@@ -107,6 +107,7 @@ module Dashboard {
 
                         this.onDataLoad();
                     } else {
+                        // TODO: Show error message
                         console.log(`Table | Query failed with status ${request.status}`);
                     }
                 }

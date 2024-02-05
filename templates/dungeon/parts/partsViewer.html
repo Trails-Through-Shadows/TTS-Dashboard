@@ -58,11 +58,11 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th class="border-gray-200 orderable" data-order-key="id">#</th>
-                                <th class="border-gray-200 orderable" data-order-key="title">{% translate 'Title' %}</th>
-                                <th class="border-gray-200 orderable" data-order-key="tag">{% translate 'Tag' %}</th>
-                                <th class="border-gray-200 orderable text-center" data-order-key="hexes">{% translate 'Hexes' %}</th>
-                                <th class="border-gray-200 orderable text-center" data-order-key="usages">{% translate 'Usage' %}</th>
+                                <th class="border-gray-200">#</th>
+                                <th class="border-gray-200">{% translate 'Title' %}</th>
+                                <th class="border-gray-200">{% translate 'Tag' %}</th>
+                                <th class="border-gray-200 text-center">{% translate 'Hexes' %}</th>
+                                <th class="border-gray-200 text-center">{% translate 'Usage' %}</th>
                                 <th class="border-gray-200 table-actions">{% translate 'Action' %}</th>
                             </tr>
                         </thead>
@@ -127,7 +127,7 @@
 
         const apiUrlAll = `{% url 'apiQueryTable' table='parts' %}`;
         const apiUrlSingle = `{% url 'apiQueryTableID' table='parts' id=0 %}`;
-        const template = 'dungeon/parts/partsData.html';
+        const template = 'dungeon/parts/partTable.html';
 
         // ---- | Canvas
 
@@ -157,7 +157,7 @@
 
         const tableRoot = document.getElementById('partsTable');
         const tableFilter = new Dashboard.TableFilter([
-            { title: "Tag contains:", key: 'tag', type: 'has', hidden: true },
+            { title: "Title contains:", key: 'title', type: 'has', hidden: true },
             { title: "Hexes between:", key: 'hexes', type: 'bwn', bounds: {min: 0, max: 100} },
             { title: "Usages between:", key: 'usages', type: 'bwn', bounds: {min: 0, max: 20} },
         ]);
@@ -166,15 +166,14 @@
             { key: "title" },
             { key: "tag" },
             { key: "hexes" },
-            { key: "usages" }], 
-            true // Allow multiple
-        );
+            { key: "usages" }
+        ], true);
         const tableSearch = new Dashboard.TableSearch(
             (input) => { // On Search input
-                tableFilter.set("tag", input);
+                tableFilter.set("title", input);
             },
             () => { // On filter change
-                return tableFilter.get("tag");
+                return tableFilter.get("title");
             }
         )
         const table = new Dashboard.Table(tableRoot, template, tableFilter, tableSorter, tableSearch);

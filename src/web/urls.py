@@ -12,4 +12,6 @@ urlpatterns = [
     path('dungeon/parts/workbench/', views.parkWorkbench, name="partWorkbench"),
     path('dungeon/parts/workbench/<int:id>/', views.parkWorkbench, name="partWorkbenchEdit"),
     path('dungeon/enemies/', views.enemyViewer, name="enemyViewer"),
+    path('dungeon/enemies/workbench/', views.enemyWorkbench, name="enemyWorkbench"),
+    path('dungeon/enemies/workbench/<int:id>/', views.enemyWorkbench, name="enemyWorkbenchEdit"),
 ]

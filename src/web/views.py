@@ -21,10 +21,19 @@ def parkWorkbench(request, id=None):
         "partId": id,
     }
 
-    html_template = loader.get_template('dungeon/parts/partWorkbench.html')
+    html_template = loader.get_template('dungeon/parts/partsWorkbench.html')
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
 def enemyViewer(request):
     html_template = loader.get_template('dungeon/enemies/enemiesViewer.html')
     return HttpResponse(html_template.render(None, request))
+
+@login_required(login_url="/login/")
+def enemyWorkbench(request, id=None):
+    context = {
+        "enemyId": id,
+    }
+
+    html_template = loader.get_template('dungeon/enemies/enemiesWorkbench.html')
+    return HttpResponse(html_template.render(context, request))
