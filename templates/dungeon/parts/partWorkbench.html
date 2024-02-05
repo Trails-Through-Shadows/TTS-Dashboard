@@ -99,6 +99,7 @@
             new Dashboard.Hex(new Dashboard.CubeCoordinate(0, 0, 0), hexGridSize, [])
         ]);
         const gridEditor = new Dashboard.GridEditor(canvas, hexGrid);
+        gridEditor.calculatePlaceholderHexes();
 
         canvas.addOnSizeListener(() => {
             if (!canvas.isDrawn() || canvas.isLoading()) {

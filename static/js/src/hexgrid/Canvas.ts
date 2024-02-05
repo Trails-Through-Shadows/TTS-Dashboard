@@ -190,7 +190,7 @@ module Dashboard {
             return this.height;
         }
 
-        public setDrawn(state: boolean = false): void {
+        public setDrawn(state: boolean = true): void {
             this.written = state;
         }
 
