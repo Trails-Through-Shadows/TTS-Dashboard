@@ -3,7 +3,7 @@
 {% load filters %}
 {% load i18n %}
 
-{% block title %} Dungeon - Enemies {% endblock %}
+{% block title %} Dungeon - Obstacles {% endblock %}
 
 {% block stylesheets %}
     <!-- Empty -->
@@ -14,13 +14,13 @@
 
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div class="d-block mb-4 mb-md-0">
-            <h2 class="h4">{% translate 'All Enemies' %}</h2>
-            <p class="mb-0">{% translate 'Manage of all enemies in database' %}</p>
+            <h2 class="h4">{% translate 'All Obstacles' %}</h2>
+            <p class="mb-0">{% translate 'Manage of all obstacles in database' %}</p>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-12 col-xl-8" id="enemiesTable">
+        <div class="col-12 col-xl-8" id="obstaclesTable">
             <div class="table-settings mb-2">
                 <div class="row align-items-center justify-content-between">
                     <div class="col-12 col-sm-6">
@@ -40,12 +40,12 @@
 
                     <div class="col-12 col-sm-6">
                         <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
-                            <a href="{% url 'partWorkbench' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                            <a href="{% url 'obstaclesWorkbench' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
                                 <i class="fa-solid fa-plus me-1"></i>
-                                {% trans 'New Enemy' %}
+                                {% trans 'New Obstacle' %}
                             </a>
 
-                            <a href="{% url 'apiQueryTable' table='enemies' %}?download" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center ms-2">
+                            <a href="{% url 'apiQueryTable' table='obstacles' %}?download" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center ms-2">
                                 <i class="fa-solid fa-cloud-arrow-down me-1"></i>
                                 {% trans 'Export All' %}
                             </a>
@@ -62,10 +62,10 @@
                                 <th class="border-gray-200">#</th>
                                 <th class="border-gray-200">{% translate 'Title' %}</th>
                                 <th class="border-gray-200">{% translate 'Tag' %}</th>
+                                <th class="border-gray-200 text-center">{% translate 'Damage' %}</th>
                                 <th class="border-gray-200 text-center">{% translate 'Health' %}</th>
-                                <th class="border-gray-200 text-center">{% translate 'Defence' %}</th>
+                                <th class="border-gray-200 text-center">{% translate 'Cross-able' %}</th>
                                 <th class="border-gray-200 text-center">{% translate 'Effects' %}</th>
-                                <th class="border-gray-200 text-center">{% translate 'Actions' %}</th>
                                 <th class="border-gray-200 text-center">{% translate 'Usages' %}</th>
                                 <th class="border-gray-200 table-actions">{% translate 'Action' %}</th>
                             </tr>
@@ -111,11 +111,11 @@
             </div>
         </div>
 
-        <div class="col-12 col-xl-4" id="enemiesData">
+        <div class="col-12 col-xl-4" id="obstaclesData">
             <div class="card card-body border-0 shadow" id="entryDataReplacement">
                 <div class="row">
                     <div class="col-4 align-self-center">
-                        <img src="{% static 'img/imgPlaceholder.png' %}" alt="Enemy Image" class="img-fluid rounded">
+                        <img src="{% static 'img/imgPlaceholder.png' %}" alt="Obstacle Image" class="img-fluid rounded">
                     </div>
 
                     <div class="col-8 align-self-center">
@@ -173,34 +173,34 @@
         let page = urlParams.get('page') || 1;
         let limit = urlParams.get('limit') || 10;
 
-        const apiUrlAll = `{% url 'apiQueryTable' table='enemies' %}`;
-        const apiUrlSingle = `{% url 'apiQueryTableID' table='enemies' id=0 %}`;
-        const template = 'dungeon/enemies/enemyTable.html';
-        const templateInfo = 'dungeon/enemies/enemyEntry.html';
+        const apiUrlAll = `{% url 'apiQueryTable' table='obstacles' %}`;
+        const apiUrlSingle = `{% url 'apiQueryTableID' table='obstacles' id=0 %}`;
+        const template = 'dungeon/obstacles/obstacleTable.html';
+        const templateInfo = 'dungeon/obstacles/obstacleEntry.html';
 
         // ---- | Data
 
-        const dataRoot = document.getElementById('enemiesData');
+        const dataRoot = document.getElementById('obstaclesData');
         const data = new Dashboard.Data(dataRoot, templateInfo);
 
         // ---- | Table
 
         const tableFilter = new Dashboard.TableFilter([
             { title: 'Title contains:', key: 'title', type: 'has', hidden: true },
-            { title: 'Health between:', key: 'baseHealth', type: 'bwn', bounds: {min: 0, max: 50} },
-            { title: 'Defence between:', key: 'baseDefence', type: 'bwn', bounds: {min: 0, max: 50} },
-            { title: 'Usages between:', key: 'effects', type: 'bwn', bounds: {min: 0, max: 50} },
-            { title: 'Usages between:', key: 'actions', type: 'bwn', bounds: {min: 0, max: 50} },
+            { title: 'Damage between:', key: 'damage', type: 'bwn', bounds: {min: 0, max: 50} },
+            { title: 'Health between:', key: 'baseDefence', type: 'bwn', bounds: {min: 0, max: 50} },
+            { title: 'Cross-able is', key: 'effects', type: 'is'},
+            { title: 'Effects between:', key: 'effects', type: 'bwn', bounds: {min: 0, max: 50} },
             { title: 'Usages between:', key: 'usages', type: 'bwn', bounds: {min: 0, max: 50} }
         ]);
         const tableSorter = new Dashboard.TableSorter([
             { key: "id", order: "asc" },
             { key: "title" },
             { key: "tag" },
-            { key: "baseHealth" },
-            { key: "baseDefence" },
+            { key: "damage" },
+            { key: "health" },
+            { key: "crossable" },
             { key: "effects" },
-            { key: "actions" },
             { key: "usages" }
         ], true);
         const tableSearch = new Dashboard.TableSearch(
@@ -212,14 +212,14 @@
             }
         )
 
-        const tableRoot = document.getElementById('enemiesTable');
+        const tableRoot = document.getElementById('obstaclesTable');
         const table = new Dashboard.Table(tableRoot, template, tableFilter, tableSorter, tableSearch);
 
         table.setOnDataLoad(() => {
             table.setAction("view", (element) => {
                 const id = element.getAttribute('data-entry');
 
-                console.log(`Button | Viewing enemy ${id}`);
+                console.log(`Button | Viewing obstacle ${id}`);
                 data.queryData(apiUrlSingle.replace('0', id));
             });
 
@@ -238,10 +238,10 @@
                     cancelButtonText: "{% trans "No, cancel!" %}",
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        console.log(`Button | Deleting enemy ${id}`);
+                        console.log(`Button | Deleting obstacle ${id}`);
                         Swal.fire({
                             title: '{% trans "Deleting..." %}',
-                            text: '{% trans "The enemy is being deleted." %}',
+                            text: '{% trans "The obstacle is being deleted." %}',
                             icon: 'info',
                             allowOutsideClick: false,
                             allowEscapeKey: false,
@@ -255,7 +255,7 @@
                                 Swal.close();
 
                                 if (request.status === 200) {
-                                    console.log(`Button | Deleting enemy ${id} successful`);
+                                    console.log(`Button | Deleting obstacle ${id} successful`);
                                     Swal.fire({
                                         icon: 'success',
                                         toast: true,
@@ -267,7 +267,7 @@
 
                                     table.queryData(apiUrlAll, page, limit);
                                 } else {
-                                    console.log(`Button | Deleting enemy ${id} failed`);
+                                    console.log(`Button | Deleting obstacle ${id} failed`);
                                     Swal.mixin({
                                         toast: true,
                                         position: 'top-end',

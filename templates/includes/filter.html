@@ -41,6 +41,18 @@
                                         </div>
                                     </div>
                                 {% endcase %}
+
+                                {% case "is" %}
+                                    <div class="col-4 align-self-center">
+                                        <p class="m-0">{{ item.title }}</p>
+                                    </div>
+
+                                    <div class="col-8 text">
+                                        <div class="form-check form-switch p-0 m-0">
+                                            <input class="form-check-input m-0 mt-1 h-0" type="checkbox" id="input-{{ item.key }}" value="{{ item.value }}">
+                                        </div>
+                                    </div>
+                                {% endcase %}
     
                                 {% case "has" %}
                                     <div class="col-4 text-center align-self-center">

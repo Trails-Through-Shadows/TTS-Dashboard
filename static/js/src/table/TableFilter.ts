@@ -11,6 +11,7 @@ module Dashboard {
         GREATER_THAN = 'gt',
         GREATER_THAN_OR_EQUAL = 'gte',
         BETWEEN = 'bwn',
+        IS = 'is',
     }
 
     export type Filter = {
@@ -78,7 +79,7 @@ module Dashboard {
                                 }
 
                                 const input = filterForm.querySelector(`#input-${filter.key}`) as HTMLInputElement;
-                                let value: number | {} = input.value;
+                                let value: number | {} | string = input.value;
 
                                 if (filter.type == FilterType.BETWEEN) {
                                     const minValue = input.querySelector(".slider-from") as HTMLInputElement;
