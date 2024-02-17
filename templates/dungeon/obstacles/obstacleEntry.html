@@ -31,14 +31,14 @@
         <div class="accordion accordion-flush" id="entryAttributes">
             <div class="accordion-item">
                 <div class="accordion-body">
-                    <span class="badge bg-secondary me-1 rounded-1 vertical-txt-bottom">{{ damage }}</span>
+                    <span class="badge bg-secondary me-1 rounded-1 vertical-txt-bottom">{{ baseDamage }}</span>
                     <span>{% trans 'Damage' %}</span>
                 </div>
             </div>
 
             <div class="accordion-item">
                 <div class="accordion-body">
-                    <span class="badge bg-secondary me-1 rounded-1 vertical-txt-bottom">{{ health }}</span>
+                    <span class="badge bg-secondary me-1 rounded-1 vertical-txt-bottom">{{ baseHealth }}</span>
                     <span>{% trans 'Health' %}</span>
                 </div>
             </div>
@@ -60,7 +60,7 @@
                             {% else %}
                                 {% for effect in effects %}
                                     <div class="col badge bg-gray-500 mx-1 rounded-1">
-                                        <p class="m-0 font-small">{{ effect.type }}</p> {{ effect.duration }} rounds / lvl. {{ effect.strength }}
+                                        <p class="m-0 font-small">{{ effect.effect.type }}</p> {{ effect.effect.duration }} rounds / lvl. {{ effect.effect.strength }}
                                     </div>
                                 {% endfor %}
                             {% endif %}

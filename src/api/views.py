@@ -73,11 +73,12 @@ class ApiView(View):
         sort = request.GET.get('sort', '')
         download = request.GET.get('download', None)
         templateFile = request.GET.get('template', None)
+        lazy = request.GET.get('lazy', 'false')
 
         if id is None:
-            url = f"{API_URL}/{table}?limit={limit}&page={page - 1}&filter={filtering}&sort={sort}"
+            url = f"{API_URL}/{table}?limit={limit}&page={page - 1}&filter={filtering}&sort={sort}&lazy={lazy}"
         else:
-            url = f"{API_URL}/{table}/{id}"
+            url = f"{API_URL}/{table}/{id}?lazy={lazy}"
 
         responseCode, responseData = requestAPI("get", url)
 
@@ -191,4 +192,13 @@ def createFilter(request):
         data = json.loads(request.body)
 
     html_template = loader.get_template("includes/filter.html")
+    return HttpResponse(html_template.render(data, request))
+
+def createSearch(request):
+    data = {}
+
+    if request.body:
+        data = json.loads(request.body)
+
+    html_template = loader.get_template("includes/search.html")
     return HttpResponse(html_template.render(data, request))

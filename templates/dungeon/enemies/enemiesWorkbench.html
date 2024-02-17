@@ -3,7 +3,7 @@
 {% load filters %}
 {% load i18n %}
 
-{% block title %} Dungeon - Parts - Editor {% endblock %}
+{% block title %} Dungeon - Enemies - Editor {% endblock %}
 
 {% block stylesheets %}
     <!-- Empty -->
@@ -14,36 +14,86 @@
     
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div class="d-block mb-4 mb-md-0">
-            <h2 class="h4 mb-0">{% trans 'Part Workbench' %}</h2>
-            <p class="mb-0">{% trans 'Create or edit part shape' %}</p>
+            <h2 class="h4 mb-0">{% trans 'Enemy Workbench' %}</h2>
+            <p class="mb-0">{% trans 'Create or edit dungeon enemies' %}</p>
         </div>
     </div>
 
-    <form id="partWorkbench">
+    <form id="enemyWorkbench">
         <div class="row">
-            <div class="col-12 col-xl-3" id="partInformation">
+            <div class="col-5" id="enemyInformation">
                 <div class="row flex-column h-100">
                     <div class="col-12 flex-fill mb-4">
                         <div class="card card-body border-0 shadow h-100">
                             <div class="card-header p-0">
-                                <h2 class="h5">{% trans 'Part Information:' %}</h2>
+                                <h2 class="h5">{% trans 'Enemy Information:' %}</h2>
                             </div>
 
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-12 mb-3">
-                                        <label for="partID">Part ID:</label>
-                                        <input class="form-control" id="partID" type="number" required="" value="{{ partId|default:0 }}" readonly>
+                                    <div class="col-4 align-self-center">
+                                        <img src="{% static 'img/imgPlaceholder.png' %}" alt="Enemy Image" class="img-fluid rounded">
                                     </div>
 
-                                    <div class="col-12 mb-3">
-                                        <label for="partTag">Part Tag:</label>
-                                        <input class="form-control" id="partTag" type="text" placeholder="Enter short identifier" required>
+                                    <div class="col-8 align-self-center">
+                                        <div class="py-2">
+                                            <h2 class="h5 mb-2">
+                                                <label class="visually-hidden" for="enemyTitle">Title</label>
+                                                <div class="input-group input-group">
+                                                    <div class="input-group-text">Title</div>
+                                                    <input type="text" class="form-control" id="enemyTitle" placeholder="Enemy Title" >
+                                                </div>
+                                            </h2>
+
+                                            <div class="d-flex align-items-center">
+                                                <div class="row gy-2 gx-3 align-items-center">
+                                                    <div class="col-6">
+                                                        <label class="visually-hidden" for="enemyId">Id</label>
+                                                        <div class="input-group input-group-sm">
+                                                            <div class="input-group-text">ID</div>
+                                                            <input type="text" class="form-control" id="enemyId" placeholder="Enemy Id" value="{{ enemyId|default:0 }}" readonly>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-6">
+                                                        <label class="visually-hidden" for="enemyTag">Tag</label>
+                                                        <div class="input-group input-group-sm">
+                                                            <div class="input-group-text">Tag</div>
+                                                            <input type="text" class="form-control" id="enemyTag" placeholder="Enemy Tag" >
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="align-items-center mt-2">
+                                                <label for="enemyDescription" class="form-label visually-hidden">Description</label>
+                                                <textarea class="form-control" id="enemyDescription" rows="3" placeholder="Enemy Description"></textarea>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div class="col-12 mb-3">
-                                        <label for="partTitle">Part Title:</label>
-                                        <input class="form-control" id="partTitle" type="text" placeholder="Enter title of part" required>
+                                    <div class="col-4">
+                                        <label class="visually-hidden" for="baseInitiative">Base Initiative</label>
+                                        <div class="input-group">
+                                            <div class="input-group-text">Base Initiative</div>
+                                            <input type="text" class="form-control" id="baseInitiative" placeholder="Initiative">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-4">
+                                        <label class="visually-hidden" for="baseHealth">Base Health</label>
+                                        <div class="input-group">
+                                            <div class="input-group-text">Base Health</div>
+                                            <input type="text" class="form-control" id="baseHealth" placeholder="Health">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-4">
+                                        <label class="visually-hidden" for="baseDefence">Base Defence</label>
+                                        <div class="input-group">
+                                            <div class="input-group-text">Base Defence</div>
+                                            <input type="text" class="form-control" id="baseDefence" placeholder="Defence">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -61,7 +111,7 @@
 
                                 <div class="col-lg-6 col-12 mt-2 mt-lg-0">
                                     <button class="btn btn-green-100 animate-up-2 w-100" type="submit" id="saveButton">
-                                        {% if partId is not None %}
+                                        {% if enemyId is not None %}
                                             Save
                                         {% else %}
                                             Create
@@ -74,9 +124,59 @@
                 </div>
             </div>
 
-            <div class="col-12 col-xl-9 mt-4 mt-xl-0" id="canvasHolder">
-                <div class="card card-body border-0 shadow h-100" style="min-height: 600px">
-                    <canvas id="editorCanvas"></canvas>
+            <div class="col-4" id="enemyActions">
+                <div class="row flex-column h-100">
+                    <div class="col-12 flex-fill">
+                        <div class="card card-body border-0 shadow h-100">
+                            <div class="card-header p-0 mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h2 class="h5 m-0">{% trans 'Enemy Actions:' %}</h2>
+
+                                    <div class="col-6 mb-2">
+                                        <div class="btn-toolbar justify-content-end">
+                                            <a href="javascript:void(0)" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                                                <i class="fa-solid fa-plus me-1"></i>
+                                                {% trans 'Add Action' %}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-0 cards-scroll">
+                                <div class="row" id="enemyActionsList">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-3" id="enemyEffects">
+                <div class="row flex-column h-100">
+                    <div class="col-12 flex-fill">
+                        <div class="card card-body border-0 shadow h-100">
+                            <div class="card-header p-0 mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h2 class="h5 m-0">{% trans 'Enemy Effects:' %}</h2>
+
+                                    <div class="col-6 mb-2">
+                                        <div class="btn-toolbar justify-content-end">
+                                            <a href="javascript:void(0)" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                                                <i class="fa-solid fa-plus me-1"></i>
+                                                {% trans 'Add Effect' %}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-0">
+                                <div class="row" id="enemyEffectsList">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -85,57 +185,125 @@
 
 {% block javascripts %}
     <script async>
-        const canvasRoot = document.getElementById('editorCanvas');
-        const canvas = new Dashboard.Canvas(canvasRoot, {
-            title: 'Error',
-            subtitle: 'An error occurred while loading the canvas.',
-            spacer: 100,
+        const csrfToken = document.querySelector('#csrftoken').value;
+
+        // ---- | Urls
+
+        const apiUrlSingle = "{% url 'apiQueryTableID' table="enemies" id=0 %}";
+
+        // ---- | Data
+
+        const formRoot = document.getElementById('enemyWorkbench');
+        const formEditor = new Dashboard.FormEditor(formRoot);
+
+        const enemyTitle = formRoot.querySelector('#enemyTitle');
+        enemyTitle.addEventListener('input', () => {
+            formEditor.getObject().title = enemyTitle.value;
         });
 
-        // ----
-
-        const hexGridSize = 30;
-        const hexGrid = new Dashboard.HexGrid(canvas, hexGridSize, [
-            new Dashboard.Hex(new Dashboard.CubeCoordinate(0, 0, 0), hexGridSize, [])
-        ]);
-        const gridEditor = new Dashboard.GridEditor(canvas, hexGrid);
-        gridEditor.calculatePlaceholderHexes();
-
-        canvas.addOnSizeListener(() => {
-            if (!canvas.isDrawn() || canvas.isLoading()) {
-                return;
-            }
-
-            canvas.clear();
-            gridEditor.draw();
+        const enemyTag = formRoot.querySelector('#enemyTag');
+        enemyTag.addEventListener('input', () => {
+            formEditor.getObject().tag = enemyTag.value;
         });
 
-        const tagInput = document.getElementById('partTag');
-        tagInput.addEventListener('input', () => {
-            hexGrid.setTag(tagInput.value);
-            gridEditor.validate();
+        const enemyDescription = formRoot.querySelector('#enemyDescription');
+        enemyDescription.addEventListener('input', () => {
+            formEditor.getObject().description = enemyDescription.value;
         });
 
-        const titleInput = document.getElementById('partTitle');
-        titleInput.addEventListener('input', () => {
-            hexGrid.setTitle(titleInput.value);
-            gridEditor.validate();
+        const baseInitiative = formRoot.querySelector('#baseInitiative');
+        baseInitiative.addEventListener('input', () => {
+            formEditor.getObject().baseInitiative = baseInitiative.value;
         });
 
-        {% if partId is not None %}
-            hexGrid.readData("{% url 'apiQueryTableID' table="parts" id=partId %}", () => {
-                tagInput.value = hexGrid.getTag();
-                titleInput.value = hexGrid.getTitle();
+        const baseHealth = formRoot.querySelector('#baseHealth');
+        baseHealth.addEventListener('input', () => {
+            formEditor.getObject().baseHealth = baseHealth.value;
+        });
 
-                canvas.setLoading(false);
-                canvas.clear();
-                gridEditor.calculatePlaceholderHexes();
-                gridEditor.draw();
-                gridEditor.validate();
+        const baseDefence = formRoot.querySelector('#baseDefence');
+        baseDefence.addEventListener('input', () => {
+            formEditor.getObject().baseDefence = baseDefence.value;
+        });
+
+        {% if enemyId is not None %}
+            formEditor.queryData(apiUrlSingle.replace(0, {{ enemyId }}), (data) => {
+                const enemy = Dashboard.Enemy.fromJSON(data);
+
+                enemyTitle.value = enemy.title;
+                enemyTag.value = enemy.tag;
+                enemyDescription.value = enemy.description;
+                baseInitiative.value = enemy.baseInitiative;
+                baseHealth.value = enemy.baseHealth;
+                baseDefence.value = enemy.baseDefence;
+
+                const enemyActionsList = document.getElementById('enemyActionsList');
+                enemy.actions.forEach((action, index) => {
+                    const actionCol = document.createElement('div');
+                    actionCol.classList.add('col-12');
+
+                    if (index < enemy.actions.length - 1) {
+                        actionCol.classList.add('mb-2');
+                    }
+
+                    actionCol.appendChild(action.toCard(true));
+                    enemyActionsList.appendChild(actionCol);
+                });
+
+                const enemyEffectsList = document.getElementById('enemyEffectsList');
+                enemy.effects.forEach((effect, index) => {
+                    const effectCol = document.createElement('div');
+                    effectCol.classList.add('col-12');
+
+                    if (index < enemy.effects.length - 1) {
+                        effectCol.classList.add('mb-2');
+                    }
+
+                    effectCol.appendChild(effect.toCard(false));
+                    enemyEffectsList.appendChild(effectCol);
+                });
+
+                formRoot.querySelectorAll(".caret").forEach(toggle => {
+                    toggle.addEventListener("click", () => {
+                        const nested = toggle.parentElement.querySelector(".nested");
+                        nested.classList.toggle("active");
+                        toggle.classList.toggle("caret-down");
+                    });
+                });
+
+                // Get all buttons inside div that have data-action remove
+                const removeButtons = document.querySelectorAll('button[data-action="remove"]');
+                removeButtons.forEach(button => {
+                    console.log(button);
+
+                    button.addEventListener('click', (event) => {
+                        event.preventDefault();
+
+                        // Get parent div with class card
+                        const parent = button.closest('.card');
+                        parent.remove();
+
+                        // Remove from object
+                        const id = button.getAttribute('data-id');
+                        const type = button.getAttribute('data-type');
+
+                        if (type === 'action') {
+                            enemy.actions = enemy.actions.filter(action => action.id !== parseInt(id));
+                            console.log(enemy.actions);
+                        }
+
+                        if (type === 'effect') {
+                            enemy.effects = enemy.effects.filter(effect => effect.id !== parseInt(id));
+                            console.log(enemy.effects);
+                        }
+
+                        console.log("FormEditor | Removing action with id: " + id + " from enemy");
+                        console.log(JSON.stringify(enemy, null, 4));
+                    });
+                });
+
+                return enemy;
             });
-        {% else %}
-            gridEditor.draw();
-            gridEditor.validate();
         {% endif %}
 
         // ----
@@ -154,7 +322,7 @@
                 cancelButtonText: '{% trans 'No, keep editing' %}',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = "{% url 'partViewer' %}";
+                    window.location.href = "{% url 'enemyViewer' %}";
                 }
             });
         });
@@ -163,177 +331,29 @@
         saveButton.addEventListener('click', (event) => {
             event.preventDefault();
 
+            // Stringify the object and add pretty print
+            const enemy = formEditor.getObject();
+            const enemyJSON = JSON.stringify(enemy, null, 4);
+            console.log(enemyJSON);
+
             // Check form validity
-            const form = document.getElementById('partWorkbench');
+            const form = document.getElementById('enemyWorkbench');
             if (!form.checkValidity()) {
                 form.reportValidity();
                 return;
             }
 
-            // Check if grid is validating
-            if (gridEditor.isValidating()) {
-                return Swal.fire({
-                    icon: 'warning',
-                    toast: true,
-                    position: 'top-end',
-                    text: '{% trans "Grid is validating, please wait!" %}',
-                    showConfirmButton: false,
-                    timer: 2500
-                });
-            }
-            
-            // Check if the grid is valid
-            if (!gridEditor.isValid()) {
-                return Swal.fire({
-                    icon: 'error',
-                    toast: true,
-                    position: 'top-end',
-                    text: '{% trans "Grid is not valid!" %}',
-                    showConfirmButton: false,
-                    timer: 2500
-                });
-            }
-
             const Notiflix = window['Notiflix'];
-            Notiflix.Block.circle("#partWorkbench", 'Saving...');
+            Notiflix.Block.circle("#enemyWorkbench", 'Saving...');
 
-            const partIdInput = form.querySelector('#partID');
-            const partId = partIdInput.value;
+            const enemyIdInput = form.querySelector('#enemyID');
+            const enemyId = enemyIdInput.value;
 
             let url = "{% url 'apiQueryTable' table="parts" %}";
-            {% if partId is not undefined %}
-                url = "{% url 'apiQueryTableID' table="parts" id=0 %}".replace(0, partId);
+            {% if enemyId is not undefined %}
+                url = "{% url 'apiQueryTableID' table="enemies" id=0 %}".replace(0, enemyId);
             {% endif %}
-            
-            hexGrid.saveData(url, () => {
-                Swal.fire({
-                    icon: 'success',
-                    toast: true,
-                    position: 'top-end',
-                    text: '{% trans "Success, part saved!" %}',
-                    showConfirmButton: false,
-                    timer: 2500
-                })
 
-                setTimeout(() => {
-                    window.location.href = "{% url 'partViewer' %}";
-                }, 1000);
-            }, (responseText) => {
-                Notiflix.Block.remove("#canvasHolder");
-
-                Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 10000,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                        toast.addEventListener('mouseenter', Swal.stopTimer)
-                        toast.addEventListener('mouseleave', Swal.resumeTimer)
-                        toast.addEventListener('click', () => {
-                            const data = JSON.parse(responseText);
-                            const string = JSON.stringify(data, null, 4);
-
-                            Swal.fire({
-                                text: string,
-                                customClass: {
-                                    htmlContainer: 'text-start text-pre'
-                                },
-                                showConfirmButton: false,
-                            });
-                        })
-                    }
-                }).fire({
-                    icon: "error",
-                    title: '{% trans "Error, saving failed! Click for more information." %}'
-                });
-            });
         });
-        
-        //region Upload hidden button
-        // Setup upload
-        /*
-        const uploadButton = document.getElementById('uploadButton');
-        uploadButton.addEventListener('click', async () => {
-            const { value: file } = await Swal.fire({
-                title: '{% translate 'Select a file' %}',
-                input: 'file',
-                inputAttributes: {
-                    'accept': 'application/json',
-                    'aria-label': '{% translate 'Upload your file' %}'
-                },
-                showCancelButton: true,
-                confirmButtonText: '{% translate 'Upload' %}',
-                cancelButtonText: '{% translate 'Cancel' %}',
-                inputValidator: (value) => {
-                    if (!value) {
-                        return '{% translate 'You need to select a file' %}';
-                    }
-                },
-                customClass: {
-                    input: 'popup-input'
-                }
-            });
-
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const data = JSON.parse(e.target.result);
-
-                    Swal.fire({
-                        title: '{% translate 'Uploading...' %}',
-                        text: '{% translate 'The file is being uploaded.' %}',
-                        icon: 'info',
-                        allowOutsideClick: false,
-                        allowEscapeKey: false,
-                        allowEnterKey: false,
-                        showConfirmButton: false
-                    });
-
-                    const request = new XMLHttpRequest();
-                    request.onreadystatechange = () => {
-                        if (request.readyState === 4) {
-                            console.log(request.status);
-                            console.log(request.responseText);
-
-                            if (request.status === 200) {
-                                Swal.fire({
-                                    title: '{% translate 'Success!' %}',
-                                    text: '{% translate 'The file has been uploaded.' %}',
-                                    icon: 'success',
-                                    timer: 3000
-                                });
-
-                                table.queryData(apiUrlAll, page, limit);
-                            } else {
-                                const data = JSON.parse(request.responseText);
-
-                                Swal.fire({
-                                    title: '{% translate 'The file could not be uploaded.' %}',
-                                    text: data.message,
-                                    icon: 'error',
-                                    confirmButtonText: '{% translate 'Ok' %}'
-                                });
-                            }
-                        }
-                    };
-
-                    const csrfToken = tableRoot.querySelector('#csrftoken').value;
-
-                    console.log(data);
-                    console.log("post");
-                    console.log(JSON.stringify(data));
-
-                    request.open('POST', '/{{ request.LANGUAGE_CODE }}/'+ apiUrlAll);
-                    request.setRequestHeader('Content-Type', 'application/json');
-                    request.setRequestHeader('X-CSRFToken', csrfToken);
-                    request.send(JSON.stringify(data));
-                };
-
-                reader.readAsText(file);
-            }
-        });
-        */
-//endregion
     </script>
 {% endblock javascripts %}

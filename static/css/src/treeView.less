@@ -1,0 +1,53 @@
+ul, .treeView {
+  list-style-type: none;
+}
+
+.treeView {
+  margin: 0;
+  padding: 0;
+}
+
+.caret {
+  cursor: pointer;
+  user-select: none;
+  font-size: small;
+  font-weight: 400;
+}
+
+.caret::before {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  content: "\f0da";
+
+  color: black;
+  display: inline-block;
+  margin-right: 6px;
+  transition: transform 0.5s;
+}
+
+.caret-down::before {
+  transform: rotate(90deg);
+}
+
+.nested {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nested > li:not(.list) {
+  font-size: small;
+}
+
+.nested > li.list {
+  font-weight: 400;
+}
+
+.nester > li {
+  font-weight: normal;
+}
+
+.active.nested {
+  max-height: 1000px;
+  transition: max-height 0.5s ease-in;
+}

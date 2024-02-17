@@ -60,9 +60,9 @@
                             {% else %}
                                 {% for action in actions %}
                                     <div class="col badge bg-gray-500 mx-1 rounded-1 position-relative">
-                                        {{ action.title }}
+                                        {{ action.action.title }}
     
-                                        {% if action.discard != "NEVER" %}
+                                        {% if action.action.discard != "NEVER" %}
                                             <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
                                                 <span class="visually-hidden">{% trans 'Discard-able' %}</span>
                                             </span>
@@ -92,7 +92,7 @@
                             {% else %}
                                 {% for effect in effects %}
                                     <div class="col badge bg-gray-500 mx-1 rounded-1">
-                                        <p class="m-0 font-small">{{ effect.type }}</p> {{ effect.duration }} rounds / lvl. {{ effect.strength }}
+                                        <p class="m-0 font-small">{{ effect.effect.type }}</p> {{ effect.effect.duration }} rounds / lvl. {{ effect.effect.strength }}
                                     </div>
                                 {% endfor %}
                             {% endif %}

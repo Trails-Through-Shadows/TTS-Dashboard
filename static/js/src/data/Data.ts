@@ -33,6 +33,7 @@ module Dashboard {
 
             let newUrl = url;
             newUrl += "?template=" + this.template
+            newUrl += "&lazy=false"
 
             console.log(`Data | Querying data from ${this.url}`)
             console.log(`Data |  - Params: ${newUrl.replace(url, '')}`);
