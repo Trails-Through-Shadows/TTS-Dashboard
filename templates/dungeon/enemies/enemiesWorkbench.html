@@ -134,7 +134,7 @@
 
                                     <div class="col-6 mb-2">
                                         <div class="btn-toolbar justify-content-end">
-                                            <a href="javascript:void(0)" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                                            <a href="javascript:void(0)" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center" id="addAction">
                                                 <i class="fa-solid fa-plus me-1"></i>
                                                 {% trans 'Add Action' %}
                                             </a>
@@ -162,7 +162,7 @@
 
                                     <div class="col-6 mb-2">
                                         <div class="btn-toolbar justify-content-end">
-                                            <a href="javascript:void(0)" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                                            <a href="javascript:void(0)" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center" id="addEffect">
                                                 <i class="fa-solid fa-plus me-1"></i>
                                                 {% trans 'Add Effect' %}
                                             </a>
@@ -225,6 +225,14 @@
         baseDefence.addEventListener('input', () => {
             formEditor.getObject().baseDefence = baseDefence.value;
         });
+        
+        const addActionButton = document.querySelector('#addAction');
+        addActionButton.addEventListener('click', () => {
+            const actionSearch = new Dashboard.Search("actions");
+            actionSearch.open("mechanics/action/actionSearch.html", (action) => {
+                {#formEditor.getObject().actions.push(action);#}
+            });
+        });
 
         {% if enemyId is not None %}
             formEditor.queryData(apiUrlSingle.replace(0, {{ enemyId }}), (data) => {
@@ -274,8 +282,6 @@
                 // Get all buttons inside div that have data-action remove
                 const removeButtons = document.querySelectorAll('button[data-action="remove"]');
                 removeButtons.forEach(button => {
-                    console.log(button);
-
                     button.addEventListener('click', (event) => {
                         event.preventDefault();
 
@@ -289,16 +295,13 @@
 
                         if (type === 'action') {
                             enemy.actions = enemy.actions.filter(action => action.id !== parseInt(id));
-                            console.log(enemy.actions);
                         }
 
                         if (type === 'effect') {
                             enemy.effects = enemy.effects.filter(effect => effect.id !== parseInt(id));
-                            console.log(enemy.effects);
                         }
 
                         console.log("FormEditor | Removing action with id: " + id + " from enemy");
-                        console.log(JSON.stringify(enemy, null, 4));
                     });
                 });
 

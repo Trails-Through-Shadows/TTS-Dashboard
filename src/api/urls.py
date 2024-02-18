@@ -7,5 +7,5 @@ urlpatterns = [
     path('table/<str:table>/<int:id>/', ApiView.as_view(), name='apiQueryTableID'),
     path('validate/<str:table>/', validateTable, name='apiValidateTable'),
     path('filters', createFilter, name='apiCreateFilter'),
-    path('search', createSearch, name='apiCreateSearch')
+    path('modal', createModal, name='apiCreateModal')
 ]

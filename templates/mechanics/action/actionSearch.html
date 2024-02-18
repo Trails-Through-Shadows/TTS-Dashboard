@@ -1,0 +1,77 @@
+{% load filters %}
+{% load i18n %}
+
+<div class="modal" id="searchModal" aria-hidden="true">
+    <div class="modal-overlay" tabindex="-1" data-micromodal-close>
+        <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-1-title">
+            <header class="modal-header border-0">
+                <h2 class="modal-title" id="modal-1-title">
+                    {% trans 'Search Action' %}
+                </h2>
+
+                <button class="modal-close hvr-grow" aria-label="Close modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </header>
+
+            <main class="modal-body pt-0 pb-0">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="searchInput" name="query" placeholder="Search" value="{{ request.GET.query }}">
+                            <button type="submit" class="btn btn-sm btn-gray-800">
+                                <i class="fa-solid fa-search me-1"></i>
+                            </button>
+                        </div>
+
+                        <hr class="mt-2">
+                    </div>
+
+                    <div class="col-12" id="searchData">
+
+                    </div>
+                </div>
+            </main>
+
+            <footer class="modal-footer border-0">
+                <a href="#" target="_top" id="searchSubmit" class="btn btn-sm btn-gray-800">
+                    <i class="fa-solid fa-search me-1"></i>
+                    {% trans 'Search' %}
+                </a>
+            </footer>
+        </div>
+    </div>
+</div>
+
+<script id="searchScript" async>
+    const csrfToken = document.querySelector('#csrftoken').value;
+
+    // ---- | Data
+
+    const dataRoot = document.getElementById('searchData');
+
+    const request = new XMLHttpRequest();
+    request.onreadystatechange = () => {
+        if (request.readyState === 4 && request.status === 200) {
+            const data = JSON.parse(request.responseText);
+            const actionsData = data.entries;
+
+            console.log(actionsData);
+            console.log(Dashboard.Action.fromJSON(actionsData[1]));
+            let actions = [];
+
+            for (const action of actionsData) {
+                actions.push(Dashboard.Action.fromJSON(action));
+            }
+            
+            for (const action of actions) {
+                dataRoot.appendChild(action.toCard());
+            }
+        }
+    }
+
+    request.open('GET', `{% url 'apiQueryTable' table='actions' %}`, true);
+    request.setRequestHeader('Content-Type', 'application/json');
+    request.setRequestHeader('X-CSRFToken', csrfToken);
+    request.send();
+</script>
