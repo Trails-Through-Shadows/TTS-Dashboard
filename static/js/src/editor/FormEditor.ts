@@ -1,17 +1,17 @@
 module Dashboard {
 
     export class FormEditor {
-        private url: string = '';
         private object = null;
 
         constructor(
-            private root: HTMLElement
+            private root: HTMLElement,
         ) {}
 
         public queryData(url: string, mapping: Function): void {
             const currentTime = new Date().getTime();
 
-            this.url = url;
+            const Notiflix = window['Notiflix'];
+            Notiflix.Block.circle(".formLoading", 'Loading...');
 
             const request = new XMLHttpRequest();
             request.onreadystatechange = () => {
@@ -24,6 +24,8 @@ module Dashboard {
 
                         this.object = mapping(JSON.parse(request.responseText));
                         console.log("FormEditor | Object: ", this.object);
+
+                        Notiflix.Block.remove(".formLoading");
                     }
                 }
             };
@@ -31,10 +33,14 @@ module Dashboard {
             let newUrl = url;
             newUrl += "?lazy=false"
 
-            console.log(`FormEditor | Querying data from ${this.url}`)
+            console.log(`FormEditor | Querying data from ${url}`)
             console.log(`FormEditor |  - Params: ${newUrl.replace(url, '')}`);
             request.open('GET', newUrl, true);
             request.send();
+        }
+
+        public validate(url: string, onSuccess: Function, onFail: Function) {
+
         }
 
         public getObject(): any {

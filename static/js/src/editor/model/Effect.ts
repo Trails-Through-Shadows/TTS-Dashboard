@@ -75,33 +75,43 @@ module Dashboard {
             };
         }
 
-        public toCard(collapsed: boolean = true): HTMLElement {
+        public toCard(collapsed: boolean = false, remove: boolean = false, add: boolean = false): HTMLElement {
             const card = document.createElement('div');
             card.className = 'card bg-gray-100';
 
             card.innerHTML = `
-                <div class="card-header px-3 py-2 pointer sticky-top bg-gray-100" data-bs-toggle="collapse" data-bs-target="#effect${this.id}" aria-expanded="true" aria-controls="#effect${this.id}">
+                <div class="card-header px-3 py-2 pointer sticky-top bg-gray-100" 
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#effect${this.id}" 
+                    aria-expanded="true" 
+                    aria-controls="#effect${this.id}">
+                    
                     <div class="row align-items-center">
                         <div class="col-md-10">${this.type}</div>
                         <div class="col-md-2 text-center">
-                            <button class="btn btn-sm btn-outline-danger ms-2" 
+                            
+                            ${add ? `<button class="btn btn-sm btn-outline-success ms-1" 
                                 data-id="${this.id}" 
-                                data-type="effect" 
+                                data-type="action" 
+                                data-action="add">
+                                
+                                <i class="fa-solid fa-plus"></i>
+                            </button>` : ''}
+                            
+                            ${remove ? `<button class="btn btn-sm btn-outline-danger ms-1" 
+                                data-id="${this.id}" 
+                                data-type="action" 
                                 data-action="remove">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
+                                
+                                <i class="fa-solid fa-trash"></i>
+                            </button>` : ''}
                         </div>
                     </div>
                 </div>
                 
                 <div class="card-body collapse p-0 ${collapsed ? '' : 'show'}" data-bs-parent="#enemyEffectsList" id="effect${this.id}">
                     <ol class="list-group list-group-numbered py-2">
-                        <li class="list-group-item d-flex justify-content-between align-items-start bg-transparent font-small p-0 px-3">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">Description:</div>
-                                ${this.createListItem('Description:', this.description)}
-                            </div>
-                        </li>
+                        ${this.createListItem('Description:', this.description)}
                         ${this.createListItem('Strength:', `${this.strength}.lvl`)}
                         ${this.createListItem('Duration:', `${this.duration} rounds`)}
                         ${this.createListItem('Target:', `${this.target}`)}

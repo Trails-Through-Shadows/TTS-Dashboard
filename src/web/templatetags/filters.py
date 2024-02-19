@@ -18,6 +18,10 @@ def filter_range(number):
 def filter_range(string):
     return string[0].upper() + string[1:]
 
+@register.filter(name='stringify')
+def stringify(value):
+    # From FIRE_RESISTANCE to Fire Resistance
+    return value.replace('_', ' ').title()
 
 @register.tag
 def switch(parser, token):

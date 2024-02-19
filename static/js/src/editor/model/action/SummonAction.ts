@@ -12,6 +12,8 @@ module Dashboard {
         ) {}
 
         public static fromJSON(json: any): Summon {
+            console.log(json);
+
             let effects: Effect[] = [];
             if (json.effects) {
                 for (let effect of json.effects) {
@@ -48,7 +50,7 @@ module Dashboard {
             treeView.innerHTML = `
                 <span class="caret">Summon</span>
                 <ul class="nested">
-                    <li>Title: ${this.title}</li>
+                    <li>Title: </li>
                     <li>Tag: ${this.tag}</li>
                     <li>Duration: ${this.duration}</li>
                     <li>Health: ${this.health}</li>

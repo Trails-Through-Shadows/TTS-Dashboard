@@ -30,6 +30,14 @@ def obstacleViewer(request):
     return render(request, 'dungeon/obstacles/obstaclesViewer.html')
 
 @login_required(login_url="/login/")
+def effectViewer(request):
+    return render(request, 'mechanics/effects/effectsViewer.html')
+
+@login_required(login_url="/login/")
+def itemViewer(request):
+    return render(request, 'mechanics/items/itemsViewer.html')
+
+@login_required(login_url="/login/")
 def obstacleWorkbench(request, id=None):
     context = {"obstacleId": id}
     return render(request, 'dungeon/obstacles/obstaclesWorkbench.html', context)

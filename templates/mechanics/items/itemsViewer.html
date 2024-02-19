@@ -3,7 +3,7 @@
 {% load filters %}
 {% load i18n %}
 
-{% block title %} Dungeon - Obstacles {% endblock %}
+{% block title %} Mechanics - Items {% endblock %}
 
 {% block stylesheets %}
     <!-- Empty -->
@@ -14,13 +14,13 @@
 
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div class="d-block mb-4 mb-md-0">
-            <h2 class="h4">{% translate 'All Obstacles' %}</h2>
-            <p class="mb-0">{% translate 'Manage of all obstacles in database' %}</p>
+            <h2 class="h4">{% translate 'All Items' %}</h2>
+            <p class="mb-0">{% translate 'Manage of all items in database' %}</p>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-12 col-xl-8" id="obstaclesTable">
+        <div class="col-12 col-xl-8" id="entriesTable">
             <div class="table-settings mb-2">
                 <div class="row align-items-center justify-content-between">
                     <div class="col-12 col-sm-6">
@@ -42,10 +42,10 @@
                         <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
                             <a href="{% url 'obstaclesWorkbench' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
                                 <i class="fa-solid fa-plus me-1"></i>
-                                {% trans 'New Obstacle' %}
+                                {% trans 'New Item' %}
                             </a>
 
-                            <a href="{% url 'apiQueryTable' table='obstacles' %}?download" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center ms-2">
+                            <a href="{% url 'apiQueryTable' table='items' %}?download" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center ms-2">
                                 <i class="fa-solid fa-cloud-arrow-down me-1"></i>
                                 {% trans 'Export All' %}
                             </a>
@@ -59,22 +59,21 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th class="border-gray-200">#</th>
-                                <th class="border-gray-200">{% translate 'Title' %}</th>
-                                <th class="border-gray-200">{% translate 'Tag' %}</th>
-                                <th class="border-gray-200 text-center">{% translate 'Damage' %}</th>
-                                <th class="border-gray-200 text-center">{% translate 'Health' %}</th>
-                                <th class="border-gray-200 text-center">{% translate 'Cross-able' %}</th>
-                                <th class="border-gray-200 text-center">{% translate 'Effects' %}</th>
-                                <th class="border-gray-200 text-center">{% translate 'Usages' %}</th>
-                                <th class="border-gray-200 table-actions">{% translate 'Action' %}</th>
+                                <th class="border-gray-200 orderable" data-order-key="id">#</th>
+                                <th class="border-gray-200 orderable" data-order-key="type">{% trans 'Type' %}</th>
+                                <th class="border-gray-200 orderable" data-order-key="title">{% trans 'Title' %}</th>
+                                <th class="border-gray-200 orderable" data-order-key="tag">{% trans 'Tag' %}</th>
+                                <th class="border-gray-200 orderable text-center" data-order-key="effects">{% trans 'Effects' %}</th>
+                                <th class="border-gray-200 text-center">{% trans 'ActionID' %}</th>
+                                <th class="border-gray-200 text-center">{% trans 'Requirements' %}</th>
+                                <th class="border-gray-200 text-center">{% trans 'Action' %}</th>
                             </tr>
                         </thead>
 
                         <tbody>
                             {% for i in 10|range %}
                                 <tr>
-                                    {% for y in 9|range %}
+                                    {% for y in 8|range %}
                                         <td class="text-center">
                                             <span class="skeleton-line"></span>
                                         </td>
@@ -111,11 +110,11 @@
             </div>
         </div>
 
-        <div class="col-12 col-xl-4" id="obstaclesData">
-            <div class="card card-body border-0 shadow" id="entryDataReplacement">
+        <div class="col-12 col-xl-4" id="entryData">
+            <div class="card card-body border-0 shadow h-100" id="entryDataReplacement">
                 <div class="row">
                     <div class="col-4 align-self-center">
-                        <img src="{% static 'img/imgPlaceholder.png' %}" alt="Obstacle Image" class="img-fluid rounded">
+                        <img src="{% static 'img/imgPlaceholder.png' %}" alt="Item Image" class="img-fluid rounded">
                     </div>
 
                     <div class="col-8 align-self-center">
@@ -127,7 +126,7 @@
                             </div>
 
                             <div class="d-flex align-items-center mt-2">
-                                <span class="skeleton-line w-100" style="height: 6vh;"></span>
+                                <span class="skeleton-line w-100" style="height: 8vh;"></span>
                             </div>
                         </div>
                     </div>
@@ -173,35 +172,27 @@
         let page = urlParams.get('page') || 1;
         let limit = urlParams.get('limit') || 10;
 
-        const apiUrlAll = `{% url 'apiQueryTable' table='obstacles' %}`;
-        const apiUrlSingle = `{% url 'apiQueryTableID' table='obstacles' id=0 %}`;
-        const template = 'dungeon/obstacles/obstacleTable.html';
-        const templateInfo = 'dungeon/obstacles/obstacleEntry.html';
+        const apiUrlAll = `{% url 'apiQueryTable' table='items' %}`;
+        const apiUrlSingle = `{% url 'apiQueryTableID' table='items' id=0 %}`;
+        const template = 'mechanics/items/itemTable.html';
+        const templateInfo = 'mechanics/items/itemEntry.html';
 
         // ---- | Data
 
-        const dataRoot = document.getElementById('obstaclesData');
+        const dataRoot = document.getElementById('entryData');
         const data = new Dashboard.Data(dataRoot, templateInfo);
 
         // ---- | Table
 
         const tableFilter = new Dashboard.TableFilter([
             { title: 'Title contains:', key: 'title', type: 'has', hidden: true },
-            { title: 'Damage between:', key: 'damage', type: 'bwn', bounds: {min: 0, max: 50} },
-            { title: 'Health between:', key: 'baseDefence', type: 'bwn', bounds: {min: 0, max: 50} },
-            { title: 'Cross-able is', key: 'effects', type: 'is'},
-            { title: 'Effects between:', key: 'effects', type: 'bwn', bounds: {min: 0, max: 50} },
-            { title: 'Usages between:', key: 'usages', type: 'bwn', bounds: {min: 0, max: 50} }
         ]);
         const tableSorter = new Dashboard.TableSorter([
             { key: "id", order: "asc" },
+            { key: "type" },
             { key: "title" },
             { key: "tag" },
-            { key: "damage" },
-            { key: "health" },
-            { key: "crossable" },
             { key: "effects" },
-            { key: "usages" }
         ], true);
         const tableSearch = new Dashboard.TableSearch(
             (input) => { // On Search input
@@ -212,14 +203,14 @@
             }
         )
 
-        const tableRoot = document.getElementById('obstaclesTable');
+        const tableRoot = document.getElementById('entriesTable');
         const table = new Dashboard.Table(tableRoot, template, tableFilter, tableSorter, tableSearch);
 
         table.setOnDataLoad(() => {
             table.setAction("view", (element) => {
                 const id = element.getAttribute('data-entry');
 
-                console.log(`Button | Viewing obstacle ${id}`);
+                console.log(`Button | Viewing entry ${id}`);
                 data.queryData(apiUrlSingle.replace('0', id));
             });
 
@@ -238,10 +229,10 @@
                     cancelButtonText: "{% trans "No, cancel!" %}",
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        console.log(`Button | Deleting obstacle ${id}`);
+                        console.log(`Button | Deleting entry ${id}`);
                         Swal.fire({
                             title: '{% trans "Deleting..." %}',
-                            text: '{% trans "The obstacle is being deleted." %}',
+                            text: '{% trans "The effect is being deleted." %}',
                             icon: 'info',
                             allowOutsideClick: false,
                             allowEscapeKey: false,
@@ -255,7 +246,7 @@
                                 Swal.close();
 
                                 if (request.status === 200) {
-                                    console.log(`Button | Deleting obstacle ${id} successful`);
+                                    console.log(`Button | Deleting entry ${id} successful`);
                                     Swal.fire({
                                         icon: 'success',
                                         toast: true,
@@ -267,7 +258,7 @@
 
                                     table.queryData(apiUrlAll, page, limit);
                                 } else {
-                                    console.log(`Button | Deleting obstacle ${id} failed`);
+                                    console.log(`Button | Deleting entry ${id} failed`);
                                     Swal.mixin({
                                         toast: true,
                                         position: 'top-end',

@@ -23,15 +23,27 @@ module Dashboard {
         ) {}
 
         public static fromJSON(json: any): Action {
+            console.log("Mapping action: ", json);
+
             return new Action(
                 json.id,
                 json.title,
                 json.description,
-                json.movement ? MovementAction.fromJSON(json.movement) : null,
-                json.skill ? SkillAction.fromJSON(json.skill) : null,
-                json.attack ? AttackAction.fromJSON(json.attack) : null,
-                json.summonActions.length > 0 ? json.summonActions.map((summon: any) => SummonAction.fromJSON(summon)) : null,
-                json.restoreCards ? RestoreCardAction.fromJSON(json.discard) : null,
+                json.movement
+                    ? MovementAction.fromJSON(json.movement)
+                    : null,
+                json.skill
+                    ? SkillAction.fromJSON(json.skill)
+                    : null,
+                json.attack
+                    ? AttackAction.fromJSON(json.attack)
+                    : null,
+                json.summonActions && json.summonActions.length > 0
+                    ? json.summonActions.map((summon: any) => SummonAction.fromJSON(summon))
+                    : null,
+                json.restoreCards
+                    ? RestoreCardAction.fromJSON(json.discard)
+                    : null,
                 json.discard,
                 json.levelReq
             );
@@ -42,17 +54,27 @@ module Dashboard {
                 id: this.id,
                 title: this.title,
                 description: this.description,
-                movement: this.movement ? this.movement.toJSON() : null,
-                skill: this.skill ? this.skill.toJSON() : null,
-                attack: this.attack ? this.attack.toJSON() : null,
-                summonActions: this.summon && this.summon.length > 0 ? this.summon.map(summon => summon.toJSON(this.id)) : null,
-                restoreCards: this.restoreCard ? this.restoreCard.toJSON() : null,
+                movement: this.movement
+                    ? this.movement.toJSON()
+                    : null,
+                skill: this.skill
+                    ? this.skill.toJSON()
+                    : null,
+                attack: this.attack
+                    ? this.attack.toJSON()
+                    : null,
+                summonActions: this.summon && this.summon.length > 0
+                    ? this.summon.map(summon => summon.toJSON(this.id))
+                    : null,
+                restoreCards: this.restoreCard
+                    ? this.restoreCard.toJSON()
+                    : null,
                 discard: this.discard,
                 levelReq: this.levelReq
             };
         }
 
-        public toCard(collapsed: boolean = true): HTMLElement {
+        public toCard(collapsed: boolean = false, remove: boolean = false, add: boolean = false): HTMLElement {
             const card = document.createElement('div');
             card.className = 'card bg-gray-100';
 
@@ -62,16 +84,27 @@ module Dashboard {
                     data-bs-target="#action${this.id}" 
                     aria-expanded="true" 
                     aria-controls="#action${this.id}">
+                    
                     <div class="row align-items-center">
                         <div class="col-md-8">${this.title}</div>
                         <div class="col-md-4 text-end" id="cardActions">
                             ${this.levelReq || 0}.lvl 
-                            <button class="btn btn-sm btn-outline-danger ms-2" 
+                            
+                            ${add ? `<button class="btn btn-sm btn-outline-success ms-1" 
+                                data-id="${this.id}" 
+                                data-type="action" 
+                                data-action="add">
+                                
+                                <i class="fa-solid fa-plus"></i>
+                            </button>` : ''}
+                            
+                            ${remove ? `<button class="btn btn-sm btn-outline-danger ms-1" 
                                 data-id="${this.id}" 
                                 data-type="action" 
                                 data-action="remove">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
+                                
+                                <i class="fa-solid fa-trash"></i>
+                            </button>` : ''}
                         </div>
                     </div>
                 </div>
@@ -80,11 +113,21 @@ module Dashboard {
                     <ol class="list-group list-group-numbered py-2">
                         ${this.createListItem('Description:', this.description)}
                         ${this.createListItem('Discard:', `${this.discard}`)}
-                        ${this.movement ? this.createListItem('Movement:', this.movement.toTreeView().innerHTML) : ''}
-                        ${this.skill ? this.createListItem('Skill:', this.skill.toTreeView().innerHTML) : ''}
-                        ${this.attack ? this.createListItem('Attack:', this.attack.toTreeView().innerHTML) : ''}
-                        ${this.summon ? this.summon.map(s => this.createListItem('Summon:', s.summon.toTreeView().innerHTML)).join('') : ''}
-                        ${this.restoreCard ? this.createListItem('Restore Card:', this.restoreCard.toTreeView().innerHTML) : ''}
+                        ${this.movement 
+                            ? this.createListItem('Movement:', this.movement.toTreeView().innerHTML) 
+                            : ''}
+                        ${this.skill 
+                            ? this.createListItem('Skill:', this.skill.toTreeView().innerHTML) 
+                            : ''}
+                        ${this.attack 
+                            ? this.createListItem('Attack:', this.attack.toTreeView().innerHTML) 
+                            : ''}
+                        ${this.summon 
+                            ? this.summon.map(s => this.createListItem('Summon:', s.summon.toTreeView().innerHTML)).join('') 
+                            : ''}
+                        ${this.restoreCard 
+                            ? this.createListItem('Restore Card:', this.restoreCard.toTreeView().innerHTML) 
+                            : ''}
                     </ol>
                 </div>`;
 
@@ -99,17 +142,46 @@ module Dashboard {
             let treeView = document.createElement('li');
             treeView.className = 'list-group-item bg-transparent font-small p-0 px-3 treeView';
 
-            treeView.innerHTML = `
-                <span class="caret">${this.title}</span>
-                <ul class="nested">
+            let caret = document.createElement('span');
+            caret.className = 'caret';
+            caret.innerHTML = this.title;
+            treeView.appendChild(caret);
+
+            let nested = document.createElement('ul');
+            nested.className = 'nested';
+            nested.innerHTML = `
                     <li>Description: ${this.description}</li>
                     <li>Discard: ${this.discard}</li>
-                    ${this.movement ? this.movement.toTreeView().innerHTML : ''}
-                    ${this.skill ? this.skill.toTreeView().innerHTML : ''}
-                    ${this.attack ? this.attack.toTreeView().innerHTML : ''}
-                    ${this.summon && this.summon.length > 0 ? this.summon.map(summon => summon.toTreeView().innerHTML).join('') : ''}
-                    ${this.restoreCard ? this.restoreCard.toTreeView().innerHTML : ''}
-                </ul>`;
+                    ${this.movement 
+                        ? this.movement.toTreeView().innerHTML 
+                        : ''}
+                    ${this.skill 
+                        ? this.skill.toTreeView().innerHTML 
+                        : ''}
+                    ${this.attack 
+                        ? this.attack.toTreeView().innerHTML 
+                        : ''}
+                    ${this.summon && this.summon.length > 0 
+                        ? this.summon.map(summon => summon.toTreeView().innerHTML).join('') 
+                        : ''}
+                    ${this.restoreCard 
+                        ? this.restoreCard.toTreeView().innerHTML 
+                        : ''}
+            `;
+            treeView.appendChild(nested);
+
+            caret.addEventListener("click", () => {
+                nested.classList.toggle("active");
+                caret.classList.toggle("caret-down");
+
+                // Set title from Expanded to Collapsed
+                if (nested.classList.contains("active")) {
+                    caret.innerHTML = "Click to Collapse";
+                } else {
+                    caret.innerHTML = "Click to Expand";
+                }
+            });
+
             return treeView;
         }
     }

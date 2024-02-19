@@ -19,4 +19,7 @@ urlpatterns = [
     path('dungeon/obstacles/', views.obstacleViewer, name="obstacleViewer"),
     path('dungeon/obstacles/workbench/', views.obstacleWorkbench, name="obstaclesWorkbench"),
     path('dungeon/obstacles/workbench/<int:id>/', views.obstacleWorkbench, name="obstacleWorkbenchEdit"),
+
+    path('mechanics/effects/', views.effectViewer, name="effectsViewer"),
+    path('mechanics/items/', views.itemViewer, name="itemsViewer"),
 ]

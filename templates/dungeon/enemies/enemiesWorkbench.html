@@ -26,13 +26,13 @@
                     <div class="col-12 flex-fill mb-4">
                         <div class="card card-body border-0 shadow h-100">
                             <div class="card-header p-0">
-                                <h2 class="h5">{% trans 'Enemy Information:' %}</h2>
+                                <h2 class="h5">{% trans 'Information:' %}</h2>
                             </div>
 
-                            <div class="card-body">
+                            <div class="card-body p-0 formLoading">
                                 <div class="row">
-                                    <div class="col-4 align-self-center">
-                                        <img src="{% static 'img/imgPlaceholder.png' %}" alt="Enemy Image" class="img-fluid rounded">
+                                    <div class="col-4 align-self-center py-3">
+                                        <img src="{% static 'img/Zombie.png' %}" alt="{% trans 'Image' %}" class="img-fluid rounded">
                                     </div>
 
                                     <div class="col-8 align-self-center">
@@ -40,59 +40,59 @@
                                             <h2 class="h5 mb-2">
                                                 <label class="visually-hidden" for="enemyTitle">Title</label>
                                                 <div class="input-group input-group">
-                                                    <div class="input-group-text">Title</div>
-                                                    <input type="text" class="form-control" id="enemyTitle" placeholder="Enemy Title" >
+                                                    <div class="input-group-text">{% trans 'Title' %}</div>
+                                                    <input type="text" class="form-control" id="enemyTitle" placeholder="{% trans 'Title' %}" >
                                                 </div>
                                             </h2>
 
                                             <div class="d-flex align-items-center">
                                                 <div class="row gy-2 gx-3 align-items-center">
-                                                    <div class="col-6">
+                                                    <div class="col-4">
                                                         <label class="visually-hidden" for="enemyId">Id</label>
                                                         <div class="input-group input-group-sm">
-                                                            <div class="input-group-text">ID</div>
+                                                            <div class="input-group-text">{% trans 'ID' %}</div>
                                                             <input type="text" class="form-control" id="enemyId" placeholder="Enemy Id" value="{{ enemyId|default:0 }}" readonly>
                                                         </div>
                                                     </div>
 
-                                                    <div class="col-6">
+                                                    <div class="col-8">
                                                         <label class="visually-hidden" for="enemyTag">Tag</label>
                                                         <div class="input-group input-group-sm">
-                                                            <div class="input-group-text">Tag</div>
-                                                            <input type="text" class="form-control" id="enemyTag" placeholder="Enemy Tag" >
+                                                            <div class="input-group-text">{% trans 'Tag' %}</div>
+                                                            <input type="text" class="form-control" id="enemyTag" placeholder="{% trans 'Tag' %}" >
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div class="align-items-center mt-2">
-                                                <label for="enemyDescription" class="form-label visually-hidden">Description</label>
-                                                <textarea class="form-control" id="enemyDescription" rows="3" placeholder="Enemy Description"></textarea>
+                                                <label for="enemyDescription" class="form-label visually-hidden">{% trans 'Description' %}</label>
+                                                <textarea class="form-control" id="enemyDescription" rows="3" placeholder="{% trans 'Description' %}"></textarea>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="col-4">
-                                        <label class="visually-hidden" for="baseInitiative">Base Initiative</label>
+                                        <label class="visually-hidden" for="baseInitiative">{% trans 'Base Initiative' %}</label>
                                         <div class="input-group">
-                                            <div class="input-group-text">Base Initiative</div>
-                                            <input type="text" class="form-control" id="baseInitiative" placeholder="Initiative">
+                                            <div class="input-group-text">INI</div>
+                                            <input type="text" class="form-control" id="baseInitiative" placeholder="{% trans 'Initiative' %}">
                                         </div>
                                     </div>
 
                                     <div class="col-4">
-                                        <label class="visually-hidden" for="baseHealth">Base Health</label>
+                                        <label class="visually-hidden" for="baseHealth">{% trans 'Base Health' %}</label>
                                         <div class="input-group">
-                                            <div class="input-group-text">Base Health</div>
-                                            <input type="text" class="form-control" id="baseHealth" placeholder="Health">
+                                            <div class="input-group-text">HP</div>
+                                            <input type="text" class="form-control" id="baseHealth" placeholder="{% trans 'Health' %}">
                                         </div>
                                     </div>
 
                                     <div class="col-4">
-                                        <label class="visually-hidden" for="baseDefence">Base Defence</label>
+                                        <label class="visually-hidden" for="baseDefence">{% trans 'Base Defence' %}</label>
                                         <div class="input-group">
-                                            <div class="input-group-text">Base Defence</div>
-                                            <input type="text" class="form-control" id="baseDefence" placeholder="Defence">
+                                            <div class="input-group-text">DEF</div>
+                                            <input type="text" class="form-control" id="baseDefence" placeholder="{% trans 'Defence' %}">
                                         </div>
                                     </div>
                                 </div>
@@ -112,9 +112,9 @@
                                 <div class="col-lg-6 col-12 mt-2 mt-lg-0">
                                     <button class="btn btn-green-100 animate-up-2 w-100" type="submit" id="saveButton">
                                         {% if enemyId is not None %}
-                                            Save
+                                            {% trans 'Save' %}
                                         {% else %}
-                                            Create
+                                            {% trans 'Create' %}
                                         {% endif %}
                                     </button>
                                 </div>
@@ -130,20 +130,20 @@
                         <div class="card card-body border-0 shadow h-100">
                             <div class="card-header p-0 mb-2">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <h2 class="h5 m-0">{% trans 'Enemy Actions:' %}</h2>
+                                    <h2 class="h5 m-0">{% trans 'Actions:' %}</h2>
 
                                     <div class="col-6 mb-2">
                                         <div class="btn-toolbar justify-content-end">
                                             <a href="javascript:void(0)" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center" id="addAction">
                                                 <i class="fa-solid fa-plus me-1"></i>
-                                                {% trans 'Add Action' %}
+                                                {% trans 'Add' %}
                                             </a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="card-body p-0 cards-scroll">
+                            <div class="card-body p-0 cards-scroll formLoading">
                                 <div class="row" id="enemyActionsList">
                                 </div>
                             </div>
@@ -158,20 +158,20 @@
                         <div class="card card-body border-0 shadow h-100">
                             <div class="card-header p-0 mb-2">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <h2 class="h5 m-0">{% trans 'Enemy Effects:' %}</h2>
+                                    <h2 class="h5 m-0">{% trans 'Effects:' %}</h2>
 
                                     <div class="col-6 mb-2">
                                         <div class="btn-toolbar justify-content-end">
                                             <a href="javascript:void(0)" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center" id="addEffect">
                                                 <i class="fa-solid fa-plus me-1"></i>
-                                                {% trans 'Add Effect' %}
+                                                {% trans 'Add' %}
                                             </a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="card-body p-0">
+                            <div class="card-body p-0 formLoading">
                                 <div class="row" id="enemyEffectsList">
                                 </div>
                             </div>
@@ -254,7 +254,7 @@
                         actionCol.classList.add('mb-2');
                     }
 
-                    actionCol.appendChild(action.toCard(true));
+                    actionCol.appendChild(action.toCard(true, true, false));
                     enemyActionsList.appendChild(actionCol);
                 });
 
@@ -267,7 +267,7 @@
                         effectCol.classList.add('mb-2');
                     }
 
-                    effectCol.appendChild(effect.toCard(false));
+                    effectCol.appendChild(effect.toCard(true, true, false));
                     enemyEffectsList.appendChild(effectCol);
                 });
 
@@ -276,7 +276,16 @@
                         const nested = toggle.parentElement.querySelector(".nested");
                         nested.classList.toggle("active");
                         toggle.classList.toggle("caret-down");
+                        
+                        // Set title from Expanded to Collapsed
+                        if (nested.classList.contains("active")) {
+                            toggle.innerHTML = "Click to Collapse";
+                        } else {
+                            toggle.innerHTML = "Click to Expand";
+                        }
                     });
+                    
+                    toggle.innerHTML = "Click to Expand";
                 });
 
                 // Get all buttons inside div that have data-action remove

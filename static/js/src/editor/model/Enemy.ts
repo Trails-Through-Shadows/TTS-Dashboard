@@ -10,7 +10,6 @@ module Dashboard {
             public baseHealth: number,
             public baseDefence: number,
             public baseInitiative: number,
-            // public usages: number,
             public actions: Action[],
             public effects: Effect[]
         ) {}
@@ -34,7 +33,6 @@ module Dashboard {
                 json.baseHealth,
                 json.baseDefence,
                 json.baseInitiative,
-                // json.usages,
                 actions,
                 effects
             );
@@ -49,7 +47,6 @@ module Dashboard {
                 baseHealth: this.baseHealth,
                 baseDamage: this.baseDefence,
                 baseInitiative: this.baseInitiative,
-                // usages: this.usages,
                 actions: this.actions.map(action => {
                     return {
                         idEnemy: this.id,
