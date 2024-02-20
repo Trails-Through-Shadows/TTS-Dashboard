@@ -30,6 +30,10 @@ def obstacleViewer(request):
     return render(request, 'dungeon/obstacles/obstaclesViewer.html')
 
 @login_required(login_url="/login/")
+def actionViewer(request):
+    return render(request, 'mechanics/action/actionViewer.html')
+
+@login_required(login_url="/login/")
 def effectViewer(request):
     return render(request, 'mechanics/effects/effectsViewer.html')
 

@@ -3,14 +3,14 @@
 
 <div class="row">
     <div class="col-4 align-self-center">
-        <img src="{% static 'img/Zombie.png' %}" alt="Enemy Image" class="img-fluid rounded">
+        <img src="{% static 'img/Zombie.png' %}" alt="Obstacle Image" class="img-fluid rounded">
     </div>
 
     <div class="col-8">
         <div class="py-2">
             <h2 class="h5 mb-2">{{ title }}</h2>
 
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center tags">
                 <span class="badge bg-secondary me-1 rounded-1">Id: #{{ id }}</span>
                 <span class="badge bg-secondary me-1 rounded-1">{% trans 'Tag:' %} {{ tag }}</span>
             </div>
@@ -31,15 +31,26 @@
         <div class="accordion accordion-flush" id="entryAttributes">
             <div class="accordion-item">
                 <div class="accordion-body">
-                    <span class="badge bg-secondary me-1 rounded-1 vertical-txt-bottom">{{ baseDamage }}</span>
-                    <span>{% trans 'Damage' %}</span>
+                    <span>{% trans 'Damage' %}:</span>
+                    {{ baseDamage }}
                 </div>
             </div>
 
             <div class="accordion-item">
                 <div class="accordion-body">
-                    <span class="badge bg-secondary me-1 rounded-1 vertical-txt-bottom">{{ baseHealth }}</span>
-                    <span>{% trans 'Health' %}</span>
+                    <span>{% trans 'Health' %}:</span>
+                    {{ baseHealth }}
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-body">
+                    <span>{% trans 'Cross-able' %}:</span>
+                    {% if entry.crossable %}
+                        <i class="fa-solid fa-square-xmark ms-1" style="color: #ff3d3d;"></i>
+                    {% else %}
+                        <i class="fa-solid fa-square-check ms-1" style="color: #3dff3d;"></i>
+                    {% endif %}
                 </div>
             </div>
 
@@ -51,23 +62,32 @@
                 </h2>
 
                 <div id="flush-effects" class="accordion-collapse collapse" data-bs-parent="#entryAttributes">
-                    <div class="accordion-body">
-                        <div class="row row-cols-auto">
-                            {% if effects|length == 0 %}
-                                <div class="col-12">
-                                    {% trans 'No Data' %}
-                                </div>
-                            {% else %}
-                                {% for effect in effects %}
-                                    <div class="col badge bg-gray-500 mx-1 rounded-1">
-                                        <p class="m-0 font-small">{{ effect.effect.type }}</p> {{ effect.effect.duration }} rounds / lvl. {{ effect.effect.strength }}
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
+                    <div class="accordion-body card-list" id="effectsCard">
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script id="entryDataScript">
+    let effectsJSON = '{{ effects|safe|escapejs }}';
+    effectsJSON = effectsJSON.replace(/&quot;/g, '"');
+    effectsJSON = effectsJSON.replace(/'/g, '"');
+    effectsJSON = effectsJSON.replace(/None/g, 'null');
+
+    const effectsCards = document.getElementById('effectsCard');
+    if (effectsJSON === 'null' || effectsJSON === '[]') {
+        effectsCards.innerHTML = `
+            <div class="card-header px-3 py-2 sticky-top bg-gray-100">
+                No Effects
+            </div>
+        `;
+    } else {
+        const effects = JSON.parse(effectsJSON);
+        effects.forEach(effect => {
+            const effectCard = new Dashboard.Effect.fromJSON(effect.effect);
+            effectsCards.appendChild(effectCard.toCard(true, false, false));
+        });
+    }
+</script>

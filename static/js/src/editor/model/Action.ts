@@ -23,8 +23,6 @@ module Dashboard {
         ) {}
 
         public static fromJSON(json: any): Action {
-            console.log("Mapping action: ", json);
-
             return new Action(
                 json.id,
                 json.title,
@@ -110,32 +108,64 @@ module Dashboard {
                 </div>
                 
                 <div class="card-body collapse p-0 ${collapsed ? '' : 'show'}" data-bs-parent="#enemyActionsList" id="action${this.id}">
-                    <ol class="list-group list-group-numbered py-2">
-                        ${this.createListItem('Description:', this.description)}
-                        ${this.createListItem('Discard:', `${this.discard}`)}
-                        ${this.movement 
-                            ? this.createListItem('Movement:', this.movement.toTreeView().innerHTML) 
-                            : ''}
-                        ${this.skill 
-                            ? this.createListItem('Skill:', this.skill.toTreeView().innerHTML) 
-                            : ''}
-                        ${this.attack 
-                            ? this.createListItem('Attack:', this.attack.toTreeView().innerHTML) 
-                            : ''}
-                        ${this.summon 
-                            ? this.summon.map(s => this.createListItem('Summon:', s.summon.toTreeView().innerHTML)).join('') 
-                            : ''}
-                        ${this.restoreCard 
-                            ? this.createListItem('Restore Card:', this.restoreCard.toTreeView().innerHTML) 
-                            : ''}
+                    <ol class="list-group list-group-numbered py-2" id="actionAttributes">
                     </ol>
-                </div>`;
+                </div>
+            `;
+
+            const attributes = card.querySelector('#actionAttributes');
+
+            if (this.description) {
+                const span = document.createElement('span');
+                span.className = 'mx-1';
+                span.innerHTML = this.description;
+
+                attributes.appendChild(this.createListItem('Description:', span));
+            }
+
+            if (this.discard) {
+                const span = document.createElement('span');
+                span.className = 'mx-1';
+                span.innerHTML = `${this.discard}`;
+
+                attributes.appendChild(this.createListItem('Discard:', span));
+            }
+
+            if (this.movement) {
+                attributes.appendChild(this.createListItem('Movement:', this.movement.toTreeView()));
+            }
+
+            if (this.skill) {
+                attributes.appendChild(this.createListItem('Skill:', this.skill.toTreeView()));
+            }
+
+            if (this.attack) {
+                attributes.appendChild(this.createListItem('Attack:', this.attack.toTreeView()));
+            }
+
+            if (this.summon && this.summon.length > 0) {
+                for (let summon of this.summon) {
+                    attributes.appendChild(this.createListItem('Summon:', summon.toTreeView()));
+                }
+            }
+
+            if (this.restoreCard) {
+                attributes.appendChild(this.createListItem('Restore Card:', this.restoreCard.toTreeView()));
+            }
 
             return card;
         }
 
-        private createListItem(label: string, value: string): string {
-            return `<li class="list-group-item bg-transparent font-small p-0 px-3"><b>${label}</b> ${value}</li>`;
+        private createListItem(label: string, value: HTMLElement): HTMLElement {
+            const li = document.createElement('li');
+            li.className = 'list-group-item bg-transparent font-small p-0 px-3';
+
+            const b = document.createElement('b');
+            b.innerHTML = label;
+            li.appendChild(b);
+
+            li.appendChild(value);
+            return li;
         }
 
         public toTreeView(): HTMLElement {
@@ -144,11 +174,11 @@ module Dashboard {
 
             let caret = document.createElement('span');
             caret.className = 'caret';
-            caret.innerHTML = this.title;
+            caret.innerHTML = "Click to Expand";
             treeView.appendChild(caret);
 
             let nested = document.createElement('ul');
-            nested.className = 'nested';
+            nested.className = 'nested mb-0';
             nested.innerHTML = `
                     <li>Description: ${this.description}</li>
                     <li>Discard: ${this.discard}</li>
@@ -171,6 +201,8 @@ module Dashboard {
             treeView.appendChild(nested);
 
             caret.addEventListener("click", () => {
+                console.log("Clicked on caret");
+
                 nested.classList.toggle("active");
                 caret.classList.toggle("caret-down");
 

@@ -10,7 +10,7 @@
         <div class="py-2">
             <h2 class="h5 mb-2">{{ title }}</h2>
 
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center tags">
                 <span class="badge bg-secondary me-1 rounded-1">Id: #{{ id }}</span>
                 <span class="badge bg-secondary me-1 rounded-1">{% trans 'Tag:' %} {{ tag }}</span>
             </div>
@@ -31,15 +31,14 @@
         <div class="accordion accordion-flush" id="entryAttributes">
             <div class="accordion-item">
                 <div class="accordion-body">
-                    <span class="badge bg-secondary me-1 rounded-1 vertical-txt-bottom">{{ baseHealth }}</span>
-                    <span>{% trans 'Base Health' %}</span>
+                    <span>{% trans 'Base Health' %}:</span>
+                    {{ baseHealth }}
                 </div>
             </div>
-
             <div class="accordion-item">
                 <div class="accordion-body">
-                    <span class="badge bg-secondary me-1 rounded-1 vertical-txt-bottom">{{ baseDefence }}</span>
-                    <span>{% trans 'Base Defence' %}</span>
+                    <span>{% trans 'Base Defence' %}:</span>
+                    {{ baseDefence }}
                 </div>
             </div>
 
@@ -51,26 +50,7 @@
                 </h2>
 
                 <div id="flush-actions" class="accordion-collapse collapse" data-bs-parent="#entryAttributes">
-                    <div class="accordion-body">
-                        <div class="row row-cols-auto">
-                            {% if effects|length == 0 %}
-                                <div class="col-12">
-                                    {% trans 'No Data' %}
-                                </div>
-                            {% else %}
-                                {% for action in actions %}
-                                    <div class="col badge bg-gray-500 mx-1 rounded-1 position-relative">
-                                        {{ action.action.title }}
-    
-                                        {% if action.action.discard != "NEVER" %}
-                                            <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
-                                                <span class="visually-hidden">{% trans 'Discard-able' %}</span>
-                                            </span>
-                                        {% endif %}
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
+                    <div class="accordion-body card-list" id="actionsCard">
                     </div>
                 </div>
             </div>
@@ -83,23 +63,52 @@
                 </h2>
 
                 <div id="flush-effects" class="accordion-collapse collapse" data-bs-parent="#entryAttributes">
-                    <div class="accordion-body">
-                        <div class="row row-cols-auto">
-                            {% if effects|length == 0 %}
-                                <div class="col-12">
-                                    {% trans 'No Data' %}
-                                </div>
-                            {% else %}
-                                {% for effect in effects %}
-                                    <div class="col badge bg-gray-500 mx-1 rounded-1">
-                                        <p class="m-0 font-small">{{ effect.effect.type }}</p> {{ effect.effect.duration }} rounds / lvl. {{ effect.effect.strength }}
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
+                    <div class="accordion-body card-list" id="effectsCard">
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script id="entryDataScript">
+    let actionsJSON = "{{ actions|safe|escapejs }}";
+    actionsJSON = actionsJSON.replace(/&quot;/g, '"');
+    actionsJSON = actionsJSON.replace(/'/g, '"');
+    actionsJSON = actionsJSON.replace(/None/g, 'null');
+    
+    const actionsCards = document.getElementById('actionsCard');
+    if (actionsJSON === 'null' || actionsJSON === '[]') {
+        actionsCards.innerHTML = `
+            <div class="card-header px-3 py-2 sticky-top bg-gray-100">
+                No Actions
+            </div>
+        `;
+    } else {
+        const actions = JSON.parse(actionsJSON);
+        actions.forEach(action => {
+            const actionCard = new Dashboard.Action.fromJSON(action.action);
+            actionsCards.appendChild(actionCard.toCard(true, false, false));
+        });
+    }
+    
+    let effectsJSON = '{{ effects|safe|escapejs }}';
+    effectsJSON = effectsJSON.replace(/&quot;/g, '"');
+    effectsJSON = effectsJSON.replace(/'/g, '"');
+    effectsJSON = effectsJSON.replace(/None/g, 'null');
+
+    const effectsCards = document.getElementById('effectsCard');
+    if (effectsJSON === 'null' || effectsJSON === '[]') {
+        effectsCards.innerHTML = `
+            <div class="card-header px-3 py-2 sticky-top bg-gray-100">
+                No Effects
+            </div>
+        `;
+    } else {
+        const effects = JSON.parse(effectsJSON);
+        effects.forEach(effect => {
+            const effectCard = new Dashboard.Effect.fromJSON(effect.effect);
+            effectsCards.appendChild(effectCard.toCard(true, false, false));
+        });
+    }
+</script>

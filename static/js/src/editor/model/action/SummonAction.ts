@@ -12,8 +12,6 @@ module Dashboard {
         ) {}
 
         public static fromJSON(json: any): Summon {
-            console.log(json);
-
             let effects: Effect[] = [];
             if (json.effects) {
                 for (let effect of json.effects) {
