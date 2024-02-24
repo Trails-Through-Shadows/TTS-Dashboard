@@ -40,7 +40,7 @@ module Dashboard {
                     ? json.summonActions.map((summon: any) => SummonAction.fromJSON(summon))
                     : null,
                 json.restoreCards
-                    ? RestoreCardAction.fromJSON(json.discard)
+                    ? RestoreCardAction.fromJSON(json.restoreCards)
                     : null,
                 json.discard,
                 json.levelReq

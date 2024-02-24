@@ -1,0 +1,102 @@
+{% load filters %}
+{% load i18n %}
+
+<div class="modal" id="modal" aria-hidden="true">
+    <div class="modal-overlay" tabindex="-1" data-micromodal-close>
+        <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <header class="modal-header border-0">
+                <h2 class="modal-title" id="modal-title">
+                    {% trans 'Create Effect' %}
+                </h2>
+
+                <button class="modal-close hvr-grow" aria-label="Close modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </header>
+
+            <main class="modal-body pt-0 pb-0">
+                <form id="effectWorkbench">
+                    <div class="row">
+                        <div class="col-12 col-lg-6">
+                            <label for="effectType" class="form-label mb-1"> Effect Type </label>
+                            <select class="form-control" id="effectType" required>
+                                <option value="hidden" selected hidden disabled>Choose Type</option>
+                                <option value="PUSH">PUSH</option>
+                                <option value="PULL">PULL</option>
+                                <option value="FORCED_MOVEMENT_RESISTANCE">FORCED_MOVEMENT_RESISTANCE</option>
+                                <option value="POISON">POISON</option>
+                                <option value="POISON_RESISTANCE">POISON_RESISTANCE</option>
+                                <option value="FIRE">FIRE</option>
+                                <option value="FIRE_RESISTANCE">FIRE_RESISTANCE</option>
+                                <option value="BLEED">BLEED</option>
+                                <option value="BLEED_RESISTANCE">BLEED_RESISTANCE</option>
+                                <option value="DISARM">DISARM</option>
+                                <option value="DISARM_RESISTANCE">DISARM_RESISTANCE</option>
+                                <option value="ROOT">ROOT</option>
+                                <option value="ROOT_RESISTANCE">ROOT_RESISTANCE</option>
+                                <option value="STUN">STUN</option>
+                                <option value="STUN_RESISTANCE">STUN_RESISTANCE</option>
+                                <option value="CONFUSION">CONFUSION</option>
+                                <option value="CONFUSION_RESISTANCE">CONFUSION_RESISTANCE</option>
+                                <option value="GUIDANCE">GUIDANCE</option>
+                                <option value="INVINCIBILITY">INVINCIBILITY</option>
+                                <option value="SHIELD">SHIELD</option>
+                                <option value="HEAL">HEAL</option>
+                                <option value="REGENERATION">REGENERATION</option>
+                                <option value="EMPOWER">EMPOWER</option>
+                                <option value="ENFEEBLE">ENFEEBLE</option>
+                                <option value="ENFEEBLE_RESISTANCE">ENFEEBLE_RESISTANCE</option>
+                                <option value="SPEED">SPEED</option>
+                                <option value="SLOW">SLOW</option>
+                                <option value="REACH">REACH</option>
+                                <option value="BONUS_HEALTH">BONUS_HEALTH</option>
+                                <option value="BONUS_DEFENCE">BONUS_DEFENCE</option>
+                                <option value="BONUS_INITIATIVE">BONUS_INITIATIVE</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <label for="effectTarget" class="form-label mb-1"> Effect Target </label>
+                            <select class="form-control" id="effectTarget" required>
+                                <option value="hidden" selected hidden disabled>Choose Target</option>
+                                <option value="SELF">SELF</option>
+                                <option value="ONE">ONE</option>
+                                <option value="ALL">ALL</option>
+                                <option value="ALL_ENEMIES">ALL_ENEMIES</option>
+                                <option value="ALL_ALLIES">ALL_ALLIES</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-lg-6 mt-2">
+                            <label for="effectStrength" class="form-label mb-1"> Effect Strength </label>
+                            <input type="number" class="form-control" min=0 placeholder="Strength" id="effectStrength" required>
+                        </div>
+
+                        <div class="col-12 col-lg-6 mt-2">
+                            <label for="effectDuration" class="form-label mb-1"> Effect Duration </label>
+                            <input type="number" class="form-control" min=0 max=16 placeholder="Duration" id="effectDuration" required>
+                        </div>
+
+                        <div class="col-12 mt-2">
+                            <div class="form-group">
+                                <label for="effectDescription">Effect Desciprtion:</label>
+                                <textarea class="form-control" id="effectDescription" rows="3" placeholder="Effect Description" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </main>
+
+            <footer class="modal-footer border-0">
+                <a href="#" target="_top" id="effectSubmit" class="btn btn-sm btn-gray-800">
+                    <i class="fa-solid fa-check"></i>
+                    {% trans 'Create' %}
+                </a>
+            </footer>
+        </div>
+    </div>
+</div>
+
+<script id="afterScript" async>
+
+</script>

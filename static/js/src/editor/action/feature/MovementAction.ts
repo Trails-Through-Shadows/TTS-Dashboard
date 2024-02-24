@@ -17,7 +17,7 @@ module Dashboard {
             let effects: Effect[] = [];
             if (json.effects) {
                 for (let effect of json.effects) {
-                    effects.push(Effect.fromJSON(effect));
+                    effects.push(Effect.fromJSON(effect.effect));
                 }
             }
 
@@ -34,7 +34,15 @@ module Dashboard {
                 id: this.id,
                 range: this.range,
                 type: this.type,
-                effects: this.effects.map(effect => effect.toJSON())
+                effects: this.effects.map(effect => {
+                    return {
+                        key: {
+                            idMovement: this.id,
+                            idEffect: effect.id
+                        },
+                        effect: effect.toJSON()
+                    }
+                }),
             };
         }
 

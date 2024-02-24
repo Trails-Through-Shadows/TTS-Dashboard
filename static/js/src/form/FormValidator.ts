@@ -1,6 +1,6 @@
 module Dashboard {
 
-    export class FormValidator<T> {
+    export class FormValidator {
         private valid = false;
         private validating = true;
         private errors: any[] = [];
@@ -14,7 +14,7 @@ module Dashboard {
             this.onStart = callback;
         }
 
-        private onSuccess: Function = (): void => {};
+        onSuccess: Function = (): void => {};
         public setOnSuccess(callback: Function): void {
             this.onSuccess = callback;
         }
@@ -29,7 +29,7 @@ module Dashboard {
             public readonly apiUrl: string,
         ) {}
 
-        requestValidation(data: T): void {
+        requestValidation(data: any): void {
             const csrfToken = (document.querySelector('#csrftoken') as HTMLInputElement).value;
 
             if (this.validating && !this.firstTime && !this.shouldRunAgain) {
@@ -37,7 +37,7 @@ module Dashboard {
                 this.shouldRunAgain = true;
             }
 
-            function validate(validator: FormValidator<T>) {
+            function validate(validator: FormValidator) {
                 if (validator.validating && !validator.firstTime) {
                     return;
                 }
@@ -69,7 +69,13 @@ module Dashboard {
                             }];
 
                             console.log(`Validator | Request failed with status ${request.status}`);
-                            validator.onFail(validator.valid, validator.errors);
+
+                            if (request.status !== 500) {
+                                validator.onFail(validator.errors);
+                                return;
+                            }
+
+                            validator.onFail([]);
                             return;
                         }
 
@@ -90,7 +96,7 @@ module Dashboard {
                         } else {
                             console.log(`Validator | Data are invalid`);
                             console.log('- Errors: ', validator.errors);
-                            validator.onFail(validator.valid, validator.errors);
+                            validator.onFail(validator.errors);
                         }
                     }
                 };

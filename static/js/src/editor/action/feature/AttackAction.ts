@@ -36,7 +36,15 @@ module Dashboard {
                 range: this.range,
                 damage: this.damage,
                 area: this.area,
-                effects: this.effects.map(effect => effect.toJSON()),
+                effects: this.effects.map(effect => {
+                    return {
+                        key: {
+                            idAttack: this.id,
+                            idEffect: effect.id
+                        },
+                        effect: effect.toJSON()
+                    }
+                }),
                 target: this.target,
                 numAttacks: this.numAttacks
             };

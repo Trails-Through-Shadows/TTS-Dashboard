@@ -23,11 +23,6 @@
         <div class="row">
             <div class="col-5" id="enemyInformation">
                 <div class="row flex-column h-100">
-                    <div class="col-12">
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert" id="actionsError">
-                        </div>
-                    </div>
-
                     <div class="col-12 flex-fill mb-4">
                         <div class="card card-body border-0 shadow h-100">
                             <div class="card-header p-0">
@@ -126,15 +121,16 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-12 mt-2">
+                        <div class="alert alert-success fade show validation" role="alert" id="informationValidation">
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="col-4" id="enemyActions">
                 <div class="row flex-column h-100">
-                    <div class="col-12">
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert" id="actionsError">
-                        </div>
-                    </div>
 
                     <div class="col-12 flex-fill">
                         <div class="card card-body border-0 shadow h-100">
@@ -159,16 +155,16 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-12 mt-2">
+                        <div class="alert alert-success fade show validation" role="alert" id="actionsValidation">
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="col-3" id="enemyEffects">
                 <div class="row flex-column h-100">
-                    <div class="col-12">
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert" id="effectsError">
-                        </div>
-                    </div>
-
                     <div class="col-12 flex-fill">
                         <div class="card card-body border-0 shadow h-100">
                             <div class="card-header p-0 mb-2">
@@ -190,6 +186,11 @@
                                 <div class="row flex-column gap-1" id="enemyEffectsList">
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-2">
+                        <div class="alert alert-success fade show validation" role="alert" id="effectsValidation">
                         </div>
                     </div>
                 </div>
@@ -234,41 +235,96 @@
 
         const baseInitiative = formRoot.querySelector('#baseInitiative');
         baseInitiative.addEventListener('input', () => {
-            formEditor.object.baseInitiative = baseInitiative.value;
-            formEditor.validate();
+            try {
+                formEditor.object.baseInitiative = parseInt(baseInitiative.value);
+                formEditor.validate();
+            } catch (e) {
+                // TODO:
+            }
         });
 
         const baseHealth = formRoot.querySelector('#baseHealth');
         baseHealth.addEventListener('input', () => {
-            formEditor.object.baseHealth = baseHealth.value;
-            formEditor.validate();
+            try {
+                formEditor.object.baseHealth = parseInt(baseHealth.value);
+                formEditor.validate();
+            } catch (e) {
+                // TODO:
+            }
         });
 
         const baseDefence = formRoot.querySelector('#baseDefence');
         baseDefence.addEventListener('input', () => {
-            formEditor.object.baseDefence = baseDefence.value;
-            formEditor.validate();
+            try {
+                formEditor.object.baseDefence = parseInt(baseDefence.value);
+                formEditor.validate();
+            } catch (e) {
+                // TODO:
+            }
         });
         
         const addActionButton = document.querySelector('#addAction');
         addActionButton.addEventListener('click', () => {
-            let promise = Dashboard.Modal.openSearch("mechanics/action/actionSearch.html", "actions");
-            promise.then((result) => {
-                console.log(result);
-            });
+            Dashboard.Modal.openSearch("mechanics/action/actionSearch.html", "actions");
         });
 
-        formValidator.setOnStart(() => {
+        const addEffectButton = document.querySelector('#addEffect');
+        addEffectButton.addEventListener('click', () => {
+            let promise = Dashboard.Modal.openModal("mechanics/effects/effectsWorkbench.html");
+            promise.then((modal) => {
+                const modalRoot = modal.modal;
 
-        })
+                const effectForm = modalRoot.querySelector('#effectWorkbench');
+                const effectSubmitForm = modalRoot.querySelector('#effectSubmit');
 
-        formValidator.setOnSuccess(() => {
+                function submitForm() {
+                    if (!effectForm.checkValidity()) {
+                        Swal.fire({
+                            icon: 'error',
+                            toast: true,
+                            position: 'top-end',
+                            title: '{% trans 'Error!' %}',
+                            text: '{% trans 'Effect form is not valid!' %}',
+                            showConfirmButton: false,
+                            timer: 2500
+                        })
 
-        })
+                        return;
+                    }
 
-        formValidator.setOnFail(() => {
+                    const effectType = effectForm.querySelector('#effectType').value;
+                    const effectTarget = effectForm.querySelector('#effectTarget').value;
+                    const effectStrength = effectForm.querySelector('#effectStrength').value;
+                    const effectDuration = effectForm.querySelector('#effectDuration').value;
+                    const effectDescription = effectForm.querySelector('#effectDescription').value;
 
-        })
+                    const effect = new Dashboard.Effect(null, effectType, effectDescription, effectDuration, effectStrength, effectTarget);
+                    formEditor.object.effects.push(effect);
+                    formEditor.validate();
+
+                    const effectCol = document.createElement('div');
+                    effectCol.classList.add('col-12');
+
+                    effectCol.appendChild(effect.toCard(true, (event, id) => {
+                        event.preventDefault();
+
+                        const enemy = formEditor.object;
+                        enemy.effects = enemy.effects.filter(effect => effect.id !== id);
+                        effectCol.remove();
+                        formEditor.validate();
+                    }));
+
+                    const enemyEffectsList = document.getElementById('enemyEffectsList');
+                    enemyEffectsList.appendChild(effectCol);
+
+
+                    modal.close();
+                }
+
+                effectSubmitForm.addEventListener('click', submitForm);
+                effectForm.addEventListener('submit', submitForm);
+            });
+        });
 
         // On searchDataLoaded event
         document.addEventListener('searchDataLoaded', (event) => {
@@ -305,6 +361,7 @@
                             event.preventDefault();
 
                             enemy.actions = enemy.actions.filter(action => action.id !== id);
+                            formEditor.validate();
                             actionCol.remove();
                         }));
                         enemyActionsList.appendChild(actionCol);
@@ -314,10 +371,120 @@
                         enemy.actions.push(action);
 
                         action.card.remove();
+                        formEditor.validate();
                     });
                 }
             }
+
+            if (type === 'effects') {
+
+            }
         });
+
+        const infoValidation = document.getElementById('informationValidation');
+        const actionsValidation = document.getElementById('actionsValidation');
+        const effectsValidation = document.getElementById('effectsValidation');
+
+        formValidator.setOnStart(() => {
+            infoValidation.classList.remove('alert-success', 'alert-danger', 'alert-collapsed');
+            infoValidation.classList.add('alert-warning', 'validating');
+            infoValidation.innerHTML = '<i class="fa-solid fa-spinner-third me-1"></i> Validating...';
+
+            actionsValidation.classList.remove('alert-success', 'alert-danger', 'alert-collapsed');
+            actionsValidation.classList.add('alert-warning', 'validating');
+            actionsValidation.innerHTML = '<i class="fa-solid fa-spinner-third me-1"></i> Validating...';
+
+            effectsValidation.classList.remove('alert-success', 'alert-danger', 'alert-collapsed');
+            effectsValidation.classList.add('alert-warning', 'validating');
+            effectsValidation.innerHTML = '<i class="fa-solid fa-spinner-third me-1"></i> Validating...';
+        })
+
+        formValidator.setOnSuccess(() => {
+            infoValidation.classList.remove('alert-warning', 'alert-danger', 'validating');
+            infoValidation.classList.add('alert-success', 'alert-collapsed');
+            infoValidation.innerHTML = '';
+
+            actionsValidation.classList.remove('alert-warning', 'alert-danger', 'validating');
+            actionsValidation.classList.add('alert-success', 'alert-collapsed');
+            actionsValidation.innerHTML = '';
+
+            effectsValidation.classList.remove('alert-warning', 'alert-danger', 'validating');
+            effectsValidation.classList.add('alert-success', 'alert-collapsed');
+            effectsValidation.innerHTML = '';
+        })
+
+        formValidator.setOnFail((errors) => {
+            formValidator.onSuccess();
+
+            if (errors.length === 0) {
+                effectsValidation.classList.remove('alert-success', 'alert-collapsed');
+                effectsValidation.classList.add('alert-danger');
+                effectsValidation.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> Internal Server error!';
+
+                actionsValidation.classList.remove('alert-success', 'alert-collapsed');
+                actionsValidation.classList.add('alert-danger');
+                actionsValidation.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> Internal Server error!';
+
+                infoValidation.classList.remove('alert-success', 'alert-collapsed');
+                infoValidation.classList.add('alert-danger');
+                infoValidation.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> Internal Server error!';
+                return;
+            }
+
+            for (const err of errors) {
+                const errorDiv = document.createElement('div');
+                errorDiv.classList.add('d-block', 'row', 'mt-1');
+
+                if (!err.errors) {
+                    errorDiv.innerHTML = `
+                        <div class="col-12">
+                            <i class="fa-solid fa-exclamation-triangle me-1"></i>
+                            <span>${err.message}</span>
+                        </div>
+                    `;
+                } else {
+                    errorDiv.innerHTML = `
+                        <div class="col-12">
+                            <i class="fa-solid fa-exclamation-triangle me-1"></i>
+                            <span>${err.message}</span>
+                        </div>
+                        ${err.errors.map((field) => {
+                            return `
+                                <div class="col-12">
+                                    <span class="ms-1">* ${field.message}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    `;
+                }
+
+                switch (err.object) {
+                    case 'Effect': {
+                        effectsValidation.classList.remove('alert-success', 'alert-collapsed');
+                        effectsValidation.classList.add('alert-danger');
+
+                        effectsValidation.appendChild(errorDiv);
+                        break;
+                    }
+
+                    case 'Action': {
+                        actionsValidation.classList.remove('alert-success', 'alert-collapsed');
+                        actionsValidation.classList.add('alert-danger');
+
+                        actionsValidation.appendChild(errorDiv);
+                        break;
+                    }
+
+                    default: {
+                        infoValidation.classList.remove('alert-success', 'alert-collapsed');
+                        infoValidation.classList.add('alert-danger');
+
+                        infoValidation.appendChild(errorDiv);
+                        break;
+                    }
+                }
+            }
+        })
 
         {% if enemyId is not None %}
             formEditor.queryData((data) => {
@@ -340,6 +507,7 @@
 
                         enemy.actions = enemy.actions.filter(action => action.id !== id);
                         actionCol.remove();
+                        formEditor.validate();
                     }));
                     enemyActionsList.appendChild(actionCol);
                 });
@@ -354,11 +522,14 @@
 
                         enemy.effects = enemy.effects.filter(effect => effect.id !== id);
                         effectCol.remove();
+                        formEditor.validate();
                     }));
                     enemyEffectsList.appendChild(effectCol);
                 });
 
                 return enemy;
+            }, () => {
+                formEditor.validate();
             });
         {% endif %}
 
@@ -394,29 +565,83 @@
                 return;
             }
 
-            const Notiflix = window['Notiflix'];
+            if (formValidator.isValidating()) {
+                return Swal.fire({
+                    icon: 'warning',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Enemy is validating, please wait!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
+                });
+            }
+
+            if (!formEditor.isValid()) {
+                return Swal.fire({
+                    icon: 'error',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Enemy is not valid!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
+                });
+            }
+
             Notiflix.Block.circle("#workbench", 'Saving...');
 
-            // Check object validity
-            formEditor.validate(
-                () => {
-                    console.log("Validating");
-                },
-                () => {
-                    console.log("Valid");
-                },
-                () => {
-                    console.log("Invalid");
-                }
-            );
+            const enemyIdInput = form.querySelector('#enemyId');
+            const enemyId = enemyIdInput.value;
 
-            {#const enemyIdInput = form.querySelector('#enemyID');#}
-            {#const enemyId = enemyIdInput.value;#}
-            {##}
-            {#let url = "{% url 'apiQueryTable' table="parts" %}";#}
-            {#{% if enemyId is not undefined %}#}
-            {#    url = "{% url 'apiQueryTableID' table="enemies" id=0 %}".replace(0, enemyId);#}
-            {#{% endif %}#}
+            let url = "{% url 'apiQueryTable' table="enemies" %}";
+            {% if partId is not undefined %}
+                url = "{% url 'apiQueryTableID' table="enemies" id=0 %}".replace(0, enemyId);
+            {% endif %}
+
+            formEditor.saveData(() => {
+                Swal.fire({
+                    icon: 'success',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Success, enemy saved!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
+                })
+
+                setTimeout(() => {
+                    window.location.href = "{% url 'enemyViewer' %}";
+                }, 1000);
+
+                Notiflix.Block.remove("#workbench");
+            }, (responseText) => {
+                Notiflix.Block.remove("#workbench");
+
+                Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 10000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        toast.addEventListener('click', () => {
+                            const data = JSON.parse(responseText);
+                            const string = JSON.stringify(data, null, 4);
+
+                            Swal.fire({
+                                text: string,
+                                customClass: {
+                                    htmlContainer: 'text-start text-pre'
+                                },
+                                showConfirmButton: false,
+                            });
+                        })
+                    }
+                }).fire({
+                    icon: "error",
+                    title: '{% trans "Error, saving failed! Click for more information." %}'
+                });
+            });
         });
     </script>
 {% endblock javascripts %}
