@@ -37,8 +37,16 @@ module Dashboard {
                 tag: this.tag,
                 duration: this.duration,
                 health: this.health,
-                effects: this.effects.map(effect => effect.toJSON()),
-                actions: this.action.toJSON()
+                effects: this.effects.map(effect => {
+                    return {
+                        key: {
+                            idAttack: this.id,
+                            idEffect: effect.id
+                        },
+                        effect: effect.toJSON()
+                    }
+                }),
+                action: this.action.toJSON()
             };
         }
 

@@ -45,19 +45,23 @@ module Dashboard {
                 tag: this.tag,
                 description: this.description,
                 baseHealth: this.baseHealth,
-                baseDamage: this.baseDefence,
+                baseDefence: this.baseDefence,
                 baseInitiative: this.baseInitiative,
                 actions: this.actions.map(action => {
                     return {
-                        idEnemy: this.id,
-                        idAction: action.id,
+                        key: {
+                            idEnemy: this.id,
+                            idAction: action.id
+                        },
                         action: action.toJSON()
                     }
                 }),
                 effects: this.effects.map(effect => {
                     return {
-                        idEnemy: this.id,
-                        idEffect: effect.id,
+                        key: {
+                            idEnemy: this.id,
+                            idEffect: effect.id
+                        },
                         effect: effect.toJSON()
                     }
                 })

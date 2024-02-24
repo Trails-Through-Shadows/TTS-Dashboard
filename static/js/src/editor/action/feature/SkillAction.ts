@@ -31,7 +31,15 @@ module Dashboard {
                 id: this.id,
                 range: this.range,
                 area: this.area,
-                effects: this.effects.map(effect => effect.toJSON()),
+                effects: this.effects.map(effect => {
+                    return {
+                        key: {
+                            idSkill: this.id,
+                            idEffect: effect.id
+                        },
+                        effect: effect.toJSON()
+                    }
+                }),
                 target: this.target
             };
         }

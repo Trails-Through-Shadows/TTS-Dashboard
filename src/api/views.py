@@ -45,9 +45,20 @@ def requestAPI(method, url, jsonData=None):
         print(e)
         return 404, {'error': "Could to make connection to '" + url + "'"}
 
-    print("- Response: ", responseCode, responseData)
-    return responseCode, responseData
+    print("- Response: ", responseCode, processJsonData(responseData))
+    return responseCode, processJsonData(responseData)
 
+
+def processJsonData(data):
+    # For boolean values convert to string
+    for key in data:
+        if isinstance(data[key], bool):
+            data[key] = str(data[key]).lower()
+
+        if isinstance(data[key], dict):
+            data[key] = processJsonData(data[key])
+
+    return data
 
 def JsonFile(fileName, data):
     contentType = 'application/json'
