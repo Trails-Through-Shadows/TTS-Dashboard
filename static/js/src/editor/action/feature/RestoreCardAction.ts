@@ -26,11 +26,12 @@ module Dashboard {
             };
         }
 
-        public toTreeView(): HTMLElement {
+        public toTreeView(title: boolean = true): HTMLElement {
             let treeView = document.createElement('li');
             treeView.className = 'list-group-item bg-transparent font-small p-0 px-3 treeView';
             treeView.innerHTML = `
-                <span class="caret">Restore Card Action</span>
+                ${title ? `<span style="font-size: small;" id="treeTitle">Restore Cards:</span>` : ''}
+                <span class="caret">Restore Card</span>
                 <ul class="nested">
                     <li>Number of Cards: ${this.numCards}</li>
                     <li>Target: ${this.target}</li>

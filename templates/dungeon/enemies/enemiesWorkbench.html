@@ -19,10 +19,15 @@
         </div>
     </div>
 
-    <form id="enemyWorkbench">
+    <form id="workbench">
         <div class="row">
             <div class="col-5" id="enemyInformation">
                 <div class="row flex-column h-100">
+                    <div class="col-12">
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert" id="actionsError">
+                        </div>
+                    </div>
+
                     <div class="col-12 flex-fill mb-4">
                         <div class="card card-body border-0 shadow h-100">
                             <div class="card-header p-0">
@@ -126,6 +131,11 @@
 
             <div class="col-4" id="enemyActions">
                 <div class="row flex-column h-100">
+                    <div class="col-12">
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert" id="actionsError">
+                        </div>
+                    </div>
+
                     <div class="col-12 flex-fill">
                         <div class="card card-body border-0 shadow h-100">
                             <div class="card-header p-0 mb-2">
@@ -144,7 +154,7 @@
                             </div>
 
                             <div class="card-body p-0 cards-scroll formLoading">
-                                <div class="row" id="enemyActionsList">
+                                <div class="row gap-1" id="enemyActionsList">
                                 </div>
                             </div>
                         </div>
@@ -154,6 +164,11 @@
 
             <div class="col-3" id="enemyEffects">
                 <div class="row flex-column h-100">
+                    <div class="col-12">
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert" id="effectsError">
+                        </div>
+                    </div>
+
                     <div class="col-12 flex-fill">
                         <div class="card card-body border-0 shadow h-100">
                             <div class="card-header p-0 mb-2">
@@ -172,7 +187,7 @@
                             </div>
 
                             <div class="card-body p-0 formLoading">
-                                <div class="row" id="enemyEffectsList">
+                                <div class="row flex-column gap-1" id="enemyEffectsList">
                                 </div>
                             </div>
                         </div>
@@ -189,53 +204,123 @@
 
         // ---- | Urls
 
-        const apiUrlSingle = "{% url 'apiQueryTableID' table="enemies" id=0 %}";
+        const allUrl = "{% url 'apiQueryTable' table="enemies" %}";
+        const entryUrl = "{% url 'apiQueryTableID' table="enemies" id=enemyId %}";
+        const validateUrl = "{% url 'apiValidateTable' table="enemy" %}";
 
         // ---- | Data
 
-        const formRoot = document.getElementById('enemyWorkbench');
-        const formEditor = new Dashboard.FormEditor(formRoot);
+        const formRoot = document.getElementById('workbench');
+        const formValidator = new Dashboard.FormValidator(formRoot, validateUrl);
+        const formEditor = new Dashboard.FormEditor(formRoot, entryUrl, formValidator);
 
         const enemyTitle = formRoot.querySelector('#enemyTitle');
         enemyTitle.addEventListener('input', () => {
-            formEditor.getObject().title = enemyTitle.value;
+            formEditor.object.title = enemyTitle.value;
+            formEditor.validate();
         });
 
         const enemyTag = formRoot.querySelector('#enemyTag');
         enemyTag.addEventListener('input', () => {
-            formEditor.getObject().tag = enemyTag.value;
+            formEditor.object.tag = enemyTag.value;
+            formEditor.validate();
         });
 
         const enemyDescription = formRoot.querySelector('#enemyDescription');
         enemyDescription.addEventListener('input', () => {
-            formEditor.getObject().description = enemyDescription.value;
+            formEditor.object.description = enemyDescription.value;
+            formEditor.validate();
         });
 
         const baseInitiative = formRoot.querySelector('#baseInitiative');
         baseInitiative.addEventListener('input', () => {
-            formEditor.getObject().baseInitiative = baseInitiative.value;
+            formEditor.object.baseInitiative = baseInitiative.value;
+            formEditor.validate();
         });
 
         const baseHealth = formRoot.querySelector('#baseHealth');
         baseHealth.addEventListener('input', () => {
-            formEditor.getObject().baseHealth = baseHealth.value;
+            formEditor.object.baseHealth = baseHealth.value;
+            formEditor.validate();
         });
 
         const baseDefence = formRoot.querySelector('#baseDefence');
         baseDefence.addEventListener('input', () => {
-            formEditor.getObject().baseDefence = baseDefence.value;
+            formEditor.object.baseDefence = baseDefence.value;
+            formEditor.validate();
         });
         
         const addActionButton = document.querySelector('#addAction');
         addActionButton.addEventListener('click', () => {
-            const actionSearch = new Dashboard.Search("actions");
-            actionSearch.open("mechanics/action/actionSearch.html", (action) => {
-                {#formEditor.getObject().actions.push(action);#}
+            let promise = Dashboard.Modal.openSearch("mechanics/action/actionSearch.html", "actions");
+            promise.then((result) => {
+                console.log(result);
             });
         });
 
+        formValidator.setOnStart(() => {
+
+        })
+
+        formValidator.setOnSuccess(() => {
+
+        })
+
+        formValidator.setOnFail(() => {
+
+        })
+
+        // On searchDataLoaded event
+        document.addEventListener('searchDataLoaded', (event) => {
+            const type = event.detail.type;
+
+            const warn = document.createElement('div');
+            warn.id = 'warn';
+            warn.classList.add('alert', 'alert-warning', 'text-center');
+            warn.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> All actions used.';
+
+            if (type === 'actions') {
+                const actions = event.detail.data;
+
+                for (const action of actions) {
+                    let removed = false;
+                    formEditor.getObject().actions.forEach((entry) => {
+                        removed = removed || entry.id === action.id;
+                    });
+
+                    if (removed) {
+                        action.card.remove();
+                        continue;
+                    }
+
+                    action.card.querySelector('button[data-action="add"]').addEventListener('click', (event) => {
+                        event.preventDefault();
+
+                        // Add to list
+                        const enemyActionsList = document.getElementById('enemyActionsList');
+                        const actionCol = document.createElement('div');
+                        actionCol.classList.add('col-12');
+
+                        actionCol.appendChild(action.toCard(true, (event, id) => {
+                            event.preventDefault();
+
+                            enemy.actions = enemy.actions.filter(action => action.id !== id);
+                            actionCol.remove();
+                        }));
+                        enemyActionsList.appendChild(actionCol);
+
+                        // Add to object
+                        const enemy = formEditor.getObject();
+                        enemy.actions.push(action);
+
+                        action.card.remove();
+                    });
+                }
+            }
+        });
+
         {% if enemyId is not None %}
-            formEditor.queryData(apiUrlSingle.replace(0, {{ enemyId }}), (data) => {
+            formEditor.queryData((data) => {
                 const enemy = Dashboard.Enemy.fromJSON(data);
 
                 enemyTitle.value = enemy.title;
@@ -246,72 +331,31 @@
                 baseDefence.value = enemy.baseDefence;
 
                 const enemyActionsList = document.getElementById('enemyActionsList');
-                enemy.actions.forEach((action, index) => {
+                enemy.actions.forEach((action) => {
                     const actionCol = document.createElement('div');
                     actionCol.classList.add('col-12');
 
-                    if (index < enemy.actions.length - 1) {
-                        actionCol.classList.add('mb-2');
-                    }
+                    actionCol.appendChild(action.toCard(true, (event, id) => {
+                        event.preventDefault();
 
-                    actionCol.appendChild(action.toCard(true, true, false));
+                        enemy.actions = enemy.actions.filter(action => action.id !== id);
+                        actionCol.remove();
+                    }));
                     enemyActionsList.appendChild(actionCol);
                 });
 
                 const enemyEffectsList = document.getElementById('enemyEffectsList');
-                enemy.effects.forEach((effect, index) => {
+                enemy.effects.forEach((effect) => {
                     const effectCol = document.createElement('div');
                     effectCol.classList.add('col-12');
 
-                    if (index < enemy.effects.length - 1) {
-                        effectCol.classList.add('mb-2');
-                    }
-
-                    effectCol.appendChild(effect.toCard(true, true, false));
-                    enemyEffectsList.appendChild(effectCol);
-                });
-
-                formRoot.querySelectorAll(".caret").forEach(toggle => {
-                    toggle.addEventListener("click", () => {
-                        const nested = toggle.parentElement.querySelector(".nested");
-                        nested.classList.toggle("active");
-                        toggle.classList.toggle("caret-down");
-                        
-                        // Set title from Expanded to Collapsed
-                        if (nested.classList.contains("active")) {
-                            toggle.innerHTML = "Click to Collapse";
-                        } else {
-                            toggle.innerHTML = "Click to Expand";
-                        }
-                    });
-                    
-                    toggle.innerHTML = "Click to Expand";
-                });
-
-                // Get all buttons inside div that have data-action remove
-                const removeButtons = document.querySelectorAll('button[data-action="remove"]');
-                removeButtons.forEach(button => {
-                    button.addEventListener('click', (event) => {
+                    effectCol.appendChild(effect.toCard(true, (event, id) => {
                         event.preventDefault();
 
-                        // Get parent div with class card
-                        const parent = button.closest('.card');
-                        parent.remove();
-
-                        // Remove from object
-                        const id = button.getAttribute('data-id');
-                        const type = button.getAttribute('data-type');
-
-                        if (type === 'action') {
-                            enemy.actions = enemy.actions.filter(action => action.id !== parseInt(id));
-                        }
-
-                        if (type === 'effect') {
-                            enemy.effects = enemy.effects.filter(effect => effect.id !== parseInt(id));
-                        }
-
-                        console.log("FormEditor | Removing action with id: " + id + " from enemy");
-                    });
+                        enemy.effects = enemy.effects.filter(effect => effect.id !== id);
+                        effectCol.remove();
+                    }));
+                    enemyEffectsList.appendChild(effectCol);
                 });
 
                 return enemy;
@@ -343,29 +387,36 @@
         saveButton.addEventListener('click', (event) => {
             event.preventDefault();
 
-            // Stringify the object and add pretty print
-            const enemy = formEditor.getObject();
-            const enemyJSON = JSON.stringify(enemy, null, 4);
-            console.log(enemyJSON);
-
             // Check form validity
-            const form = document.getElementById('enemyWorkbench');
+            const form = document.getElementById('workbench');
             if (!form.checkValidity()) {
                 form.reportValidity();
                 return;
             }
 
             const Notiflix = window['Notiflix'];
-            Notiflix.Block.circle("#enemyWorkbench", 'Saving...');
+            Notiflix.Block.circle("#workbench", 'Saving...');
 
-            const enemyIdInput = form.querySelector('#enemyID');
-            const enemyId = enemyIdInput.value;
+            // Check object validity
+            formEditor.validate(
+                () => {
+                    console.log("Validating");
+                },
+                () => {
+                    console.log("Valid");
+                },
+                () => {
+                    console.log("Invalid");
+                }
+            );
 
-            let url = "{% url 'apiQueryTable' table="parts" %}";
-            {% if enemyId is not undefined %}
-                url = "{% url 'apiQueryTableID' table="enemies" id=0 %}".replace(0, enemyId);
-            {% endif %}
-
+            {#const enemyIdInput = form.querySelector('#enemyID');#}
+            {#const enemyId = enemyIdInput.value;#}
+            {##}
+            {#let url = "{% url 'apiQueryTable' table="parts" %}";#}
+            {#{% if enemyId is not undefined %}#}
+            {#    url = "{% url 'apiQueryTableID' table="enemies" id=0 %}".replace(0, enemyId);#}
+            {#{% endif %}#}
         });
     </script>
 {% endblock javascripts %}

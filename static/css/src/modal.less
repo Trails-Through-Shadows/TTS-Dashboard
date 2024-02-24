@@ -17,7 +17,7 @@
 .modal-container {
   background-color: #fff;
   max-width: 500px;
-  max-height: 100vh;
+  max-height: 85vh;
   border-radius: 0.5rem;
   overflow-y: auto;
   box-sizing: border-box;
@@ -48,4 +48,13 @@
   &:focus-visible {
     outline: none;
   }
+}
+
+#searchData {
+  overflow: auto;
+  max-height: 60vh;
+
+  display: flex;
+  flex-flow: column;
+  row-gap: 5px;
 }

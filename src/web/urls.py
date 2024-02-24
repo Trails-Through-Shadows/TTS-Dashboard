@@ -25,4 +25,10 @@ urlpatterns = [
     path('mechanics/effects/', views.effectViewer, name="effectsViewer"),
 
     path('mechanics/items/', views.itemViewer, name="itemsViewer"),
+
+    path('character/classes/', views.classViewer, name="classViewer"),
+
+    path('character/races/', views.raceViewer, name="raceViewer"),
+
+    path('world/campaigns/', views.campaignViewer, name="campaignViewer"),
 ]

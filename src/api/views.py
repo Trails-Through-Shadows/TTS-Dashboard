@@ -19,6 +19,7 @@ def requestAPI(method, url, jsonData=None):
 
     # Decode data if binary
     if isinstance(jsonData, bytes):
+        print("- Decoding data...")
         jsonData = jsonData.decode('utf-8')
 
     if jsonData is not None:
@@ -74,13 +75,12 @@ class ApiView(View):
         download = request.GET.get('download', None)
         templateFile = request.GET.get('template', None)
         lazy = request.GET.get('lazy', 'false')
+        include = request.GET.get('include', '')
 
         if id is None:
-            # url = f"{API_URL}/{table}?limit={limit}&page={page - 1}&filter={filtering}&sort={sort}&lazy={lazy}"
-            url = f"{API_URL}/{table}?limit={limit}&page={page - 1}&filter={filtering}&sort={sort}"
+            url = f"{API_URL}/{table}?limit={limit}&page={page - 1}&filter={filtering}&sort={sort}&lazy={lazy}&include={include}"
         else:
-            # url = f"{API_URL}/{table}/{id}?lazy={lazy}"
-            url = f"{API_URL}/{table}/{id}"
+            url = f"{API_URL}/{table}/{id}?lazy={lazy}&include={include}"
 
         responseCode, responseData = requestAPI("get", url)
 
@@ -178,14 +178,11 @@ def validateTable(request, table):
     else:
         return JsonResponse({'error': 'No data provided'}, status=400)
 
-    # Wait for 1 second
-    time.sleep(1)
-
     url = f"{API_URL}/validate/{table}"
     responseCode, responseData = requestAPI("post", url, data)
     status = responseCode == 200 or responseCode == 406
 
-    return JsonResponse(responseData, status=200 if status else responseCode)
+    return JsonResponse(responseData, status=200 if status else responseCode, safe=False)
 
 def createFilter(request):
     data = {}
@@ -204,3 +201,19 @@ def createModal(request):
 
     html_template = loader.get_template(data['template'])
     return HttpResponse(html_template.render(data, request))
+
+def createSearchModal(request, table):
+    data = {}
+
+    if request.body:
+        data = json.loads(request.body)
+
+    data['table'] = table
+    html_template = loader.get_template(data['template'])
+    return HttpResponse(html_template.render(data, request))
+
+def createMap(request, id):
+    url = f"{API_URL}/campaigns/{id}/tree"
+    responseCode, responseData = requestAPI("get", url)
+
+    return JsonResponse(responseData, status=responseCode)

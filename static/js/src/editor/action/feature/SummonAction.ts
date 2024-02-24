@@ -46,13 +46,15 @@ module Dashboard {
             let treeView = document.createElement('li');
             treeView.className = 'list-group-item bg-transparent font-small p-0 px-3 treeView';
             treeView.innerHTML = `
+                <span style="font-size: small;">Summon:</span>
                 <span class="caret">Summon</span>
                 <ul class="nested">
-                    <li>Title: </li>
+                    <li>Title: ${this.title}</li>
                     <li>Tag: ${this.tag}</li>
                     <li>Duration: ${this.duration}</li>
                     <li>Health: ${this.health}</li>
                     <li class="list">
+                        <span style="font-size: small;">Effects:</span>
                         <span class="caret">Effects</span>
                         <ul class="nested">
                             ${this.effects.map(effect => {
@@ -64,14 +66,7 @@ module Dashboard {
                             }).join('')}
                         </ul>
                     </li>
-                    <li class="list">
-                        <span class="caret">Actions</span>
-                        <ul class="nested">
-                            <li class="list-group-item bg-transparent font-small p-0 treeView">
-                                ${this.action.toTreeView().innerHTML}
-                            </li>
-                        </ul>
-                    </li>
+                    ${this.action.toTreeView().innerHTML}
                 </ul>`;
             return treeView;
         }
@@ -102,14 +97,18 @@ module Dashboard {
             };
         }
 
-        public toTreeView(): HTMLElement {
+        public toTreeView(title: boolean = true): HTMLElement {
+            let action = this.summon.toTreeView();
+            action.querySelector('.nested').insertAdjacentHTML('beforeend', `<li>Range: ${this.range}</li>`);
+            action = action.querySelector('.nested') as HTMLElement;
+
             let treeView = document.createElement('li');
             treeView.className = 'list-group-item bg-transparent font-small p-0 px-3 treeView';
             treeView.innerHTML = `
+                ${title ? `<span style="font-size: small;" id="treeTitle">Summon:</span>` : ''}
                 <span class="caret">Summon Action</span>
                 <ul class="nested">
-                    <li>Range: ${this.range}</li>
-                    ${this.summon.toTreeView().innerHTML}
+                    ${action.innerHTML}
                 </ul>`;
             return treeView;
         }

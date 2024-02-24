@@ -3,13 +3,13 @@ module Dashboard {
     export class GridEditor {
         private placeholderHexes: Hex[] = [];
         private hoveredHex: Hex | null = null;
-        private validator: Validator;
+        private validator: CanvasValidator;
 
         constructor(
             private readonly canvas: Canvas,
             private readonly hexGrid: HexGrid,
         ) {
-            this.validator = new Validator(canvas, '/en/api/validate/part/');
+            this.validator = new CanvasValidator(canvas, '/en/api/validate/part/');
 
             this.canvas.addOnMouseClickListener(() => {
                 if (this.hoveredHex) {

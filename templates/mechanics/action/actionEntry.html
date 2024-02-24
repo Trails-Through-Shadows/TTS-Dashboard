@@ -65,5 +65,66 @@
 </div>
 
 <script id="entryDataScript">
+    const entries = document.getElementById('entryAttributes');
 
+    let movement = null;
+    let skill = null;
+    let attack = null;
+    let restore = null;
+    let summon = null;
+
+    {% if movement %}
+        let movementData = "{{ movement|safe|escapejs }}"
+            .replace(/'/g, '"')
+            .replace(/None/g, 'null');
+
+        movement = new Dashboard.MovementAction.fromJSON(JSON.parse(movementData));
+    {% endif %}
+
+    {% if skill %}
+        let skillData = "{{ skill|safe|escapejs }}"
+            .replace(/'/g, '"')
+            .replace(/None/g, 'null');
+
+        skill = new Dashboard.SkillAction.fromJSON(JSON.parse(skillData));
+    {% endif %}
+
+    {% if attack %}
+        let attackData = "{{ attack|safe|escapejs }}"
+            .replace(/'/g, '"')
+            .replace(/None/g, 'null');
+
+        attack = new Dashboard.AttackAction.fromJSON(JSON.parse(attackData));
+    {% endif %}
+
+    {% if restoreCards %}
+        let restoreData = "{{ restoreCards|safe|escapejs }}"
+            .replace(/'/g, '"')
+            .replace(/None/g, 'null');
+
+        restore = new Dashboard.RestoreCardAction.fromJSON(JSON.parse(restoreData));
+    {% endif %}
+
+    {% if summonActions|length > 0 %}
+        let summonData = "{{ summonActions|safe|escapejs }}"
+            .replace(/'/g, '"')
+            .replace(/None/g, 'null');
+
+        summon = JSON.parse(summonData).map((summ) => {
+            return new Dashboard.SummonAction.fromJSON(summ);
+        });
+    {% endif %}
+
+    const action = new Dashboard.Action({{ id }}, "Features:", null, movement, skill, attack, summon, restore, null, null);
+    const attributesDiv = document.querySelector('#entryAttributes');
+
+    const accordion = document.createElement('div');
+    accordion.classList.add('accordion-item');
+
+    const accordionBody = document.createElement('div');
+    accordionBody.classList.add('accordion-body');
+    accordion.appendChild(accordionBody);
+
+    accordionBody.appendChild(action.toCard());
+    attributesDiv.appendChild(accordion);
 </script>

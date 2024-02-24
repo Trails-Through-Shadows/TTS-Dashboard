@@ -27,16 +27,15 @@
                         <hr class="mt-2">
                     </div>
 
-                    <div class="col-12" id="searchData">
-
+                    <div class="col-12" id="searchData" style="height: 60vh !important;">
                     </div>
                 </div>
             </main>
 
             <footer class="modal-footer border-0">
-                <a href="#" target="_top" id="searchSubmit" class="btn btn-sm btn-gray-800">
+                <a href="#" target="_top" id="searchClose" class="btn btn-sm btn-gray-800">
                     <i class="fa-solid fa-search me-1"></i>
-                    {% trans 'Search' %}
+                    {% trans 'Close' %}
                 </a>
             </footer>
         </div>
@@ -46,27 +45,39 @@
 <script id="searchScript" async>
     const csrfToken = document.querySelector('#csrftoken').value;
 
+    Notiflix.Block.circle("#searchData", 'Loading...');
+
     // ---- | Data
 
     const dataRoot = document.getElementById('searchData');
+    const actions = [];
 
     const request = new XMLHttpRequest();
     request.onreadystatechange = () => {
         if (request.readyState === 4 && request.status === 200) {
-            const data = JSON.parse(request.responseText);
-            const actionsData = data.entries;
+            const actionsJson = JSON.parse(request.responseText).entries;
 
-            console.log(actionsData);
-            console.log(Dashboard.Action.fromJSON(actionsData[1]));
-            let actions = [];
+            for (const actionData of actionsJson) {
+                const action = Dashboard.Action.fromJSON(actionData);
+                actions.push(action);
 
-            for (const action of actionsData) {
-                actions.push(Dashboard.Action.fromJSON(action));
+                const card = action.toCard(true, null, () => {});
+                action.card = card;
+                dataRoot.appendChild(card);
             }
-            
-            for (const action of actions) {
-                dataRoot.appendChild(action.toCard());
-            }
+
+            const event = new CustomEvent('searchDataLoaded', {
+                detail: {
+                    type: 'actions',
+                    data: actions
+                }
+            });
+            document.dispatchEvent(event);
+
+            Notiflix.Block.remove("#searchData");
+        } else if (request.readyState === 4) {
+            Notiflix.Notify.failure('Failed to load actions.');
+            Notiflix.Block.remove("#searchData");
         }
     }
 
@@ -74,4 +85,35 @@
     request.setRequestHeader('Content-Type', 'application/json');
     request.setRequestHeader('X-CSRFToken', csrfToken);
     request.send();
+
+    // ---- | Search
+
+    const warn = document.createElement('div');
+    warn.id = 'warn';
+    warn.classList.add('alert', 'alert-warning', 'text-center');
+    warn.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> No actions found.';
+
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', Dashboard.debounce(() => {
+        const query = searchInput.value;
+        const filteredActions = actions.filter(action => action.title.toLowerCase().includes(query.toLowerCase()));
+
+        // Filter
+        for (const action of actions) {
+            if (filteredActions.includes(action) || query === '') {
+                action.card.style.display = 'block';
+            } else {
+                action.card.style.display = 'none';
+            }
+        }
+
+        // No actions found
+        if (filteredActions.length === 0) {
+            dataRoot.appendChild(warn);
+        } else if (actions) {
+            if (dataRoot.contains(warn)) {
+                dataRoot.removeChild(warn);
+            }
+        }
+    }, 300));
 </script>

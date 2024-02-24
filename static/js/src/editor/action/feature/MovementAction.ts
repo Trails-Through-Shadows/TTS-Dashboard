@@ -38,25 +38,28 @@ module Dashboard {
             };
         }
 
-        public toTreeView(): HTMLElement {
+        public toTreeView(title: boolean = true): HTMLElement {
             let treeView = document.createElement('li');
             treeView.className = 'list-group-item bg-transparent font-small p-0 px-3 treeView';
             treeView.innerHTML = `
-                <span class="caret">Movement Action</span>
+                ${title ? `<span style="font-size: small;" id="treeTitle">Movement:</span>` : ''}
+                <span class="caret">Movement</span>
                 <ul class="nested">
                     <li>Range: ${this.range}</li>
                     <li>Type: ${this.type}</li>
                     <li class="list">
-                    <span class="caret">Effects</span>
-                    <ul class="nested">
-                        ${this.effects.map(effect => {
-                            return `
-                                <li class="list-group-item bg-transparent font-small p-0 treeView">
-                                    ${effect.toTreeView().innerHTML}
-                                </li>
-                            `;
-                        }).join('')}
-                    </ul>
+                        <span style="font-size: small;">Effects:</span>
+                        <span class="caret">Effects</span>
+                        <ul class="nested">
+                            ${this.effects.map(effect => {
+                                return `
+                                    <li class="list-group-item bg-transparent font-small p-0 treeView">
+                                        ${effect.toTreeView().innerHTML}
+                                    </li>
+                                `;
+                            }).join('')}
+                        </ul>
+                    </li>
                 </ul>`;
             return treeView;
         }

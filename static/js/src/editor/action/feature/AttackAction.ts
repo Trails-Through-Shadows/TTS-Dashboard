@@ -42,51 +42,32 @@ module Dashboard {
             };
         }
 
-        public toTreeView(): HTMLElement {
+        public toTreeView(title: boolean = true): HTMLElement {
             let treeView = document.createElement('li');
             treeView.className = 'list-group-item bg-transparent font-small p-0 px-3 treeView';
-
-            let caret = document.createElement('span');
-            caret.className = 'caret';
-            caret.innerHTML = 'Click to Expand';
-            treeView.appendChild(caret);
-
-            let nested = document.createElement('ul');
-            nested.className = 'nested mb-0';
-            nested.innerHTML = `
-                <li>Range: ${this.range}</li>
-                <li>Damage: ${this.damage}</li>
-                <li>Area: ${this.area}</li>
-                <li>Target: ${this.target}</li>
-                <li>Number of Attacks: ${this.numAttacks}</li>
-                <li class="list">
-                    <span class="caret">Effects</span>
-                    <ul class="nested">
-                        ${this.effects.map(effect => {
+            treeView.innerHTML = `
+                ${title ? `<span style="font-size: small;" id="treeTitle">Attack:</span>` : ''}
+                <span class="caret">Attack</span>
+                <ul class="nested">
+                    <li>Range: ${this.range}</li>
+                    <li>Damage: ${this.damage}</li>
+                    <li>Area: ${this.area}</li>
+                    <li>Target: ${this.target}</li>
+                    <li>Number of Attacks: ${this.numAttacks}</li>
+                    <li class="list">
+                        <span style="font-size: small;">Effects:</span>
+                        <span class="caret">Effects</span>
+                        <ul class="nested">
+                            ${this.effects.map(effect => {
                             return `
                                 <li class="list-group-item bg-transparent font-small p-0 treeView">
                                     ${effect.toTreeView().innerHTML}
                                 </li>
                             `;
-                        }).join('')}
-                    </ul>
-                </li>
-            `;
-            treeView.appendChild(nested);
-
-            // Add event listener to carets
-            caret.addEventListener("click", () => {
-                nested.classList.toggle("active");
-                caret.classList.toggle("caret-down");
-
-                // Set title from Expanded to Collapsed
-                if (nested.classList.contains("active")) {
-                    caret.innerHTML = "Click to Collapse";
-                } else {
-                    caret.innerHTML = "Click to Expand";
-                }
-            });
-
+                            }).join('')}
+                        </ul>
+                    </li>
+                </ul>`;
             return treeView;
         }
     }

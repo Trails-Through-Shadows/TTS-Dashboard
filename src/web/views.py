@@ -42,6 +42,18 @@ def itemViewer(request):
     return render(request, 'mechanics/items/itemsViewer.html')
 
 @login_required(login_url="/login/")
+def classViewer(request):
+    return render(request, 'character/classes/classesViewer.html')
+
+@login_required(login_url="/login/")
+def raceViewer(request):
+    return render(request, 'character/races/racesViewer.html')
+
+@login_required(login_url="/login/")
+def campaignViewer(request):
+    return render(request, 'world/campaigns/campaignsViewer.html')
+
+@login_required(login_url="/login/")
 def obstacleWorkbench(request, id=None):
     context = {"obstacleId": id}
     return render(request, 'dungeon/obstacles/obstaclesWorkbench.html', context)

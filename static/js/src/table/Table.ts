@@ -59,15 +59,15 @@ module Dashboard {
             });
         }
 
-        public queryData(url: string, page: number, limit: number) : void {
+        public queryData(url: string, page: number, limit: number, lazy: boolean = true) : void {
             const currentTime = new Date().getTime();
-
-            const Notiflix = window['Notiflix'];
-            Notiflix.Block.circle("#tableData", 'Loading...');
 
             this.url = url;
             this.page = Math.max(page, 1);
             this.limit = Math.max(limit, 1);
+
+            const Notiflix = window['Notiflix'];
+            Notiflix.Block.circle("#tableData", 'Loading...');
 
             const request = new XMLHttpRequest();
             request.onreadystatechange = () => {
@@ -105,6 +105,7 @@ module Dashboard {
                             });
                         });
 
+                        Notiflix.Block.remove("#tableData");
                         this.onDataLoad();
                     } else {
                         // TODO: Show error message
@@ -114,17 +115,12 @@ module Dashboard {
             }
 
             let newUrl = url;
-            newUrl += "?page=" + page
-            newUrl += "&limit=" + limit
-            newUrl += "&template=" + this.template
-
-            if (this.filter.toString() !== '') {
-                newUrl += "&filter=" + this.filter.toString()
-            }
-
-            if (this.sort.toString() !== '') {
-                newUrl += "&sort=" + this.sort.toString()
-            }
+            newUrl += "?page=" + page;
+            newUrl += "&limit=" + limit;
+            newUrl += "&template=" + this.template;
+            newUrl += "&lazy=" + lazy;
+            newUrl += this.filter.toString().length > 0 ? "&filter=" + this.filter.toString() : "";
+            newUrl += this.sort.toString().length > 0 ? "&sort=" + this.sort.toString() : "";
 
             console.log(`Table | Querying data from ${url}`);
             console.log(`Table |  - Params: ${newUrl.replace(url, '')}`);

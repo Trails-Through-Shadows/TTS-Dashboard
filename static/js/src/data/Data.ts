@@ -7,7 +7,7 @@ module Dashboard {
             private template: string,
         ) {}
 
-        public queryData(url: string): void {
+        public queryData(url: string, lazy: boolean = false, include: [] = []): void {
             const currentTime = new Date().getTime();
 
             const Notiflix = window['Notiflix'];
@@ -36,7 +36,11 @@ module Dashboard {
 
             let newUrl = url;
             newUrl += "?template=" + this.template
-            newUrl += "&lazy=false"
+            newUrl += `&lazy=${lazy}`
+
+            if (include.length > 0) {
+                newUrl += `&include=${include.join(',')}`;
+            }
 
             console.log(`Data | Querying data from ${url}`)
             console.log(`Data |  - Params: ${newUrl.replace(url, '')}`);

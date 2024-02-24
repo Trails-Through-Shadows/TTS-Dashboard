@@ -4,14 +4,13 @@
 <div class="table-wrapper table-responsive card card-body border-0 shadow" id="tableData">
     <table class="table table-hover">
         <thead>
-        <tr>
-            <th class="border-gray-200 orderable" data-order-key="id">#</th>
-            <th class="border-gray-200 orderable" data-order-key="title">{% trans 'Title' %}</th>
-            <th class="border-gray-200 orderable text-center" data-order-key="discard">{% trans 'Discard' %}</th>
-            <th class="border-gray-200 orderable text-center" data-order-key="levelReq">{% trans 'Level Req.' %}</th>
-            <th class="border-gray-200 text-center">{% trans 'Types' %}</th>
-            <th class="border-gray-200 text-center">{% trans 'Action' %}</th>
-        </tr>
+            <tr>
+                <th class="border-gray-200 orderable" data-order-key="id">#</th>
+                <th class="border-gray-200 orderable" data-order-key="title">{% trans 'Title' %}</th>
+                <th class="border-gray-200 orderable text-center" data-order-key="achievements">{% trans 'Achievements' %}</th>
+                <th class="border-gray-200 orderable text-center" data-order-key="locations">{% trans 'Locations' %}</th>
+                <th class="border-gray-200 text-center">{% trans 'Action' %}</th>
+            </tr>
         </thead>
 
         <tbody>
@@ -29,31 +28,10 @@
                             <span class="fw-normal">{{ entry.title }}</span>
                         </td>
                         <td class="text-center">
-                            <span class="fw-normal">{{ entry.discard }}</span>
+                            <span class="fw-normal">{{ entry.achievements|length }}</span>
                         </td>
                         <td class="text-center">
-                            <span class="fw-normal">{{ entry.levelReq }}</span>
-                        </td>
-                        <td class="text-center">
-                            {% if entry.movement is not null %}
-                                <span class="badge bg-primary rounded-pill movement-badge">{% trans 'Movement' %}</span>
-                            {% endif %}
-
-                            {% if entry.skill is not null %}
-                                <span class="badge bg-primary rounded-pill skill-badge">{% trans 'Skill' %}</span>
-                            {% endif %}
-
-                            {% if entry.attack is not null %}
-                                <span class="badge bg-primary rounded-pill attack-badge">{% trans 'Attack' %}</span>
-                            {% endif %}
-
-                            {% if entry.restoreCards is not null %}
-                                <span class="badge bg-primary rounded-pill restoreCards-badge">{% trans 'Restore Cards' %}</span>
-                            {% endif %}
-
-                            {% if entry.summonActions|length > 0 %}
-                                <span class="badge bg-primary rounded-pill summonActions-badge">{% trans 'Summon Actions' %}</span>
-                            {% endif %}
+                            <span class="fw-normal">{{ entry.locations|length }}</span>
                         </td>
                         <td>
                             <div class="btn-group d-flex align-items-center justify-content-evenly tableActions">
@@ -81,7 +59,7 @@
                                     </button>
                                 </a>
 
-                                <a href="{% url 'apiQueryTableID' table='effects' id=entry.id %}?download" target="_top">
+                                <a href="{% url 'apiQueryTableID' table='campaigns' id=entry.id %}?download" target="_top">
                                     <button class="btn btn-link text-dark m-0 p-0">
                                         <span class="icon icon-lg">
                                             <i class="fa-solid fa-download"></i>

@@ -1,6 +1,6 @@
 module Dashboard {
 
-    export class Validator {
+    export class CanvasValidator {
         private valid = false;
         private validating = true;
         private errors: any[] = [];
@@ -77,12 +77,12 @@ module Dashboard {
                 this.shouldRunAgain = true;
             }
 
-            function validate(validator: Validator) {
+            function validate(validator: CanvasValidator) {
                 if (validator.validating && !validator.firstTime) {
                     return;
                 }
 
-                console.log(`Validator | Validating data on ${validator.apiUrl}`);
+                console.log(`CanvasValidator | Validating data on ${validator.apiUrl}`);
                 console.log('- Data: ', data);
 
                 validator.firstTime = false;
@@ -98,7 +98,7 @@ module Dashboard {
                         if (validator.shouldRunAgain) {
                             validator.shouldRunAgain = false;
                             validator.firstTime = true;
-                            console.log(`Validator | Running again...`);
+                            console.log(`CanvasValidator | Running again...`);
                             validator.requestValidation(data, startCall, callback);
                             return;
                         }
@@ -117,7 +117,7 @@ module Dashboard {
                         const jsonResponse = JSON.parse(request.responseText);
 
                         validator.validating = false;
-                        validator.valid = jsonResponse['status'] === 'OK'
+                        validator.valid = jsonResponse['status'] === 'OK';
 
                         if (!validator.valid) {
                             validator.errors = jsonResponse['errors'];
@@ -126,9 +126,9 @@ module Dashboard {
                         }
 
                         if (validator.valid) {
-                            console.log(`Validator | Data are valid`);
+                            console.log(`CanvasValidator | Data are valid`);
                         } else {
-                            console.log(`Validator | Data are invalid`);
+                            console.log(`CanvasValidator | Data are invalid`);
                             console.log('- Errors: ', validator.errors);
                         }
 

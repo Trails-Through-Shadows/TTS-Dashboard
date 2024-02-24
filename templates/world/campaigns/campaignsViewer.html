@@ -3,7 +3,7 @@
 {% load filters %}
 {% load i18n %}
 
-{% block title %} Mechanics - Actions {% endblock %}
+{% block title %} World - Campaigns {% endblock %}
 
 {% block stylesheets %}
     <!-- Empty -->
@@ -14,13 +14,13 @@
 
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div class="d-block mb-4 mb-md-0">
-            <h2 class="h4">{% translate 'All Actions' %}</h2>
-            <p class="mb-0">{% translate 'Manage of all actions in database' %}</p>
+            <h2 class="h4">{% translate 'All Campaigns' %}</h2>
+            <p class="mb-0">{% translate 'Manage of all campaigns in database' %}</p>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-12 col-xl-8" id="entriesTable">
+        <div class="col-12 col-xl-5" id="entriesTable">
             <div class="table-settings mb-2">
                 <div class="row align-items-center justify-content-between">
                     <div class="col-12 col-sm-6">
@@ -42,10 +42,10 @@
                         <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
                             <a href="{% url 'obstaclesWorkbench' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
                                 <i class="fa-solid fa-plus me-1"></i>
-                                {% trans 'New Action' %}
+                                {% trans 'New Campaign' %}
                             </a>
 
-                            <a href="{% url 'apiQueryTable' table='effects' %}?download" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center ms-2">
+                            <a href="{% url 'apiQueryTable' table='campaigns' %}?download" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center ms-2">
                                 <i class="fa-solid fa-cloud-arrow-down me-1"></i>
                                 {% trans 'Export All' %}
                             </a>
@@ -61,9 +61,8 @@
                             <tr>
                                 <th class="border-gray-200 orderable" data-order-key="id">#</th>
                                 <th class="border-gray-200 orderable" data-order-key="title">{% trans 'Title' %}</th>
-                                <th class="border-gray-200 orderable text-center" data-order-key="discard">{% trans 'Discard' %}</th>
-                                <th class="border-gray-200 orderable text-center" data-order-key="levelReq">{% trans 'Level Req.' %}</th>
-                                <th class="border-gray-200 text-center">{% trans 'Types' %}</th>
+                                <th class="border-gray-200 orderable text-center" data-order-key="achievements">{% trans 'Achievements' %}</th>
+                                <th class="border-gray-200 orderable text-center" data-order-key="locations">{% trans 'Locations' %}</th>
                                 <th class="border-gray-200 text-center">{% trans 'Action' %}</th>
                             </tr>
                         </thead>
@@ -71,7 +70,7 @@
                         <tbody>
                             {% for i in 10|range %}
                                 <tr>
-                                    {% for y in 6|range %}
+                                    {% for y in 5|range %}
                                         <td class="text-center">
                                             <span class="skeleton-line"></span>
                                         </td>
@@ -108,14 +107,14 @@
             </div>
         </div>
 
-        <div class="col-12 col-xl-4" id="entryData">
+        <div class="col-12 col-xl-7" id="entryData">
             <div class="card card-body border-0 shadow h-100" id="entryDataReplacement">
                 <div class="row">
-                    <div class="col-4 align-self-center">
+                    <div class="col-3 align-self-center">
                         <img src="{% static 'img/imgPlaceholder.png' %}" alt="Obstacle Image" class="img-fluid rounded">
                     </div>
 
-                    <div class="col-8 align-self-center">
+                    <div class="col-9 align-self-center">
                         <div class="py-2">
                             <h2 class="h5 mb-2"><span class="skeleton-line w-25"></span></h2>
 
@@ -170,10 +169,10 @@
         let page = urlParams.get('page') || 1;
         let limit = urlParams.get('limit') || 10;
 
-        const apiUrlAll = `{% url 'apiQueryTable' table='actions' %}`;
-        const apiUrlSingle = `{% url 'apiQueryTableID' table='actions' id=0 %}`;
-        const template = 'mechanics/action/actionTable.html';
-        const templateInfo = 'mechanics/action/actionEntry.html';
+        const apiUrlAll = `{% url 'apiQueryTable' table='campaigns' %}`;
+        const apiUrlSingle = `{% url 'apiQueryTableID' table='campaigns' id=0 %}`;
+        const template = 'world/campaigns/campaignTable.html';
+        const templateInfo = 'world/campaigns/campaignEntry.html';
 
         // ---- | Data
 
@@ -184,13 +183,12 @@
 
         const tableFilter = new Dashboard.TableFilter([
             { title: 'Title contains:', key: 'title', type: 'has', hidden: true },
-            {#{ title: 'Target', key: 'target', type: 'of' },#} // TODO: Add target filter
         ]);
         const tableSorter = new Dashboard.TableSorter([
             { key: "id", order: "asc" },
             { key: "title" },
-            { key: "discard" },
-            { key: "levelReq" }
+            { key: "achievements" },
+            { key: "locations" }
         ], true);
         const tableSearch = new Dashboard.TableSearch(
             (input) => { // On Search input
@@ -209,7 +207,7 @@
                 const id = element.getAttribute('data-entry');
 
                 console.log(`Button | Viewing entry ${id}`);
-                data.queryData(apiUrlSingle.replace('0', id));
+                data.queryData(apiUrlSingle.replace('0', id), true, ["achievements"]);
             });
 
             table.setAction("delete", (element) => {

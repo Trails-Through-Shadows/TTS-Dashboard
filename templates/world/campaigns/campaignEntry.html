@@ -1,0 +1,148 @@
+{% load filters %}
+{% load static %}
+{% load i18n %}
+
+<div class="row">
+    <div class="col-3 align-self-center">
+        <img src="{% static 'img/imgPlaceholder.png' %}" alt="Obstacle Image" class="img-fluid rounded">
+    </div>
+
+    <div class="col-9">
+        <div class="py-2">
+            <h2 class="h5 mb-2">{{ title }}</h2>
+
+            <div class="d-flex align-items-center tags">
+                <span class="badge bg-secondary me-1 rounded-1">Id: #{{ id }}</span>
+            </div>
+
+            <div class="d-flex align-items-center mt-2">
+                {% if description %}
+                    <span class="font-small">{{ description }}</span>
+                {% else %}
+                    <span class="font-small">{% trans 'No description available' %}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <h5 class="mt-2 mb-0">{% trans 'Attributes:' %}</h5>
+
+        <div class="accordion accordion-flush" id="entryAttributes">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#flush-map" aria-expanded="false" aria-controls="flush-map">
+                        {% trans 'Scheme Map' %}
+                    </button>
+                </h2>
+
+                <div id="flush-map" class="accordion-collapse collapse show" data-bs-parent="#entryAttributes">
+                    <div class="accordion-body card-list">
+                        <div id="myChart" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-achievements" aria-expanded="false" aria-controls="flush-achievements">
+                        {% trans 'Achievements' %}
+                    </button>
+                </h2>
+
+                <div id="flush-achievements" class="accordion-collapse collapse" data-bs-parent="#entryAttributes">
+                    <div class="accordion-body card-list" id="achievementsCard">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="entryDataScript">
+    let achievementsData = "{{ achievements|safe|escapejs }}"
+        .replace(/None/g, 'null');
+
+    achievementsData = achievementsData.replace(/'([^']+)':/g, '"$1":');
+    achievementsData = achievementsData.replace(/'([^']+)',/g, '"$1",');
+
+    let achievements = JSON.parse(achievementsData).map((achiv) => {
+        return new Dashboard.Achievement.fromJSON(achiv.achievement);
+    })
+
+    const achievementsCard = document.getElementById('achievementsCard');
+    achievements.forEach((achive) => {
+        achievementsCard.appendChild(achive.toCard(true, false, false));
+    });
+
+    const request = new XMLHttpRequest();
+    request.open('GET', `{% url 'apiCreateMap' id='0' %}`.replace('0', '{{ id }}'), true);
+    request.onload = function() {
+        if (request.status >= 200 && request.status < 400) {
+            const data = JSON.parse(request.responseText);
+            const $ = go.GraphObject.make;
+
+            let myDiagram = new go.Diagram("myChart", {
+                initialAutoScale: go.Diagram.UniformToFill,
+                layout: $(go.LayeredDigraphLayout, {
+                    alignOption: go.LayeredDigraphLayout.AlignAll
+                }),
+            });
+
+            // define the Node template
+            myDiagram.nodeTemplate =
+                $(go.Node, "Spot", {
+                        locationSpot: go.Spot.Center
+                    },
+                    $(go.Shape, "RoundedRectangle", {
+                            fill: "lightgray",
+                            stroke: null,
+                            desiredSize: new go.Size(30, 30)
+                        },
+                        new go.Binding("desiredSize", "size"),
+                        new go.Binding("fill", "fill")
+                    ),
+                    $(go.TextBlock, new go.Binding("text", "text"))
+                );
+
+            // define the Link template to be minimal
+            myDiagram.linkTemplate =
+                $(go.Link, {
+                        routing: go.Link.AvoidsNodes,
+                        corner: 5
+                    },
+                    $(go.Shape, {
+                        strokeWidth: 3,
+                        stroke: "#aaa"
+                    })
+                );
+
+            myDiagram.model.nodeDataArray = data.nodes.map((node) => {
+                return {
+                    key: node.key,
+                    text: node.text,
+                    fill: node.fill,
+                    size: new go.Size(node.size.width, node.size.height)
+                };
+            });
+            myDiagram.model.linkDataArray = data.links;
+
+            myDiagram.startTransaction("change Layout");
+
+            let lay = myDiagram.layout;
+            lay.layerSpacing = 15;
+            lay.columnSpacing = 5;
+            lay.cycleRemoveOption = go.LayeredDigraphLayout.CycleDepthFirst;
+            lay.layeringOption = go.LayeredDigraphLayout.LayerOptimalLinkLength;
+            lay.initializeOption = go.LayeredDigraphLayout.InitDepthFirstIn;
+            lay.aggressiveOption = go.LayeredDigraphLayout.AggressiveMore;
+            lay.packOption = 1;
+
+            myDiagram.commitTransaction("change Layout");
+            myDiagram.zoomToRect(myDiagram.documentBounds);
+            myDiagram.commandHandler.scrollToPart(myDiagram.findNodeForKey(1));
+        }
+    };
+    request.send();
+</script>

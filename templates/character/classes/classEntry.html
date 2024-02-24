@@ -14,7 +14,6 @@
             <div class="d-flex align-items-center tags">
                 <span class="badge bg-secondary me-1 rounded-1">Id: #{{ id }}</span>
                 <span class="badge bg-secondary me-1 rounded-1">Tag: {{ tag }}</span>
-                <span class="badge bg-secondary me-1 rounded-1">Type: {{ type }}</span>
             </div>
 
             <div class="d-flex align-items-center mt-2">
@@ -33,8 +32,22 @@
         <div class="accordion accordion-flush" id="entryAttributes">
             <div class="accordion-item">
                 <div class="accordion-body">
-                    <span>{% trans 'Action' %}:</span>
-                    <div id="actionCard"></div>
+                    <span>{% trans 'Base Health' %}:</span>
+                    {{ baseHealth }}
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-body">
+                    <span>{% trans 'Base Defence' %}:</span>
+                    {{ baseDefence }}
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-body">
+                    <span>{% trans 'Base Defence' %}:</span>
+                    {{ baseDefence }}
                 </div>
             </div>
 
@@ -45,28 +58,10 @@
                 </div>
             </div>
 
-            <div id="flush-effects" class="accordion-collapse collapse" data-bs-parent="#entryAttributes">
-                <div class="accordion-body">
-                    <div class="row row-cols-auto">
-                        {% if effects|length == 0 %}
-                            <div class="col-12">
-                                {% trans 'No Data' %}
-                            </div>
-                        {% else %}
-                            {% for effect in effects %}
-                                <div class="col badge bg-gray-500 mx-1 rounded-1">
-                                    <p class="m-0 font-small">{{ effect.effect.type }}</p> {{ effect.effect.duration }} rounds / lvl. {{ effect.effect.strength }}
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
             <div class="accordion-item">
                 <div class="accordion-body">
-                    <span>{% trans 'Requirements' %}:</span>
-                    {{ requirements }}
+                    <span>{% trans 'Actions' %}:</span>
+                    <div id="actionsCard"></div>
                 </div>
             </div>
         </div>
@@ -74,20 +69,24 @@
 </div>
 
 <script id="entryDataScript">
-    let actionJSON = "{{ action|safe|escapejs }}";
-    actionJSON = actionJSON.replace(/'/g, '"');
-    actionJSON = actionJSON.replace(/None/g, 'null');
+    let actionsJSON = "{{ actions|safe|escapejs }}";
+    actionsJSON = actionsJSON.replace(/'/g, '"');
+    actionsJSON = actionsJSON.replace(/None/g, 'null');
 
-    const actionCard = document.getElementById('actionCard');
-    if (actionJSON === 'null') {
-        actionCard.innerHTML = `
+    const actionsCard = document.getElementById('actionsCard');
+    if (actionsJSON == null || actionsJSON == '[]') {
+        actionsCard.innerHTML = `
             <div class="card-header px-3 py-2 sticky-top bg-gray-100">
-                No Action
+                No Actions
             </div>
         `;
     } else {
-        const action = new Dashboard.Action.fromJSON(JSON.parse(actionJSON));
-        actionCard.appendChild(action.toCard(true, false, false));
+        const actions = JSON.parse(actionsJSON);
+        actions.forEach(action => {
+            console.log(action);
+            const actionCard = new Dashboard.Action.fromJSON(action.action);
+            actionsCard.appendChild(actionCard.toCard(true, false, false));
+        });
     }
 
     let effectsJSON = "{{ effects|safe|escapejs }}";
@@ -95,7 +94,7 @@
     effectsJSON = effectsJSON.replace(/None/g, 'null');
 
     const effectsCards = document.getElementById('effectsCard');
-    if (effectsJSON === 'null' || effectsJSON === '[]') {
+    if (effectsJSON == null || effectsJSON == '[]') {
         effectsCards.innerHTML = `
             <div class="card-header px-3 py-2 sticky-top bg-gray-100">
                 No Effects
