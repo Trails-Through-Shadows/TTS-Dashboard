@@ -42,9 +42,9 @@
                         <td class="text-center vertical-middle">
                             <span class="fw-normal">
                                 {% if entry.crossable %}
-                                    <i class="fa-solid fa-square-xmark" style="color: #ff3d3d;"></i>
-                                {% else %}
                                     <i class="fa-solid fa-square-check" style="color: #3dff3d;"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-square-xmark" style="color: #ff3d3d;"></i>
                                 {% endif %}
                             </span>
                         </td>
@@ -64,7 +64,7 @@
                                     </button>
                                 </a>
 
-                                <a href="{% url 'enemyWorkbenchEdit' id=entry.id %}">
+                                <a href="{% url 'obstacleWorkbenchEdit' id=entry.id %}">
                                     <button class="btn btn-link text-dark m-0 p-0">
                                         <span class="icon icon-lg text-success">
                                             <i class="fa-solid fa-pen-to-square"></i>

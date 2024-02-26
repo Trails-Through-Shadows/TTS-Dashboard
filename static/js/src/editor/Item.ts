@@ -1,40 +1,43 @@
 module Dashboard {
 
-    export class Enemy {
+    export enum ItemType {
+        WEAPON,
+        HELMET,
+        CHESTPLATE,
+        LEGGINGS,
+        BOOTS,
+        ACCESSORY,
+        CONSUMABLE
+    }
+
+    export class Item {
 
         constructor(
             public id: number,
+            public type: ItemType,
             public title: string,
             public tag: string,
             public description: string,
-            public baseHealth: number,
-            public baseDefence: number,
-            public baseInitiative: number,
-            public actions: Action[],
+            public requirements: string,
+            public action: Action,
             public effects: Effect[],
             public url: string = ""
         ) {}
 
-        public static fromJSON(json: any): Enemy {
-            let actions: Action[] = [];
-            for (let action of json.actions) {
-                actions.push(Action.fromJSON(action.action));
-            }
-
+        public static fromJSON(json: any): Item {
             let effects: Effect[] = [];
             for (let effect of json.effects) {
                 effects.push(Effect.fromJSON(effect.effect));
             }
 
-            return new Enemy(
+            return new Item(
                 json.id,
+                json.type,
                 json.title,
                 json.tag,
                 json.description || "",
-                json.baseHealth,
-                json.baseDefence,
-                json.baseInitiative,
-                actions,
+                json.requirements || "",
+                json.action ? Action.fromJSON(json.action) : null,
                 effects,
                 json.url || ""
             );
@@ -43,25 +46,16 @@ module Dashboard {
         public toJSON(): any {
             return {
                 id: this.id,
+                type: this.type,
                 title: this.title,
                 tag: this.tag,
                 description: this.description,
-                baseHealth: this.baseHealth,
-                baseDefence: this.baseDefence,
-                baseInitiative: this.baseInitiative,
-                actions: this.actions.map(action => {
-                    return {
-                        key: {
-                            idEnemy: this.id,
-                            idAction: action.id
-                        },
-                        action: action.toJSON()
-                    }
-                }),
+                requirements: this.requirements,
+                action: this.action ? this.action.toJSON() : null,
                 effects: this.effects.map(effect => {
                     return {
                         key: {
-                            idEnemy: this.id,
+                            idItem: this.id,
                             idEffect: effect.id
                         },
                         effect: effect.toJSON()

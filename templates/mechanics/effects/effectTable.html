@@ -47,8 +47,8 @@
                                     </button>
                                 </a>
 
-                                <a href="{% url 'enemyWorkbenchEdit' id=entry.id %}">
-                                    <button class="btn btn-link text-dark m-0 p-0">
+                                <a href="javascript:void(0)" class="disabled">
+                                    <button class="btn btn-link text-dark m-0 p-0 disabled">
                                         <span class="icon icon-lg text-success">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </span>
@@ -63,7 +63,7 @@
                                     </button>
                                 </a>
 
-                                <a href="{% url 'apiQueryTableID' table='effects' id=entry.id %}?download" target="_top">
+                                <a href="{% url 'apiQueryTableID' table='effects' id=entry.id %}?download&lazy=true" target="_top">
                                     <button class="btn btn-link text-dark m-0 p-0">
                                         <span class="icon icon-lg">
                                             <i class="fa-solid fa-download"></i>

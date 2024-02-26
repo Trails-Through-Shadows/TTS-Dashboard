@@ -5,6 +5,8 @@ module Dashboard {
         private opening: boolean = false;
         private closing: boolean = false;
 
+        private static openedModel: Modal | null = null;
+
         private onClose: Function = (): void => {};
         public setOnClose(callback: Function): void {
             this.onClose = callback;
@@ -61,6 +63,8 @@ module Dashboard {
                     if (autoRemove) {
                         this.modal.remove();
                     }
+
+                    Modal.openedModel = null;
                 }
 
                 this.modalContainer.removeEventListener('animationend', () => {});
@@ -78,6 +82,8 @@ module Dashboard {
                     this.modalContainer.classList.remove('animate__animated', 'animate__zoomIn');
                     this.opening = false;
                     this.onOpen();
+
+                    Modal.openedModel = this;
                 }
 
                 this.modalContainer.removeEventListener('animationend', () => {});
@@ -164,6 +170,12 @@ module Dashboard {
                     template: template
                 }));
             });
+        }
+
+        public static closeOpenedModal(): void {
+            if (Modal.openedModel) {
+                Modal.openedModel.close();
+            }
         }
     }
 }

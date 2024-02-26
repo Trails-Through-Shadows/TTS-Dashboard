@@ -67,6 +67,7 @@ module Dashboard {
             this.limit = Math.max(limit, 1);
 
             const Notiflix = window['Notiflix'];
+            const Swal = window['Swal'];
             Notiflix.Block.circle("#tableData", 'Loading...');
 
             const request = new XMLHttpRequest();
@@ -105,9 +106,19 @@ module Dashboard {
                             });
                         });
 
-                        Notiflix.Block.remove("#tableData");
                         this.onDataLoad();
                     } else {
+                        Swal.fire({
+                            icon: 'error',
+                            toast: true,
+                            position: 'top-end',
+                            title: 'Something went wrong...',
+                            text: 'Unable to query table. Check console for more details.',
+                            showConfirmButton: false,
+                            timerProgressBar: true,
+                            hideAfter: 5000,
+                        });
+
                         // TODO: Show error message
                         console.log(`Table | Query failed with status ${request.status}`);
                     }

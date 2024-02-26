@@ -45,7 +45,7 @@
                                 {% trans 'New Enemy' %}
                             </a>
 
-                            <a href="{% url 'apiQueryTable' table='enemies' %}?download" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center ms-2">
+                            <a href="{% url 'apiQueryTable' table='enemies' %}?download&lazy=true" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center ms-2">
                                 <i class="fa-solid fa-cloud-arrow-down me-1"></i>
                                 {% trans 'Export All' %}
                             </a>
@@ -224,7 +224,7 @@
             });
 
             table.setAction("delete", (element) => {
-                const id = element.getAttribute('data-part');
+                const id = element.getAttribute('data-entry');
 
                 Swal.fire({
                     title: "{% trans "Are you sure?" %}",

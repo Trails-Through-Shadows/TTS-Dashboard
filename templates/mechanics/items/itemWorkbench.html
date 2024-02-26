@@ -3,7 +3,7 @@
 {% load filters %}
 {% load i18n %}
 
-{% block title %} Dungeon - Obstacles - Editor {% endblock %}
+{% block title %} Mechanics - Items - Editor {% endblock %}
 
 {% block stylesheets %}
     <!-- Empty -->
@@ -14,14 +14,14 @@
     
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div class="d-block mb-4 mb-md-0">
-            <h2 class="h4 mb-0">{% trans 'Obstacle Workbench' %}</h2>
-            <p class="mb-0">{% trans 'Create or edit dungeon obstacles' %}</p>
+            <h2 class="h4 mb-0">{% trans 'Item Workbench' %}</h2>
+            <p class="mb-0">{% trans 'Create or edit dungeon items' %}</p>
         </div>
     </div>
 
     <form id="workbench">
         <div class="row">
-            <div class="col-lg-8 col-12" id="obstacleInformation">
+            <div class="col-5" id="enemyInformation">
                 <div class="row flex-column h-100">
                     <div class="col-12 flex-fill mb-4">
                         <div class="card card-body border-0 shadow h-100">
@@ -31,64 +31,63 @@
 
                             <div class="card-body p-0 formLoading">
                                 <div class="row">
-                                    <div class="col-lg-4 col-12 align-self-center py-3">
-                                        <img src="{% static 'img/spikeTrap.png' %}" alt="{% trans 'Image' %}" class="img-fluid rounded">
+                                    <div class="col-4 align-self-center py-3">
+                                        <img src="{% static 'img/Zombie.png' %}" alt="{% trans 'Image' %}" class="img-fluid rounded">
                                     </div>
 
-                                    <div class="col-lg-8 col-12 py-3">
+                                    <div class="col-8 align-self-center">
                                         <div class="py-2">
                                             <h2 class="h5 mb-2">
-                                                <label class="visually-hidden" for="entryTitle">Title</label>
+                                                <label class="visually-hidden" for="itemTitle">Title</label>
                                                 <div class="input-group input-group">
                                                     <div class="input-group-text">{% trans 'Title' %}</div>
-                                                    <input type="text" class="form-control" id="entryTitle" placeholder="{% trans 'Title' %}" >
+                                                    <input type="text" class="form-control" id="itemTitle" placeholder="{% trans 'Title' %}" required>
                                                 </div>
                                             </h2>
 
-                                            <div class="row gy-2 gx-3 align-items-center">
-                                                <div class="col-4">
-                                                    <label class="visually-hidden" for="entryId">Id</label>
-                                                    <div class="input-group input-group-sm">
-                                                        <div class="input-group-text">{% trans 'ID' %}</div>
-                                                        <input type="text" class="form-control" id="entryId" placeholder="Entry Id" value="{{ obstacleId|default:0 }}" readonly>
+                                            <div class="d-flex align-items-center">
+                                                <div class="row gy-2 gx-3 align-items-center">
+                                                    <div class="col-4">
+                                                        <label class="visually-hidden" for="entryId">Id</label>
+                                                        <div class="input-group input-group-sm">
+                                                            <div class="input-group-text">{% trans 'ID' %}</div>
+                                                            <input type="text" class="form-control" id="entryId" placeholder="Enemy Id" value="{{ itemId|default:0 }}" readonly>
+                                                        </div>
                                                     </div>
-                                                </div>
 
-                                                <div class="col-8">
-                                                    <label class="visually-hidden" for="entryTag">Tag</label>
-                                                    <div class="input-group input-group-sm">
-                                                        <div class="input-group-text">{% trans 'Tag' %}</div>
-                                                        <input type="text" class="form-control" id="entryTag" placeholder="{% trans 'Tag' %}" >
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-6">
-                                                    <label class="visually-hidden" for="obstacleDamage">{% trans 'Damage' %}</label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-text">Damage</div>
-                                                        <input type="number" class="form-control" id="obstacleDamage" placeholder="{% trans 'Initiative' %}">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-6">
-                                                    <label class="visually-hidden" for="obstacleHealth">{% trans 'Health' %}</label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-text">Health</div>
-                                                        <input type="number" class="form-control" id="obstacleHealth" placeholder="{% trans 'Health' %}">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-12 align-self-end">
-                                                    <div class="form-check form-switch">
-                                                        <input class="form-check-input" type="checkbox" id="obstacleCrossable">
-                                                        <label class="form-check-label" for="obstacleCrossable">{% trans 'Crossable' %}?</label>
+                                                    <div class="col-8">
+                                                        <label class="visually-hidden" for="itemTag">Tag</label>
+                                                        <div class="input-group input-group-sm">
+                                                            <div class="input-group-text">{% trans 'Tag' %}</div>
+                                                            <input type="text" class="form-control" id="itemTag" placeholder="{% trans 'Tag' %}" required>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
 
+                                            <div class="input-group input-group-sm mt-2">
+                                                <label class="input-group-text mb-0" for="itemType">Type</label>
+                                                <select class="form-select" id="itemType" required>
+                                                    <option value="hidden" selected hidden disabled>Choose Type</option>
+                                                    <option value="WEAPON">WEAPON</option>
+                                                    <option value="HELMET">HELMET</option>
+                                                    <option value="CHESTPLATE">CHESTPLATE</option>
+                                                    <option value="LEGGINGS">LEGGINGS</option>
+                                                    <option value="BOOTS">BOOTS</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="input-group input-group-sm mt-2">
+                                                <label class="visually-hidden" for="itemRequirements">{% trans 'Requirements' %}</label>
+                                                <div class="input-group input-group-sm">
+                                                    <div class="input-group-text">{% trans 'Tag' %}</div>
+                                                    <input type="text" class="form-control" id="itemRequirements" placeholder="{% trans 'Requirements' %}">
+                                                </div>
+                                            </div>
+
                                             <div class="align-items-center mt-2">
-                                                <label for="entryDescription" class="form-label visually-hidden">{% trans 'Description' %}</label>
-                                                <textarea class="form-control" id="entryDescription" rows="6" placeholder="{% trans 'Description' %}"></textarea>
+                                                <label for="itemDescription" class="form-label visually-hidden">{% trans 'Description' %}</label>
+                                                <textarea class="form-control" id="itemDescription" rows="3" placeholder="{% trans 'Description' %}"></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -126,7 +125,41 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 col-12" id="obstacleEffects">
+            <div class="col-4" id="enemyActions">
+                <div class="row flex-column h-100">
+
+                    <div class="col-12 flex-fill">
+                        <div class="card card-body border-0 shadow h-100">
+                            <div class="card-header p-0 mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h2 class="h5 m-0">{% trans 'Action:' %}</h2>
+
+                                    <div class="col-6 mb-2">
+                                        <div class="btn-toolbar justify-content-end">
+                                            <a href="javascript:void(0)" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center" id="selectAction">
+                                                <i class="fa-solid fa-arrow-pointer me-1"></i>
+                                                {% trans 'Select' %}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-0 cards-scroll formLoading">
+                                <div class="row gap-1" id="actionsList">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-2">
+                        <div class="alert alert-success fade show validation" role="alert" id="actionsValidation">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-3" id="enemyEffects">
                 <div class="row flex-column h-100">
                     <div class="col-12 flex-fill">
                         <div class="card card-body border-0 shadow h-100">
@@ -168,9 +201,9 @@
 
         // ---- | Urls
 
-        const allUrl = "{% url 'apiQueryTable' table="obstacles" %}";
-        const entryUrl = "{% url 'apiQueryTableID' table="obstacles" id=obstacleId|default:0 %}";
-        const validateUrl = "{% url 'apiValidateTable' table="obstacle" %}";
+        const allUrl = "{% url 'apiQueryTable' table="items" %}";
+        const entryUrl = "{% url 'apiQueryTableID' table="items" id=itemId|default:0 %}";
+        const validateUrl = "{% url 'apiValidateTable' table="item" %}";
 
         // ---- | Data
 
@@ -178,48 +211,86 @@
         const formValidator = new Dashboard.FormValidator(formRoot, validateUrl);
         const formEditor = new Dashboard.FormEditor(formRoot, entryUrl, formValidator);
 
-        const entryTitle = formRoot.querySelector('#entryTitle');
-        entryTitle.addEventListener('input', () => {
-            formEditor.object.title = entryTitle.value;
+        const itemTitle = formRoot.querySelector('#itemTitle');
+        itemTitle.addEventListener('input', () => {
+            formEditor.object.title = itemTitle.value;
             formEditor.validate();
         });
 
-        const entryTag = formRoot.querySelector('#entryTag');
-        entryTag.addEventListener('input', () => {
-            formEditor.object.tag = entryTag.value;
+        const itemTag = formRoot.querySelector('#itemTag');
+        itemTag.addEventListener('input', () => {
+            formEditor.object.tag = itemTag.value;
             formEditor.validate();
         });
 
-        const entryDescription = formRoot.querySelector('#entryDescription');
-        entryDescription.addEventListener('input', () => {
-            formEditor.object.description = entryDescription.value;
+        const itemType = formRoot.querySelector('#itemType');
+        itemType.addEventListener('input', () => {
+            formEditor.object.type = itemType.value;
             formEditor.validate();
         });
 
-        const obstacleDamage = formRoot.querySelector('#obstacleDamage');
-        obstacleDamage.addEventListener('input', () => {
-            try {
-                formEditor.object.baseDamage = parseInt(obstacleDamage.value);
-                formEditor.validate();
-            } catch (e) {
-                // TODO:
+        const itemDescription = formRoot.querySelector('#itemDescription');
+        itemDescription.addEventListener('input', () => {
+            formEditor.object.description = itemDescription.value;
+            formEditor.validate();
+        });
+
+        const selectAction = document.querySelector('#selectAction');
+        selectAction.addEventListener('click', () => {
+            Dashboard.Modal.openSearch("mechanics/action/actionSearch.html", "actions");
+        });
+
+        // On searchDataLoaded event
+        document.addEventListener('searchDataLoaded', (event) => {
+            const type = event.detail.type;
+
+            const warn = document.createElement('div');
+            warn.id = 'warn';
+            warn.classList.add('alert', 'alert-warning', 'text-center');
+            warn.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> All actions used.';
+
+            if (type === 'actions') {
+                const actions = event.detail.data;
+
+                for (const action of actions) {
+                    if (action.id === formEditor.object.action.id) {
+                        action.card.remove();
+                        continue;
+                    }
+
+                    action.card.querySelector('button[data-action="add"]').addEventListener('click', (event) => {
+                        event.preventDefault();
+
+                        // Add to list
+                        const enemyActionsList = document.getElementById('actionsList');
+                        const actionCol = document.createElement('div');
+                        actionCol.classList.add('col-12');
+
+                        enemyActionsList.innerHTML = '';
+                        actionCol.appendChild(action.toCard(false, (event, id) => {
+                            event.preventDefault();
+
+                            formEditor.object.action = null;
+                            formEditor.validate();
+                            actionCol.remove();
+                        }));
+                        enemyActionsList.appendChild(actionCol);
+
+                        // Add to object
+                        const item = formEditor.getObject();
+                        item.action = action;
+
+                        action.card.remove();
+                        formEditor.validate();
+                        
+                        Dashboard.Modal.closeOpenedModal();
+                    });
+                }
             }
-        });
 
-        const obstacleHealth = formRoot.querySelector('#obstacleHealth');
-        obstacleHealth.addEventListener('input', () => {
-            try {
-                formEditor.object.baseHealth = parseInt(obstacleHealth.value);
-                formEditor.validate();
-            } catch (e) {
-                // TODO:
+            if (type === 'effects') {
+
             }
-        });
-
-        const obstacleCrossable = formRoot.querySelector('#obstacleCrossable');
-        obstacleCrossable.addEventListener('input', () => {
-            formEditor.object.crossable = obstacleCrossable.checked;
-            formEditor.validate();
         });
 
         const addEffectButton = document.querySelector('#addEffect');
@@ -280,12 +351,17 @@
         });
 
         const infoValidation = document.getElementById('informationValidation');
+        const actionsValidation = document.getElementById('actionsValidation');
         const effectsValidation = document.getElementById('effectsValidation');
 
         formValidator.setOnStart(() => {
             infoValidation.classList.remove('alert-success', 'alert-danger', 'alert-collapsed');
             infoValidation.classList.add('alert-warning', 'validating');
             infoValidation.innerHTML = '<i class="fa-solid fa-spinner-third me-1"></i> Validating...';
+
+            actionsValidation.classList.remove('alert-success', 'alert-danger', 'alert-collapsed');
+            actionsValidation.classList.add('alert-warning', 'validating');
+            actionsValidation.innerHTML = '<i class="fa-solid fa-spinner-third me-1"></i> Validating...';
 
             effectsValidation.classList.remove('alert-success', 'alert-danger', 'alert-collapsed');
             effectsValidation.classList.add('alert-warning', 'validating');
@@ -296,6 +372,10 @@
             infoValidation.classList.remove('alert-warning', 'alert-danger', 'validating');
             infoValidation.classList.add('alert-success', 'alert-collapsed');
             infoValidation.innerHTML = '';
+
+            actionsValidation.classList.remove('alert-warning', 'alert-danger', 'validating');
+            actionsValidation.classList.add('alert-success', 'alert-collapsed');
+            actionsValidation.innerHTML = '';
 
             effectsValidation.classList.remove('alert-warning', 'alert-danger', 'validating');
             effectsValidation.classList.add('alert-success', 'alert-collapsed');
@@ -309,6 +389,10 @@
                 effectsValidation.classList.remove('alert-success', 'alert-collapsed');
                 effectsValidation.classList.add('alert-danger');
                 effectsValidation.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> Internal Server error!';
+
+                actionsValidation.classList.remove('alert-success', 'alert-collapsed');
+                actionsValidation.classList.add('alert-danger');
+                actionsValidation.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> Internal Server error!';
 
                 infoValidation.classList.remove('alert-success', 'alert-collapsed');
                 infoValidation.classList.add('alert-danger');
@@ -352,6 +436,14 @@
                         break;
                     }
 
+                    case 'Action': {
+                        actionsValidation.classList.remove('alert-success', 'alert-collapsed');
+                        actionsValidation.classList.add('alert-danger');
+
+                        actionsValidation.appendChild(errorDiv);
+                        break;
+                    }
+
                     default: {
                         infoValidation.classList.remove('alert-success', 'alert-collapsed');
                         infoValidation.classList.add('alert-danger');
@@ -363,38 +455,62 @@
             }
         })
 
-        {% if obstacleId is not None %}
+        {% if itemId is not None %}
             formEditor.queryData((data) => {
-                const obstacle = Dashboard.Obstacle.fromJSON(data);
+                const item = Dashboard.Item.fromJSON(data);
 
-                entryTitle.value = obstacle.title;
-                entryTag.value = obstacle.tag;
-                entryDescription.value = obstacle.description;
-                obstacleDamage.value = obstacle.baseDamage;
-                obstacleHealth.value = obstacle.baseHealth;
-                obstacleCrossable.checked = obstacle.crossable;
+                const itemTitle = document.getElementById('itemTitle');
+                itemTitle.value = item.title;
+
+                const itemTag = document.getElementById('itemTag');
+                itemTag.value = item.tag;
+
+                const itemType = document.getElementById('itemType');
+                itemType.value = item.type;
+
+                const itemDescription = document.getElementById('itemDescription');
+                itemDescription.value = item.description;
+
+                const itemRequirements = document.getElementById('itemRequirements');
+                itemRequirements.value = item.requirements;
 
                 const effectsList = document.getElementById('effectsList');
-                obstacle.effects.forEach((effect) => {
+                item.effects.forEach((effect) => {
                     const effectCol = document.createElement('div');
                     effectCol.classList.add('col-12');
 
                     effectCol.appendChild(effect.toCard(true, (event, id) => {
                         event.preventDefault();
 
-                        obstacle.effects = obstacle.effects.filter(effect => effect.id !== id);
+                        item.effects = item.effects.filter(effect => effect.id !== id);
                         effectCol.remove();
                         formEditor.validate();
                     }));
                     effectsList.appendChild(effectCol);
                 });
 
-                return obstacle;
+                const actionsList = document.getElementById('actionsList');
+                const action = item.action;
+                if (action !== null) {
+                    const actionCol = document.createElement('div');
+                    actionCol.classList.add('col-12');
+
+                    actionCol.appendChild(action.toCard(true, (event, id) => {
+                        event.preventDefault();
+
+                        item.action = null;
+                        actionCol.remove();
+                        formEditor.validate();
+                    }));
+                    actionsList.appendChild(actionCol);
+                }
+
+                return item;
             }, () => {
                 formEditor.validate();
             });
         {% else %}
-            formEditor.object = new Dashboard.Obstacle(0, "", "", "", 0, 0, false, []);
+            formEditor.object = new Dashboard.Item(0, null, "", "", "", "", null, []);
             formEditor.validate();
         {% endif %}
 
@@ -414,7 +530,7 @@
                 cancelButtonText: '{% trans 'No, keep editing' %}',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = "{% url 'obstacleViewer' %}";
+                    window.location.href = "{% url 'itemViewer' %}";
                 }
             });
         });

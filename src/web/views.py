@@ -57,3 +57,8 @@ def campaignViewer(request):
 def obstacleWorkbench(request, id=None):
     context = {"obstacleId": id}
     return render(request, 'dungeon/obstacles/obstaclesWorkbench.html', context)
+
+@login_required(login_url="/login/")
+def itemWorkbench(request, id=None):
+    context = {"itemId": id}
+    return render(request, 'mechanics/items/itemWorkbench.html', context)

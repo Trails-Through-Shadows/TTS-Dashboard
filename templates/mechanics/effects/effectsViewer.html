@@ -40,12 +40,12 @@
 
                     <div class="col-12 col-sm-6">
                         <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
-                            <a href="{% url 'obstaclesWorkbench' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                            <a href="javascript:void(0)" id="newEffect" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
                                 <i class="fa-solid fa-plus me-1"></i>
                                 {% trans 'New Effect' %}
                             </a>
 
-                            <a href="{% url 'apiQueryTable' table='effects' %}?download" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center ms-2">
+                            <a href="{% url 'apiQueryTable' table='effects' %}?download&lazy=true" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center ms-2">
                                 <i class="fa-solid fa-cloud-arrow-down me-1"></i>
                                 {% trans 'Export All' %}
                             </a>
@@ -174,6 +174,7 @@
         const apiUrlSingle = `{% url 'apiQueryTableID' table='effects' id=0 %}`;
         const template = 'mechanics/effects/effectTable.html';
         const templateInfo = 'mechanics/effects/effectEntry.html';
+        const validateUrl = "{% url 'apiValidateTable' table="effect" %}";
 
         // ---- | Data
 
@@ -299,5 +300,81 @@
         });
 
         table.queryData(apiUrlAll, page, limit);
+
+        // ---- | Workbench
+
+        const newEffect = document.getElementById('newEffect');
+        newEffect.addEventListener('click', () => {
+            let promise = Dashboard.Modal.openModal("mechanics/effects/effectsWorkbench.html");
+            promise.then((modal) => {
+                const modalRoot = modal.modal;
+                const effectForm = modalRoot.querySelector('#effectWorkbench');
+                const effectSubmitForm = modalRoot.querySelector('#effectSubmit');
+
+                function submitForm() {
+                    Notiflix.Block.circle(".modal-container", 'Saving...');
+
+                    const effectType = effectForm.querySelector('#effectType').value;
+                    const effectTarget = effectForm.querySelector('#effectTarget').value;
+                    const effectStrength = effectForm.querySelector('#effectStrength').value;
+                    const effectDuration = effectForm.querySelector('#effectDuration').value;
+                    const effectDescription = effectForm.querySelector('#effectDescription').value;
+
+                    const formEditor = new Dashboard.FormEditor(effectForm, apiUrlAll, null);
+                    formEditor.object = new Dashboard.Effect(null, effectType, effectDescription, effectDuration, effectStrength, effectTarget)
+
+                    formEditor.saveData(() => {
+                        console.log("Effect saved!");
+                        Notiflix.Block.remove(".modal-container");
+                        modal.close();
+
+                        Swal.fire({
+                            icon: 'success',
+                            toast: true,
+                            position: 'top-end',
+                            text: '{% trans "Success, effect saved!" %}',
+                            showConfirmButton: false,
+                            timer: 2500
+                        })
+
+                        table.queryData(apiUrlAll, page, limit);
+                    }, (responseText) => {
+                        Notiflix.Block.remove(".modal-container");
+                        modal.close()
+
+                        Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 10000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer)
+                                toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                toast.addEventListener('click', () => {
+                                    const data = JSON.parse(responseText);
+                                    const string = JSON.stringify(data, null, 4);
+
+                                    Swal.fire({
+                                        text: string,
+                                        customClass: {
+                                            htmlContainer: 'text-start text-pre'
+                                        },
+                                        showConfirmButton: false,
+                                    });
+                                })
+                            }
+                        }).fire({
+                            icon: "error",
+                            title: '{% trans "Error, saving failed! Click for more information." %}'
+                        });
+                    });
+                }
+
+                effectSubmitForm.addEventListener('click', submitForm);
+                effectForm.addEventListener('submit', submitForm);
+            });
+        });
+
     </script>
 {% endblock javascripts %}
