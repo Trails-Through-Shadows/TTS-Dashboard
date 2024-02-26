@@ -530,7 +530,7 @@
                 cancelButtonText: '{% trans 'No, keep editing' %}',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = "{% url 'obstacleViewer' %}";
+                    window.location.href = "{% url 'itemViewer' %}";
                 }
             });
         });
