@@ -1,6 +1,8 @@
 from django import template
 from django.template import Library, Node, VariableDoesNotExist
 
+from dashboard.settings import API_URL
+
 register = template.Library()
 
 
@@ -13,6 +15,9 @@ def filter_range(bound):
 def filter_range(number):
     return number + 1
 
+@register.simple_tag
+def imageFor(image_path):
+    return API_URL + image_path
 
 @register.filter(name='camel')
 def filter_range(string):

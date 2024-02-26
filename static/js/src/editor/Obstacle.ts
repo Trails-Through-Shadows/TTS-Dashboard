@@ -1,40 +1,35 @@
 module Dashboard {
 
-    export class Enemy {
+    export class Obstacle {
 
         constructor(
             public id: number,
             public title: string,
             public tag: string,
             public description: string,
+            public baseDamage: number,
             public baseHealth: number,
-            public baseDefence: number,
-            public baseInitiative: number,
-            public actions: Action[],
+            public crossable: boolean,
             public effects: Effect[],
             public url: string = ""
         ) {}
 
-        public static fromJSON(json: any): Enemy {
-            let actions: Action[] = [];
-            for (let action of json.actions) {
-                actions.push(Action.fromJSON(action.action));
-            }
+        public static fromJSON(json: any): Obstacle {
+            console.log(json);
 
             let effects: Effect[] = [];
             for (let effect of json.effects) {
                 effects.push(Effect.fromJSON(effect.effect));
             }
 
-            return new Enemy(
+            return new Obstacle(
                 json.id,
                 json.title,
                 json.tag,
                 json.description || "",
+                json.baseDamage,
                 json.baseHealth,
-                json.baseDefence,
-                json.baseInitiative,
-                actions,
+                json.crossable == "true",
                 effects,
                 json.url || ""
             );
@@ -46,18 +41,9 @@ module Dashboard {
                 title: this.title,
                 tag: this.tag,
                 description: this.description,
+                baseDamage: this.baseDamage,
                 baseHealth: this.baseHealth,
-                baseDefence: this.baseDefence,
-                baseInitiative: this.baseInitiative,
-                actions: this.actions.map(action => {
-                    return {
-                        key: {
-                            idEnemy: this.id,
-                            idAction: action.id
-                        },
-                        action: action.toJSON()
-                    }
-                }),
+                crossable: this.crossable,
                 effects: this.effects.map(effect => {
                     return {
                         key: {

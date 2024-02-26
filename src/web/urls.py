@@ -25,6 +25,8 @@ urlpatterns = [
     path('mechanics/effects/', views.effectViewer, name="effectsViewer"),
 
     path('mechanics/items/', views.itemViewer, name="itemsViewer"),
+    path('mechanics/items/workbench/', views.itemWorkbench, name="itemsWorkbench"),
+    path('mechanics/items/workbench/<int:id>/', views.itemWorkbench, name="itemsWorkbenchEdit"),
 
     path('character/classes/', views.classViewer, name="classViewer"),
 

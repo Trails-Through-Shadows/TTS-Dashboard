@@ -17,6 +17,11 @@
             <main class="modal-body pt-0 pb-0">
                 <form id="effectWorkbench">
                     <div class="row">
+                        <div class="col-12 mb-3">
+                            <div class="alert alert-success fade show validation" role="alert" id="effectsValidation">
+                            </div>
+                        </div>
+
                         <div class="col-12 col-lg-6">
                             <label for="effectType" class="form-label mb-1"> Effect Type </label>
                             <select class="form-control" id="effectType" required>
@@ -80,7 +85,7 @@
                         <div class="col-12 mt-2">
                             <div class="form-group">
                                 <label for="effectDescription">Effect Desciprtion:</label>
-                                <textarea class="form-control" id="effectDescription" rows="3" placeholder="Effect Description" required></textarea>
+                                <textarea class="form-control" id="effectDescription" rows="3" placeholder="Effect Description"></textarea>
                             </div>
                         </div>
                     </div>
@@ -98,5 +103,130 @@
 </div>
 
 <script id="afterScript" async>
+    const csrfToken = document.querySelector('#csrftoken').value;
 
+    // ---- | Urls
+
+    const allUrl = "{% url 'apiQueryTable' table="effects" %}";
+    const entryUrl = "{% url 'apiQueryTableID' table="effects" id=0 %}";
+    const validateUrl = "{% url 'apiValidateTable' table="effect" %}";
+
+    // ---- | Validate
+
+    const modalRoot = document.querySelector('#modal');
+    const effectForm = modalRoot.querySelector('#effectWorkbench');
+    const effectSubmitForm = modalRoot.querySelector('#effectSubmit');
+    const formValidation = effectForm.querySelector('#effectsValidation');
+
+    const formValidator = new Dashboard.FormValidator(effectForm, validateUrl)
+    const formEditor = new Dashboard.FormEditor(effectForm, entryUrl, formValidator);
+
+    // Form Attributes
+    const effectTypeInput = effectForm.querySelector('#effectType');
+    const effectTargetInput = effectForm.querySelector('#effectTarget');
+    const effectStrengthInput = effectForm.querySelector('#effectStrength');
+    const effectDurationInput = effectForm.querySelector('#effectDuration');
+    const effectDescriptionInput = effectForm.querySelector('#effectDescription');
+
+    {% if obstacleId is not None %}
+        formEditor.queryData((data) => {
+            const effect = Dashboard.Effect.fromJSON(data);
+
+            effectTypeInput.value = effect.type;
+            effectTargetInput.value = effect.target;
+            effectStrengthInput.value = effect.strength;
+            effectDurationInput.value = effect.duration;
+            effectDescriptionInput.value = effect.description;
+
+            return effect;
+        }, () => {
+            formEditor.validate();
+        });
+    {% else %}
+        formEditor.object = new Dashboard.Effect(0, null, "", 0, 0, null);
+        formEditor.validate();
+    {% endif %}
+
+    const validate = () => {
+        const effectType = effectTypeInput.value === 'hidden' ? null : effectTypeInput.value;
+        const effectTarget = effectTargetInput.value === 'hidden' ? null : effectTargetInput.value;
+        const effectStrength = effectStrengthInput ? parseInt(effectStrengthInput.value) : null;
+        const effectDuration = effectDurationInput ? parseInt(effectDurationInput.value) : null;
+        const effectDescription = effectDescriptionInput.value;
+
+        formEditor.object = new Dashboard.Effect(null, effectType, effectDescription, effectDuration, effectStrength, effectTarget)
+
+        formEditor.validate();
+        effectSubmitForm.classList.add('disabled');
+        effectSubmitForm.setAttribute('disabled', 'disabled');
+    }
+
+    effectTargetInput.addEventListener('change', validate);
+    effectTargetInput.addEventListener('change', validate);
+    effectStrengthInput.addEventListener('input', validate);
+    effectDurationInput.addEventListener('input', validate);
+    effectDescriptionInput.addEventListener('input', validate);
+
+    formValidator.setOnSuccess(() => {
+        formValidation.classList.remove('alert-warning', 'alert-danger', 'validating');
+        formValidation.classList.add('alert-success', 'alert-collapsed');
+        formValidation.innerHTML = '';
+
+        effectSubmitForm.classList.remove('disabled');
+        effectSubmitForm.removeAttribute('disabled');
+    });
+
+    formValidator.setOnStart(() => {
+        formValidation.classList.remove('alert-success', 'alert-danger', 'alert-collapsed');
+        formValidation.classList.add('alert-warning', 'validating');
+        formValidation.innerHTML = '<i class="fa-solid fa-spinner-third me-1"></i> Validating...';
+
+        effectSubmitForm.setAttribute('disabled', 'disabled');
+    });
+
+    formValidator.setOnFail((errors) => {
+        formValidator.onSuccess();
+        effectSubmitForm.classList.add('disabled');
+        effectSubmitForm.setAttribute('disabled', 'disabled');
+
+        if (errors.length === 0) {
+            formValidation.classList.remove('alert-success', 'alert-collapsed');
+            formValidation.classList.add('alert-danger');
+            formValidation.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> Internal Server error!';
+            return;
+        }
+
+        for (const err of errors) {
+            const errorDiv = document.createElement('div');
+            errorDiv.classList.add('d-block', 'row', 'mt-1');
+
+            if (!err.errors) {
+                errorDiv.innerHTML = `
+                    <div class="col-12">
+                        <i class="fa-solid fa-exclamation-triangle me-1"></i>
+                        <span>${err.message}</span>
+                    </div>
+                `;
+            } else {
+                errorDiv.innerHTML = `
+                    <div class="col-12">
+                        <i class="fa-solid fa-exclamation-triangle me-1"></i>
+                        <span>${err.message}</span>
+                    </div>
+                    ${err.errors.map((field) => {
+                        return `
+                            <div class="col-12">
+                                <span class="ms-1">* ${field.message}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                `;
+            }
+
+            formValidation.classList.remove('alert-success', 'alert-collapsed');
+            formValidation.classList.add('alert-danger');
+
+            formValidation.appendChild(errorDiv);
+        }
+    })
 </script>

@@ -75,7 +75,10 @@ module Dashboard {
                 }
             };
 
-            request.open(this.object.id == 0 ? 'POST' : 'PUT', this.apiUrl, true);
+            const method = this.object.id == 0 || this.object.id == null ? 'POST' : 'PUT';
+            const newUrl = this.object.id == 0 || this.object.id == null ? this.apiUrl.replace('/0', '') : this.apiUrl;
+
+            request.open(method, newUrl, true);
             request.setRequestHeader('Content-Type', 'application/json');
             request.setRequestHeader('X-CSRFToken', csrfToken);
             request.send(JSON.stringify(this.object));

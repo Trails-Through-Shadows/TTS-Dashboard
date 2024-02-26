@@ -32,7 +32,7 @@
                             <div class="card-body p-0 formLoading">
                                 <div class="row">
                                     <div class="col-4 align-self-center py-3">
-                                        <img src="{% static 'img/Zombie.png' %}" alt="{% trans 'Image' %}" class="img-fluid rounded">
+                                        <img src="{% imageFor "/images/not/found.png" %}" id="entryUrl" alt="{% trans 'Image' %}" class="img-fluid rounded">
                                     </div>
 
                                     <div class="col-8 align-self-center">
@@ -206,7 +206,7 @@
         // ---- | Urls
 
         const allUrl = "{% url 'apiQueryTable' table="enemies" %}";
-        const entryUrl = "{% url 'apiQueryTableID' table="enemies" id=enemyId %}";
+        const entryUrl = "{% url 'apiQueryTableID' table="enemies" id=enemyId|default:0 %}";
         const validateUrl = "{% url 'apiValidateTable' table="enemy" %}";
 
         // ---- | Data
@@ -308,8 +308,8 @@
                     effectCol.appendChild(effect.toCard(true, (event, id) => {
                         event.preventDefault();
 
-                        const enemy = formEditor.object;
-                        enemy.effects = enemy.effects.filter(effect => effect.id !== id);
+                        const entry = formEditor.object;
+                        entry.effects = entry.effects.filter(eff => eff !== effect);
                         effectCol.remove();
                         formEditor.validate();
                     }));
@@ -496,6 +496,9 @@
                 baseInitiative.value = enemy.baseInitiative;
                 baseHealth.value = enemy.baseHealth;
                 baseDefence.value = enemy.baseDefence;
+                
+                const entryUrl = document.getElementById('entryUrl');
+                entryUrl.src = enemy.url;
 
                 const enemyActionsList = document.getElementById('enemyActionsList');
                 enemy.actions.forEach((action) => {
@@ -531,6 +534,8 @@
             }, () => {
                 formEditor.validate();
             });
+        {% else %}
+            formEditor.object = new Dashboard.Enemy(null, "", "", "", 0, 0, 0, [], []);
         {% endif %}
 
         // ----
