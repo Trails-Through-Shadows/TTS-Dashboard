@@ -12,6 +12,7 @@ node_modules/
 # Environment
 env
 venv*
+.venv
 .env
 
 # Compiled typescript libraries
