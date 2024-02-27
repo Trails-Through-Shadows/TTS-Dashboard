@@ -101,21 +101,21 @@
                 <div class="multi-level collapse {% if '/dungeon' in URL %} show {% endif %}" role="list" id="submenu-dungeon" aria-expanded="false">
                     <ul class="flex-column nav">
                         <li class="nav-item {% if '/dungeon/parts' in URL %} active {% endif %}">
-                            <a class="nav-link" href="/dungeon/parts">
+                            <a class="nav-link" href="{% url 'partViewer' %}">
                                 <i class="fa-solid fa-puzzle-piece me-1"></i>
                                 <span class="sidebar-text">Parts</span>
                             </a>
                         </li>
 
                         <li class="nav-item {% if '/dungeon/enemies' in URL %} active {% endif %}">
-                            <a class="nav-link" href="/dungeon/enemies">
+                            <a class="nav-link" href="{% url 'enemyViewer' %}">
                                 <i class="fa-solid fa-dragon me-1"></i>
                                 <span class="sidebar-text">Enemies</span>
                             </a>
                         </li>
 
                         <li class="nav-item {% if '/dungeon/obstacles' in URL %} active {% endif %}">
-                            <a class="nav-link" href="/dungeon/obstacles">
+                            <a class="nav-link" href="{% url 'obstacleViewer' %}">
                                 <i class="fa-solid fa-virus me-1"></i>
                                 <span class="sidebar-text">Obstacles</span>
                             </a>
@@ -142,21 +142,21 @@
                 <div class="multi-level collapse {% if '/mechanics' in URL %} show {% endif %}" role="list" id="submenu-mechanics" aria-expanded="false">
                     <ul class="flex-column nav">
                         <li class="nav-item {% if '/mechanics/actions' in URL %} active {% endif %}">
-                            <a class="nav-link" href="/mechanics/actions">
+                            <a class="nav-link" href="{% url 'actionViewer' %}">
                                 <i class="fa-solid fa-book-skull me-1"></i>
                                 <span class="sidebar-text">Actions</span>
                             </a>
                         </li>
 
                         <li class="nav-item {% if '/mechanics/effects' in URL %} active {% endif %}">
-                            <a class="nav-link" href="/mechanics/effects">
+                            <a class="nav-link" href="{% url 'effectViewer' %}">
                                 <i class="fa-solid fa-flask me-1"></i>
                                 <span class="sidebar-text">Effects</span>
                             </a>
                         </li>
 
                         <li class="nav-item {% if '/mechanics/items' in URL %} active {% endif %}">
-                            <a class="nav-link" href="/mechanics/items">
+                            <a class="nav-link" href="{% url 'itemViewer' %}">
                                 <i class="fa-solid fa-sack-xmark me-1"></i>
                                 <span class="sidebar-text">Items</span>
                             </a>
@@ -183,14 +183,14 @@
                 <div class="multi-level collapse {% if '/character' in URL %} show {% endif %}" role="list" id="submenu-character" aria-expanded="false">
                     <ul class="flex-column nav">
                         <li class="nav-item {% if '/character/classes' in URL %} active {% endif %}">
-                            <a class="nav-link" href="/character/classes">
+                            <a class="nav-link" href="{% url 'classViewer' %}">
                                 <i class="fa-solid fa-person-military-to-person me-1"></i>
                                 <span class="sidebar-text">Classes</span>
                             </a>
                         </li>
 
                         <li class="nav-item {% if '/character/races' in URL %} active {% endif %}">
-                            <a class="nav-link" href="/character/races">
+                            <a class="nav-link" href="{% url 'raceViewer' %}">
                                 <i class="fa-solid fa-child-reaching me-1"></i>
                                 <span class="sidebar-text">Races</span>
                             </a>
@@ -217,21 +217,21 @@
                 <div class="multi-level collapse {% if '/world' in URL %} show {% endif %}" role="list" id="submenu-world" aria-expanded="false">
                     <ul class="flex-column nav">
                         <li class="nav-item {% if '/world/campaigns' in URL %} active {% endif %}">
-                            <a class="nav-link" href="/world/campaigns">
+                            <a class="nav-link" href="{% url 'campaignViewer' %}">
                                 <i class="fa-solid fa-campground me-1"></i>
                                 <span class="sidebar-text">Campaigns</span>
                             </a>
                         </li>
 
                         <li class="nav-item {% if '/world/locations' in URL %} active {% endif %}">
-                            <a class="nav-link" href="/mechanics/locations">
+                            <a class="nav-link" href="{% url 'locationViewer' %}">
                                 <i class="fa-solid fa-route me-1"></i>
                                 <span class="sidebar-text">Locations</span>
                             </a>
                         </li>
 
                         <li class="nav-item {% if '/world/achievements' in URL %} active {% endif %}">
-                            <a class="nav-link" href="/mechanics/achievements">
+                            <a class="nav-link" href="/world/achievements">
                                 <i class="fa-solid fa-medal me-1"></i>
                                 <span class="sidebar-text">Achievements</span>
                             </a>

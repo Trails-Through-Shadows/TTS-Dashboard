@@ -30,6 +30,11 @@ def obstacleViewer(request):
     return render(request, 'dungeon/obstacles/obstaclesViewer.html')
 
 @login_required(login_url="/login/")
+def obstacleWorkbench(request, id=None):
+    context = {"obstacleId": id}
+    return render(request, 'dungeon/obstacles/obstaclesWorkbench.html', context)
+
+@login_required(login_url="/login/")
 def actionViewer(request):
     return render(request, 'mechanics/action/actionViewer.html')
 
@@ -40,6 +45,11 @@ def effectViewer(request):
 @login_required(login_url="/login/")
 def itemViewer(request):
     return render(request, 'mechanics/items/itemsViewer.html')
+
+@login_required(login_url="/login/")
+def itemWorkbench(request, id=None):
+    context = {"itemId": id}
+    return render(request, 'mechanics/items/itemWorkbench.html', context)
 
 @login_required(login_url="/login/")
 def classViewer(request):
@@ -54,11 +64,15 @@ def campaignViewer(request):
     return render(request, 'world/campaigns/campaignsViewer.html')
 
 @login_required(login_url="/login/")
-def obstacleWorkbench(request, id=None):
+def campaignWorkbench(request, id=None):
     context = {"obstacleId": id}
-    return render(request, 'dungeon/obstacles/obstaclesWorkbench.html', context)
+    return render(request, 'world/campaigns/campaignsWorkbench.html', context)
 
 @login_required(login_url="/login/")
-def itemWorkbench(request, id=None):
-    context = {"itemId": id}
-    return render(request, 'mechanics/items/itemWorkbench.html', context)
+def locationViewer(request):
+    return render(request, 'world/locations/locationsViewer.html')
+
+@login_required(login_url="/login/")
+def locationWorkbench(request, id=None):
+    context = {"locationId": id}
+    return render(request, 'world/locations/locationsWorkbench.html', context)

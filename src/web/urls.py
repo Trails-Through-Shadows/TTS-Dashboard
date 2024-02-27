@@ -20,11 +20,11 @@ urlpatterns = [
     path('dungeon/obstacles/workbench/', views.obstacleWorkbench, name="obstaclesWorkbench"),
     path('dungeon/obstacles/workbench/<int:id>/', views.obstacleWorkbench, name="obstacleWorkbenchEdit"),
 
-    path('mechanics/actions/', views.actionViewer, name="actionsViewer"),
+    path('mechanics/actions/', views.actionViewer, name="actionViewer"),
 
-    path('mechanics/effects/', views.effectViewer, name="effectsViewer"),
+    path('mechanics/effects/', views.effectViewer, name="effectViewer"),
 
-    path('mechanics/items/', views.itemViewer, name="itemsViewer"),
+    path('mechanics/items/', views.itemViewer, name="itemViewer"),
     path('mechanics/items/workbench/', views.itemWorkbench, name="itemsWorkbench"),
     path('mechanics/items/workbench/<int:id>/', views.itemWorkbench, name="itemsWorkbenchEdit"),
 
@@ -33,4 +33,9 @@ urlpatterns = [
     path('character/races/', views.raceViewer, name="raceViewer"),
 
     path('world/campaigns/', views.campaignViewer, name="campaignViewer"),
+    path('world/campaigns/workbench/', views.itemWorkbench, name="campaignsWorkbench"),
+
+    path('world/locations/', views.locationViewer, name="locationViewer"),
+    path('world/campaigns/workbench/', views.locationWorkbench, name="locationsWorkbench"),
+    path('world/campaigns/workbench/<int:id>/', views.locationWorkbench, name="locationsWorkbenchEdit")
 ]
