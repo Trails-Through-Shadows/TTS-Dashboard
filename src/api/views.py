@@ -80,7 +80,7 @@ class ApiView(View):
         id = kwargs.get('id', None)
 
         page = max(int(request.GET.get('page', 0)), 1)
-        limit = max(int(request.GET.get('limit', 10)), 1)
+        limit = max(int(request.GET.get('limit', 1000)), 1)
         filtering = request.GET.get('filter', '')
         sort = request.GET.get('sort', '')
         download = request.GET.get('download', None)

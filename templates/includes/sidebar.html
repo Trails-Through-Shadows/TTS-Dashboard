@@ -100,6 +100,13 @@
 
                 <div class="multi-level collapse {% if '/dungeon' in URL %} show {% endif %}" role="list" id="submenu-dungeon" aria-expanded="false">
                     <ul class="flex-column nav">
+                        <li class="nav-item {% if '/dungeon/locations' in URL %} active {% endif %}">
+                            <a class="nav-link" href="{% url 'locationViewer' %}">
+                                <i class="fa-solid fa-route me-1"></i>
+                                <span class="sidebar-text">Locations</span>
+                            </a>
+                        </li>
+
                         <li class="nav-item {% if '/dungeon/parts' in URL %} active {% endif %}">
                             <a class="nav-link" href="{% url 'partViewer' %}">
                                 <i class="fa-solid fa-puzzle-piece me-1"></i>
@@ -159,6 +166,13 @@
                             <a class="nav-link" href="{% url 'itemViewer' %}">
                                 <i class="fa-solid fa-sack-xmark me-1"></i>
                                 <span class="sidebar-text">Items</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item {% if '/mechanics/summon' in URL %} active {% endif %}">
+                            <a class="nav-link" href="{% url 'summonViewer' %}">
+                                <i class="fa-solid fa-ghost me-1"></i>
+                                <span class="sidebar-text">Summons</span>
                             </a>
                         </li>
                     </ul>
@@ -223,15 +237,15 @@
                             </a>
                         </li>
 
-                        <li class="nav-item {% if '/world/locations' in URL %} active {% endif %}">
-                            <a class="nav-link" href="{% url 'locationViewer' %}">
-                                <i class="fa-solid fa-route me-1"></i>
-                                <span class="sidebar-text">Locations</span>
+                        <li class="nav-item {% if '/world/stories' in URL %} active {% endif %}">
+                            <a class="nav-link" href="{% url 'storyViewer' %}">
+                                <i class="fa-solid fa-book-open me-1"></i>
+                                <span class="sidebar-text">Story</span>
                             </a>
                         </li>
 
                         <li class="nav-item {% if '/world/achievements' in URL %} active {% endif %}">
-                            <a class="nav-link" href="/world/achievements">
+                            <a class="nav-link" href="{% url 'achievementViewer' %}">
                                 <i class="fa-solid fa-medal me-1"></i>
                                 <span class="sidebar-text">Achievements</span>
                             </a>

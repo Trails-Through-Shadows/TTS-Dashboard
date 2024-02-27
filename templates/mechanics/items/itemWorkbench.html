@@ -237,7 +237,7 @@
 
         const selectAction = document.querySelector('#selectAction');
         selectAction.addEventListener('click', () => {
-            Dashboard.Modal.openSearch("mechanics/action/actionSearch.html", "actions");
+            Dashboard.Modal.openSearch("mechanics/actions/actionSearch.html", "actions");
         });
 
         // On searchDataLoaded event
@@ -461,7 +461,7 @@
 
                 const itemImage = document.getElementById('itemImage');
                 itemImage.src = item.url;
-                
+
                 const itemTitle = document.getElementById('itemTitle');
                 itemTitle.value = item.title;
 

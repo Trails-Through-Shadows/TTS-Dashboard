@@ -8,6 +8,10 @@ urlpatterns = [
     path('', views.index, name='home'),
 
     # Dungeon
+    path('dungeon/locations/', views.locationViewer, name="locationViewer"),
+    path('dungeon/locations/workbench/', views.locationWorkbench, name="locationsWorkbench"),
+    path('dungeon/locations/workbench/<int:id>/', views.locationWorkbench, name="locationsWorkbenchEdit"),
+
     path('dungeon/parts/', views.partViewer, name="partViewer"),
     path('dungeon/parts/workbench/', views.parkWorkbench, name="partWorkbench"),
     path('dungeon/parts/workbench/<int:id>/', views.parkWorkbench, name="partWorkbenchEdit"),
@@ -28,6 +32,8 @@ urlpatterns = [
     path('mechanics/items/workbench/', views.itemWorkbench, name="itemsWorkbench"),
     path('mechanics/items/workbench/<int:id>/', views.itemWorkbench, name="itemsWorkbenchEdit"),
 
+    path('mechanics/summons/', views.effectViewer, name="summonViewer"),
+
     path('character/classes/', views.classViewer, name="classViewer"),
 
     path('character/races/', views.raceViewer, name="raceViewer"),
@@ -35,7 +41,7 @@ urlpatterns = [
     path('world/campaigns/', views.campaignViewer, name="campaignViewer"),
     path('world/campaigns/workbench/', views.itemWorkbench, name="campaignsWorkbench"),
 
-    path('world/locations/', views.locationViewer, name="locationViewer"),
-    path('world/campaigns/workbench/', views.locationWorkbench, name="locationsWorkbench"),
-    path('world/campaigns/workbench/<int:id>/', views.locationWorkbench, name="locationsWorkbenchEdit")
+    path('world/stories/', views.campaignViewer, name="storyViewer"),
+
+    path('world/achievements/', views.campaignViewer, name="achievementViewer")
 ]

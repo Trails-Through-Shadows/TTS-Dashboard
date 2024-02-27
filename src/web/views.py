@@ -36,7 +36,7 @@ def obstacleWorkbench(request, id=None):
 
 @login_required(login_url="/login/")
 def actionViewer(request):
-    return render(request, 'mechanics/action/actionViewer.html')
+    return render(request, 'mechanics/actions/actionsViewer.html')
 
 @login_required(login_url="/login/")
 def effectViewer(request):
