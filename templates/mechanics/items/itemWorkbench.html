@@ -32,7 +32,7 @@
                             <div class="card-body p-0 formLoading">
                                 <div class="row">
                                     <div class="col-4 align-self-center py-3">
-                                        <img src="{% static 'img/Zombie.png' %}" alt="{% trans 'Image' %}" class="img-fluid rounded">
+                                        <img src="{% static 'img/notFound.png' %}" id="itemImage" alt="{% trans 'Image' %}" class="img-fluid rounded">
                                     </div>
 
                                     <div class="col-8 align-self-center">
@@ -237,7 +237,7 @@
 
         const selectAction = document.querySelector('#selectAction');
         selectAction.addEventListener('click', () => {
-            Dashboard.Modal.openSearch("mechanics/action/actionSearch.html", "actions");
+            Dashboard.Modal.openSearch("mechanics/actions/actionSearch.html", "actions");
         });
 
         // On searchDataLoaded event
@@ -330,7 +330,7 @@
                     const effectCol = document.createElement('div');
                     effectCol.classList.add('col-12');
 
-                    effectCol.appendChild(effect.toCard(true, (event, id) => {
+                    effectCol.appendChild(effect.toCard(false, (event, id) => {
                         event.preventDefault();
 
                         const entry = formEditor.object;
@@ -459,6 +459,9 @@
             formEditor.queryData((data) => {
                 const item = Dashboard.Item.fromJSON(data);
 
+                const itemImage = document.getElementById('itemImage');
+                itemImage.src = item.url;
+
                 const itemTitle = document.getElementById('itemTitle');
                 itemTitle.value = item.title;
 
@@ -495,7 +498,7 @@
                     const actionCol = document.createElement('div');
                     actionCol.classList.add('col-12');
 
-                    actionCol.appendChild(action.toCard(true, (event, id) => {
+                    actionCol.appendChild(action.toCard(false, (event, id) => {
                         event.preventDefault();
 
                         item.action = null;
