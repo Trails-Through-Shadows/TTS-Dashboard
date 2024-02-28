@@ -248,9 +248,13 @@
 
                     const effectType = effectForm.querySelector('#effectType').value;
                     const effectTarget = effectForm.querySelector('#effectTarget').value;
-                    const effectStrength = effectForm.querySelector('#effectStrength').value;
-                    const effectDuration = effectForm.querySelector('#effectDuration').value;
                     const effectDescription = effectForm.querySelector('#effectDescription').value;
+
+                    const effectStrengthInfinity = effectForm.querySelector('#effectStrengthInfinity').checked;
+                    const effectStrength = effectStrengthInfinity ? -1 : effectForm.querySelector('#effectStrength').value;
+
+                    const effectDurationInfinity = effectForm.querySelector('#effectDurationInfinity').checked;
+                    const effectDuration = effectDurationInfinity ? -1 : effectForm.querySelector('#effectDuration').value;
 
                     const effect = new Dashboard.Effect(null, effectType, effectDescription, effectDuration, effectStrength, effectTarget);
                     formEditor.object.effects.push(effect);
