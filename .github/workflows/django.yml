@@ -78,6 +78,7 @@ jobs:
             eval $(keychain --eval ../.ssh/dashboard-key)
             git pull origin master
             source ~/.nvm/nvm.sh
+            npm install
             nvm use 20.11.0
             tsc -p tsconfig.json
             lessc static/css/src/style.less static/css/style.css
