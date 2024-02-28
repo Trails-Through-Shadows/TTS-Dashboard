@@ -73,18 +73,28 @@
                         </div>
 
                         <div class="col-12 col-lg-6 mt-2">
-                            <label for="effectStrength" class="form-label mb-1"> Effect Strength </label>
-                            <input type="number" class="form-control" min=0 placeholder="Strength" id="effectStrength" required>
+                            <label for="effectStrength" class="form-label mb-1"><span>Effect Strength</span> <span style="font-size: 10px;">Check = infinity</span></label>
+                            <div class="input-group mb-3">
+                                <div class="input-group-text">
+                                    <input class="form-check-input mt-0" type="checkbox" value="" id="effectStrengthInfinity" aria-label="Checkbox for infinity strength">
+                                </div>
+                                <input type="number" class="form-control" min=0 placeholder="Strength" id="effectStrength" required>
+                            </div>
                         </div>
 
                         <div class="col-12 col-lg-6 mt-2">
-                            <label for="effectDuration" class="form-label mb-1"> Effect Duration </label>
-                            <input type="number" class="form-control" min=0 max=16 placeholder="Duration" id="effectDuration" required>
+                            <label for="effectDuration" class="form-label mb-1"><span>Effect Duration</span> <span style="font-size: 10px;">Check = infinity</span></label>
+                            <div class="input-group mb-3">
+                                <div class="input-group-text">
+                                    <input class="form-check-input mt-0" type="checkbox" value="" id="effectDurationInfinity" aria-label="Checkbox for infinity duration">
+                                </div>
+                                <input type="number" class="form-control" min=0 placeholder="Duration" id="effectDuration" required>
+                            </div>
                         </div>
 
-                        <div class="col-12 mt-2">
+                        <div class="col-12 mt-1">
                             <div class="form-group">
-                                <label for="effectDescription">Effect Desciprtion:</label>
+                                <label for="effectDescription">Effect Description:</label>
                                 <textarea class="form-control" id="effectDescription" rows="3" placeholder="Effect Description"></textarea>
                             </div>
                         </div>
@@ -125,8 +135,20 @@
     const effectTypeInput = effectForm.querySelector('#effectType');
     const effectTargetInput = effectForm.querySelector('#effectTarget');
     const effectStrengthInput = effectForm.querySelector('#effectStrength');
+    const effectStrengthInfinityInput = effectForm.querySelector('#effectStrengthInfinity');
     const effectDurationInput = effectForm.querySelector('#effectDuration');
+    const effectDurationInfinityInput = effectForm.querySelector('#effectDurationInfinity');
     const effectDescriptionInput = effectForm.querySelector('#effectDescription');
+
+    effectStrengthInfinityInput.addEventListener('change', () => {
+        effectStrengthInput.disabled = effectStrengthInfinityInput.checked;
+        effectStrengthInput.placeholder = effectStrengthInfinityInput.checked ? "Infinity" : "Strength";
+    });
+    
+    effectDurationInfinityInput.addEventListener('change', () => {
+        effectDurationInput.disabled = effectDurationInfinityInput.checked;
+        effectDurationInput.placeholder = effectDurationInfinityInput.checked ? "Infinity" : "Duration";
+    });
 
     {% if obstacleId is not None %}
         formEditor.queryData((data) => {
@@ -137,6 +159,12 @@
             effectStrengthInput.value = effect.strength;
             effectDurationInput.value = effect.duration;
             effectDescriptionInput.value = effect.description;
+            
+            effectStrengthInfinityInput.checked = effect.strength === -1;
+            effectStrengthInfinityInput.placeholder = effect.strength === -1 ? "Infinity" : "Strength";
+            
+            effectDurationInfinityInput.checked = effect.duration === -1;
+            effectDurationInfinityInput.placeholder = effect.duration === -1 ? "Infinity" : "Duration";
 
             return effect;
         }, () => {
@@ -150,8 +178,13 @@
     const validate = () => {
         const effectType = effectTypeInput.value === 'hidden' ? null : effectTypeInput.value;
         const effectTarget = effectTargetInput.value === 'hidden' ? null : effectTargetInput.value;
-        const effectStrength = effectStrengthInput ? parseInt(effectStrengthInput.value) : null;
-        const effectDuration = effectDurationInput ? parseInt(effectDurationInput.value) : null;
+        
+        const strength = effectStrengthInfinityInput.checked ? "-1" : effectStrengthInput.value;
+        const effectStrength = effectStrengthInput ? parseInt(strength) : null;
+        
+        const duration = effectDurationInfinityInput.checked ? "-1" : effectDurationInput.value;
+        const effectDuration = effectDurationInput ? parseInt(duration) : null;
+        
         const effectDescription = effectDescriptionInput.value;
 
         formEditor.object = new Dashboard.Effect(null, effectType, effectDescription, effectDuration, effectStrength, effectTarget)
@@ -166,6 +199,8 @@
     effectStrengthInput.addEventListener('input', validate);
     effectDurationInput.addEventListener('input', validate);
     effectDescriptionInput.addEventListener('input', validate);
+    effectStrengthInfinityInput.addEventListener('change', validate);
+    effectDurationInfinityInput.addEventListener('change', validate);
 
     formValidator.setOnSuccess(() => {
         formValidation.classList.remove('alert-warning', 'alert-danger', 'validating');
