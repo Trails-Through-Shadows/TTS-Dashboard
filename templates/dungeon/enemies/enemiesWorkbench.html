@@ -32,7 +32,7 @@
                             <div class="card-body p-0 formLoading">
                                 <div class="row">
                                     <div class="col-4 align-self-center py-3">
-                                        <img src="{% imageFor "/images/not/found.png" %}" id="entryUrl" alt="{% trans 'Image' %}" class="img-fluid rounded">
+                                        <img src="{% static 'img/imgLoading.png' %}" id="entryUrl" alt="Entry Image" class="lazyload img-fluid rounded">
                                     </div>
 
                                     <div class="col-8 align-self-center">
@@ -104,7 +104,7 @@
                         <div class="card card-body border-0 shadow">
                             <div class="row justify-content-evenly">
                                 <div class="col-lg-6 col-12">
-                                    <button class="btn btn-red-100 animate-up-2 w-100" type="reset" id="cancelButton">
+                                    <button class="btn btn-red-100 animate-up-2 w-100" type="button" id="cancelButton">
                                         {% trans 'Cancel' %}
                                     </button>
                                 </div>

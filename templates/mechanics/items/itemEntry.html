@@ -4,7 +4,7 @@
 
 <div class="row">
     <div class="col-4 align-self-center">
-        <img src="{{ url }}" alt="Obstacle Image" class="img-fluid rounded">
+        <img src="{% static 'img/imgLoading.png' %}" data-src="{% imageFor url %}" alt="Entry Image" class="lazyload img-fluid rounded">
     </div>
 
     <div class="col-8">

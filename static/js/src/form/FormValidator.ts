@@ -44,7 +44,7 @@ module Dashboard {
 
                 console.log(`Validator | Validating data on ${validator.apiUrl}`);
                 console.log('- Data: ', data);
-                console.log(JSON.stringify(data, null, 2))
+                // console.log(JSON.stringify(data, null, 2))
 
                 validator.firstTime = false;
                 validator.validating = true;

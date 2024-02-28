@@ -26,6 +26,10 @@ API_URL = os.environ.get('API_URL', 'http://localhost:8000')
 if API_URL[-1] == '/':
     API_URL = API_URL[:-1]
 
+IMAGE_URL = os.environ.get('IMAGE_URL', 'http://localhost:8000')
+if IMAGE_URL[-1] == '/':
+    IMAGE_URL = IMAGE_URL[:-1]
+
 # Installed web
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 
