@@ -1,0 +1,282 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% load filters %}
+{% load i18n %}
+
+{% block title %} World - Locations {% endblock %}
+
+{% block stylesheets %}
+    <!-- Empty -->
+{% endblock stylesheets %}
+
+{% block content %}
+    <input type="hidden" value="{{ csrf_token }}" id="csrftoken" readonly/>
+
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+        <div class="d-block mb-4 mb-md-0">
+            <h2 class="h4">{% translate 'All Locations' %}</h2>
+            <p class="mb-0">{% translate 'Manage of all locations in database' %}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-xl-5" id="entriesTable">
+            <div class="table-settings mb-2">
+                <div class="row align-items-center justify-content-between">
+                    <div class="col-12 col-sm-6">
+                        <div class="input-group fmxw-500">
+                            <span class="input-group-text">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+
+                            <a href="javascript:void(0)" class="input-group-text align-items-center table-filter">
+                                <i class="fa-solid fa-filter me-1"></i>
+                                <span>{% trans 'Filter' %}</span>
+                            </a>
+
+                            <input class="form-control table-search" type="text" placeholder="{% trans 'Input search keyword..' %}" value="{{ SEARCH }}">
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6">
+                        <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
+                            <a href="{% url 'campaignsWorkbench' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                                <i class="fa-solid fa-plus me-1"></i>
+                                {% trans 'New Location' %}
+                            </a>
+
+                            <a href="{% url 'apiQueryTable' table='locations' %}?download&lazy=true" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center ms-2">
+                                <i class="fa-solid fa-cloud-arrow-down me-1"></i>
+                                {% trans 'Export All' %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tableDataReplacement">
+                <div class="table-wrapper table-responsive card card-body border-0 shadow" id="tableData">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th class="border-gray-200 orderable" data-order-key="id">#</th>
+                                <th class="border-gray-200 orderable" data-order-key="title">{% trans 'Title' %}</th>
+                                <th class="border-gray-200 orderable" data-order-key="tag">{% trans 'Tag' %}</th>
+                                <th class="border-gray-200 orderable text-center" data-order-key="type">{% trans 'Type' %}</th>
+                                <th class="border-gray-200 text-center">{% trans 'Action' %}</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for i in 10|range %}
+                                <tr>
+                                    {% for y in 5|range %}
+                                        <td class="text-center">
+                                            <span class="skeleton-line"></span>
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-pagination mt-2 d-flex flex-column flex-lg-row align-items-center justify-content-between">
+                    <nav aria-label="Table navigation">
+                        <ul class="pagination mb-0">
+                            <li class="page-item">
+                                <a class="page-link" href="#">{% trans 'Previous' %}</a>
+                            </li>
+
+                            {% for i in 5|range %}
+                                <li class="page-item {% if i == 0 %} active {% endif %}">
+                                    <a class="page-link" href="#">{{ i|increment }}</a>
+                                </li>
+                            {% endfor %}
+
+                            <li class="page-item">
+                                <a class="page-link" href="#">{% trans 'Next' %}</a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <div class="fw-normal small mt-4 mt-lg-0">
+                        {% trans 'Showing' %} <b>10</b> {% trans 'of' %} <b>10</b> {% trans 'entries' %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-7">
+            <div class="card card-body border-0 shadow h-100" style="min-height: 500px">
+                <canvas id="locationView"></canvas>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block javascripts %}
+    <script async defer>
+        const csrfToken = document.querySelector('#csrftoken').value;
+
+        // ---- | Urls
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let page = urlParams.get('page') || 1;
+        let limit = urlParams.get('limit') || 10;
+
+        const apiUrlAll = `{% url 'apiQueryTable' table='locations' %}`;
+        const apiUrlSingle = `{% url 'apiQueryTableID' table='locations' id=0 %}`;
+        const template = 'world/locations/locationTable.html';
+
+        // ---- | Canvas
+
+        const title = {
+            title: '{% trans 'No Data' %}',
+            subtitle: '{% trans 'Please select a location to render.' %}',
+            spacer: 100
+        }
+        const canvasRoot = document.getElementById('locationView');
+        const canvas = new Dashboard.Canvas(canvasRoot, title);
+
+        // ---- | Location
+
+        const hexGridSize = 20;
+        const locationGrid = new Dashboard.Location(canvas, hexGridSize);
+
+        canvas.addOnSizeListener(() => {
+            if (!canvas.isDrawn() || canvas.isLoading()) {
+                return;
+            }
+
+            canvas.clear();
+            locationGrid.draw();
+        });
+
+        // ---- | Table
+
+        const tableFilter = new Dashboard.TableFilter([
+            { title: 'Title contains:', key: 'title', type: 'has', hidden: true },
+        ]);
+        const tableSorter = new Dashboard.TableSorter([
+            { key: "id", order: "asc" },
+            { key: "title" },
+            { key: "tag" },
+            { key: "type" }
+        ], true);
+        const tableSearch = new Dashboard.TableSearch(
+            (input) => { // On Search input
+                tableFilter.set("title", input);
+            },
+            () => { // On filter change
+                return tableFilter.get("title");
+            }
+        )
+
+        const tableRoot = document.getElementById('entriesTable');
+        const table = new Dashboard.Table(tableRoot, template, tableFilter, tableSorter, tableSearch);
+
+        const id = 1;
+        console.log(`Button | Viewing entry ${id}`);
+        locationGrid.readData(apiUrlSingle.replace(0, id), apiUrlAll.replace('/locations/', ''), () => {
+            canvas.clear();
+            locationGrid.draw();
+        });
+
+        table.setOnDataLoad(() => {
+            table.setAction("view", (element) => {
+                const id = element.getAttribute('data-entry');
+
+                console.log(`Button | Viewing entry ${id}`);
+                locationGrid.readData(apiUrlSingle.replace(0, id), apiUrlAll.replace('/locations/', ''), () => {
+                    canvas.clear();
+                    locationGrid.draw();
+                });
+            });
+
+            table.setAction("delete", (element) => {
+                const id = element.getAttribute('data-entry');
+
+                Swal.fire({
+                    title: "{% trans "Are you sure?" %}",
+                    text: "{% trans "You won't be able to revert this!" %}",
+                    icon: "warning",
+                    reverseButtons: true,
+                    showCancelButton: true,
+                    confirmButtonColor: Dashboard.Color.RED.lighten(0.2).toRGB(),
+                    cancelButtonColor: Dashboard.Color.GREY.lighten(0.2).toRGB(),
+                    confirmButtonText: "{% trans "Yes, delete it!" %}",
+                    cancelButtonText: "{% trans "No, cancel!" %}",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        console.log(`Button | Deleting entry ${id}`);
+                        Swal.fire({
+                            title: '{% trans "Deleting..." %}',
+                            text: '{% trans "The effect is being deleted." %}',
+                            icon: 'info',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            allowEnterKey: false,
+                            showConfirmButton: false
+                        });
+
+                        const request = new XMLHttpRequest();
+                        request.onreadystatechange = () => {
+                            if (request.readyState === 4) {
+                                Swal.close();
+
+                                if (request.status === 200) {
+                                    console.log(`Button | Deleting entry ${id} successful`);
+                                    Swal.fire({
+                                        icon: 'success',
+                                        toast: true,
+                                        position: 'top-end',
+                                        text: '{% trans "Success, part deleted!" %}',
+                                        showConfirmButton: false,
+                                        timer: 2500
+                                    })
+
+                                    table.queryData(apiUrlAll, page, limit);
+                                } else {
+                                    console.log(`Button | Deleting entry ${id} failed`);
+                                    Swal.mixin({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 10000,
+                                        timerProgressBar: true,
+                                        didOpen: (toast) => {
+                                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                            toast.addEventListener('click', () => {
+                                                const data = JSON.parse(request.responseText);
+                                                const string = JSON.stringify(data, null, 4);
+
+                                                Swal.fire({
+                                                    text: string,
+                                                    customClass: {
+                                                        htmlContainer: 'text-start text-pre'
+                                                    },
+                                                    showConfirmButton: false,
+                                                });
+                                            })
+                                        }
+                                    }).fire({
+                                        icon: "error",
+                                        title: '{% trans "Error, deletion failed! Click for more information." %}'
+                                    });
+                                }
+                            }
+                        };
+
+                        request.open('DELETE', apiUrlSingle.replace(0, id));
+                        request.setRequestHeader('X-CSRFToken', csrfToken);
+                        request.send();
+                    }
+                });
+            });
+        });
+
+        table.queryData(apiUrlAll, page, limit);
+    </script>
+{% endblock javascripts %}
