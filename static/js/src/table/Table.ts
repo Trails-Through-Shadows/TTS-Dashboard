@@ -17,15 +17,6 @@ module Dashboard {
             private sort: TableSorter,
             private search: TableSearch
         ) {
-            const notyf = new window['Notyf']({
-                position: {
-                    x: 'right',
-                    y: 'top',
-                },
-                ripple: true,
-                dismissible: true
-            });
-
             // Setup search input
             const tableSearchInput = this.root.querySelector('.table-search');
             tableSearchInput.addEventListener('keyup', debounce((event: Event) => {
@@ -46,9 +37,15 @@ module Dashboard {
                 event.preventDefault();
 
                 this.filter.open(() => {
-                    notyf.success({
-                        message: 'Filter set successfully.',
-                        duration: 2500,
+                    const Swal = window['Swal'];
+                    Swal.fire({
+                        icon: 'success',
+                        toast: true,
+                        position: 'top-end',
+                        title: 'Filter updated!',
+                        showConfirmButton: false,
+                        timerProgressBar: true,
+                        hideAfter: 1500,
                     });
 
                     // Update filter param in URL

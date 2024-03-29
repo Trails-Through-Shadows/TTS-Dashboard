@@ -8,69 +8,90 @@ module Dashboard {
     }
 
     export class HexGrid {
-        private hoveredHex: Hex | null = null;
-        private id: number = 0;
-        private tag: string = '';
-        private title: string = '';
+        public hoveredHex: Hex | null = null;
+        public id: number = 0;
+        public tag: string = '';
+        public title: string = '';
+
+        private staticOffset: Offset = {x: 0, y: 0};
+        public setStaticOffset(offset: Offset): void {
+           this.staticOffset = offset;
+        }
+
+        private mouseHoverListener = (x: number, y: number) => {
+            if (this.canvas.isLoading()) {
+                return
+            }
+
+            const offset: Offset = this.getOffset();
+            const coords = CubeCoordinate.from2D(x - offset.x, y - offset.y, this.hexSize);
+            const hex = this.getHexAt(coords);
+
+            // It's the same hex, ignore
+            if (this.hoveredHex === hex) {
+                return;
+            }
+
+            this.hoveredHex = hex;
+            this.draw();
+        };
 
         constructor(
             private canvas: Canvas,
             private hexSize: number,
             private hexes: Hex[] = [],
         ) {
-            this.canvas.addOnMouseHoverListener((x: number, y: number) => {
-                if (this.canvas.isLoading()) {
-                    return
-                }
-
-                const offset: Offset = this.getOffset();
-                const coords = CubeCoordinate.from2D(x - offset.x, y - offset.y, this.hexSize);
-                const hex = this.getHexAt(coords);
-
-                // It's the same hex, ignore
-                if (this.hoveredHex === hex) {
-                    return;
-                }
-
-                this.hoveredHex = hex;
-                this.draw();
-            });
+            this.canvas.addOnMouseHoverListener(this.mouseHoverListener);
+            hexes.forEach(hex => this.mapNeighbors(hex));
         }
 
-        readData(url: string, callback?: () => void): void {
-            this.canvas.setLoading(true);
-            const currentTime = new Date().getTime();
+        public destruct(): void {
+            console.log('HexGrid | Destructing ', this.id);
+            this.canvas.removeOnMouseHoverListener(this.mouseHoverListener);
+        }
 
-            const request = new XMLHttpRequest();
-            request.onreadystatechange = () => {
-                if (request.readyState === 4 && request.status === 200) {
-                    const data = JSON.parse(request.responseText);
+        readData(url: string, callback?: () => void): Promise<void> {
+            return new Promise((resolve, reject) => {
+                this.canvas.setLoading(true);
+                const currentTime = new Date().getTime();
 
-                    // Map attributes
-                    this.id = data['id'];
-                    this.tag = data['tag'];
-                    this.title = data['title'];
+                const request = new XMLHttpRequest();
+                request.onreadystatechange = () => {
+                    if (request.readyState === 4) {
+                        if (request.status === 200) {
+                            const data = JSON.parse(request.responseText);
 
-                    // Map hexes
-                    this.hexes = data['hexes'].map(({q, r, s}) => {
-                        return new Hex(new Dashboard.CubeCoordinate(q, r, s),this.hexSize, []);
-                    })
+                            // Map attributes
+                            this.id = data['id'];
+                            this.tag = data['tag'];
+                            this.title = data['title'];
 
-                    // Map hex neighbors
-                    this.hexes.forEach(hex => this.mapNeighbors(hex));
+                            // Map hexes
+                            this.hexes = data['hexes'].map(({q, r, s}) => {
+                                return new Hex(new Dashboard.CubeCoordinate(q, r, s), this.hexSize, []);
+                            })
 
-                    const took = new Date().getTime() - currentTime;
-                    console.log(`HexGrid | Data read in ${took}ms`);
-                    this.canvas.setLoading(false);
-                    this.canvas.setDrawn();
+                            // Map hex neighbors
+                            this.hexes.forEach(hex => this.mapNeighbors(hex));
 
-                    if (callback) callback();
-                }
-            };
+                            const took = new Date().getTime() - currentTime;
+                            console.log(`HexGrid | Data read in ${took}ms`);
+                            this.canvas.setLoading(false);
+                            this.canvas.setDrawn();
 
-            console.log(`HexGrid | Reading data from ${url}`);
-            request.open('GET', url, true);
-            request.send();
+                            if (callback) callback();
+                            resolve();
+                        } else {
+                            console.error('Failed to load data');
+                            reject();
+                        }
+                    }
+                };
+
+                console.log(`HexGrid | Reading data from ${url}`);
+                request.open('GET', url, true);
+                request.send();
+            });
         }
 
         exportData(id: number): {} {
@@ -133,9 +154,14 @@ module Dashboard {
             this.canvas.setDrawn(false);
         }
 
-        draw(): void {
+        draw(doors: Hex[] = []): void {
             if (this.hexes.length === 0) return;
             const offset: Offset = this.getOffset();
+
+            doors.forEach(door => {
+                door.drawWall(this.canvas.getContext(), Color.LIGHT_GREY, offset);
+                door.draw(this.canvas.getContext(), Color.BLUE, Color.BLACK, offset);
+            });
 
             this.hexes.forEach(hex => {
                 hex.drawWall(this.canvas.getContext(), Color.LIGHT_GREY, offset);
@@ -159,7 +185,8 @@ module Dashboard {
                 hex.drawCoordinates(this.canvas.getContext(), textColor, offset);
             });
 
-            // this.drawBoundingBox(boundingBox, offset, hexSize);
+            const boundingBox = this.getBoundingBox();
+            this.drawBoundingBox(boundingBox, offset, this.hexSize);
             this.canvas.setDrawn();
         }
 
@@ -241,8 +268,8 @@ module Dashboard {
             const boundingBox = this.getBoundingBox();
 
             return {
-                x: this.canvas.getWidth() / 2 - ((boundingBox.minX + boundingBox.maxX) / 2),
-                y: this.canvas.getHeight() / 2 - ((boundingBox.minY + boundingBox.maxY) / 2)
+                x: this.canvas.getWidth() / 2 - ((boundingBox.minX + boundingBox.maxX) / 2) - this.staticOffset.x,
+                y: this.canvas.getHeight() / 2 - ((boundingBox.minY + boundingBox.maxY) / 2) - this.staticOffset.y,
             };
         }
 

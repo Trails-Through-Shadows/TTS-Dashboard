@@ -25,9 +25,23 @@ module Dashboard {
             this.onMouseHoverListeners.push(listener);
         }
 
+        public removeOnMouseHoverListener(listener: (x: number, y: number) => void): void {
+            const index = this.onMouseHoverListeners.indexOf(listener);
+            if (index > -1) {
+                this.onMouseHoverListeners.splice(index, 1);
+            }
+        }
+
         private onMouseClickListeners: ((x: number, y: number) => void)[] = [];
         public addOnMouseClickListener(listener: (x: number, y: number) => void): void {
             this.onMouseClickListeners.push(listener);
+        }
+
+        public removeOnMouseClickListener(listener: (x: number, y: number) => void): void {
+            const index = this.onMouseClickListeners.indexOf(listener);
+            if (index > -1) {
+                this.onMouseClickListeners.splice(index, 1);
+            }
         }
 
         constructor(
