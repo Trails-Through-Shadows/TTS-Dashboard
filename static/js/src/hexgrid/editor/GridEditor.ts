@@ -100,7 +100,7 @@ module Dashboard {
                     let neighbor = hex.getNeighbor(direction);
 
                     if (!neighbor) {
-                        neighbor = new Hex(hex.coords.add(direction), this.hexGrid.getHexSize(), [hex]);
+                        neighbor = new Hex(null,hex.coords.add(direction), this.hexGrid.getHexSize(), [hex]);
                     }
 
                     if (!hexGridHexes.find(hex => hex.coords.equals(neighbor.coords))) {
