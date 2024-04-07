@@ -144,7 +144,7 @@
         effectDurationInput.placeholder = effectDurationInfinityInput.checked ? "Infinity" : "Duration";
     });
 
-    {% if obstacleId is not None %}
+    {% if effectId is not None %}
         formEditor.queryData((data) => {
             const effect = Dashboard.Effect.fromJSON(data);
 
