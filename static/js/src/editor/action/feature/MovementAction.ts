@@ -1,7 +1,8 @@
 module Dashboard {
     export enum MovementType {
         WALK,
-        JUMP
+        JUMP,
+        TELEPORT
     }
 
     export class MovementAction {
