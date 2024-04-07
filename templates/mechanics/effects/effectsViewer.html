@@ -304,14 +304,18 @@
         // ---- | Workbench
 
         const newEffect = document.getElementById('newEffect');
-        newEffect.addEventListener('click', () => {
+        newEffect.addEventListener('click', (event) => {
+            event.preventDefault();
+
             let promise = Dashboard.Modal.openModal("mechanics/effects/effectsWorkbench.html");
             promise.then((modal) => {
                 const modalRoot = modal.modal;
                 const effectForm = modalRoot.querySelector('#effectWorkbench');
                 const effectSubmitForm = modalRoot.querySelector('#effectSubmit');
 
-                function submitForm() {
+                function submitForm(event) {
+                    event.preventDefault();
+
                     Notiflix.Block.circle(".modal-container", 'Saving...');
 
                     const effectType = effectForm.querySelector('#effectType').value;

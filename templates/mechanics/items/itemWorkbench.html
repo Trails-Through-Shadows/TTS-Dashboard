@@ -32,7 +32,7 @@
                             <div class="card-body p-0 formLoading">
                                 <div class="row">
                                     <div class="col-4 align-self-center py-3">
-                                        <img src="{% static 'img/imgLoading.png' %}" data-src="{% imageFor url %}" alt="Entry Image" class="lazyload img-fluid rounded">
+                                        <img src="{% static 'img/imgLoading.png' %}" id="itemImage" data-src="{% imageFor url %}" alt="Entry Image" class="lazyload img-fluid rounded">
                                     </div>
 
                                     <div class="col-8 align-self-center">
@@ -294,7 +294,9 @@
         });
 
         const addEffectButton = document.querySelector('#addEffect');
-        addEffectButton.addEventListener('click', () => {
+        addEffectButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            
             let promise = Dashboard.Modal.openModal("mechanics/effects/effectsWorkbench.html");
             promise.then((modal) => {
                 const modalRoot = modal.modal;
@@ -302,7 +304,9 @@
                 const effectForm = modalRoot.querySelector('#effectWorkbench');
                 const effectSubmitForm = modalRoot.querySelector('#effectSubmit');
 
-                function submitForm() {
+                function submitForm(event) {
+                    event.preventDefault();
+                    
                     if (!effectForm.checkValidity()) {
                         Swal.fire({
                             icon: 'error',
