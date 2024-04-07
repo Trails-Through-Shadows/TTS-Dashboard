@@ -22,7 +22,7 @@ module Dashboard {
                 id: this.id,
                 numCards: this.numCards,
                 target: this.target,
-                random: this.random
+                random: this.random == null ? 'false' : this.random
             };
         }
 
@@ -35,7 +35,7 @@ module Dashboard {
                 <ul class="nested">
                     <li>Number of Cards: ${this.numCards}</li>
                     <li>Target: ${this.target}</li>
-                    <li>Random: ${this.random}</li>
+                    <li>Random: ${this.random == null ? 'false' : this.random}</li>
                 </ul>`;
             return treeView;
         }

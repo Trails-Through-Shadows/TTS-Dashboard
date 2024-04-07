@@ -31,6 +31,7 @@
         <div class="accordion accordion-flush" id="entryAttributes">
             <div class="accordion-item">
                 <div class="accordion-body">
+                    <i class="fa-solid fa-baseball-bat-ball"></i>
                     <span>{% trans 'Damage' %}:</span>
                     {{ baseDamage }}
                 </div>
@@ -38,6 +39,7 @@
 
             <div class="accordion-item">
                 <div class="accordion-body">
+                    <i class="fa-solid fa-heart-circle-plus"></i>
                     <span>{% trans 'Health' %}:</span>
                     {{ baseHealth }}
                 </div>
@@ -46,10 +48,10 @@
             <div class="accordion-item">
                 <div class="accordion-body">
                     <span>{% trans 'Cross-able' %}:</span>
-                    {% if entry.crossable %}
-                        <i class="fa-solid fa-square-xmark ms-1" style="color: #ff3d3d;"></i>
+                    {% if crossable %}
+                        <i class="fa-solid fa-square-check" style="color: #1e8827;"></i> Yes
                     {% else %}
-                        <i class="fa-solid fa-square-check ms-1" style="color: #3dff3d;"></i>
+                        <i class="fa-solid fa-square-xmark" style="color: #ad1c1c;"></i> No
                     {% endif %}
                 </div>
             </div>
