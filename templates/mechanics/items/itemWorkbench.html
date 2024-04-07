@@ -253,7 +253,7 @@
                 const actions = event.detail.data;
 
                 for (const action of actions) {
-                    if (action.id === formEditor.object.action.id) {
+                    if (formEditor.object.action != null && action.id === formEditor.object.action.id) {
                         action.card.remove();
                         continue;
                     }
@@ -286,10 +286,6 @@
                         Dashboard.Modal.closeOpenedModal();
                     });
                 }
-            }
-
-            if (type === 'effects') {
-
             }
         });
 
@@ -584,9 +580,9 @@
             const entryIdInput = form.querySelector('#entryId');
             const entryId = entryIdInput.value;
 
-            let url = "{% url 'apiQueryTable' table="obstacles" %}";
+            let url = "{% url 'apiQueryTable' table="items" %}";
             {% if partId is not undefined %}
-                url = "{% url 'apiQueryTableID' table="obstacles" id=0 %}".replace(0, entryId);
+                url = "{% url 'apiQueryTableID' table="items" id=0 %}".replace(0, entryId);
             {% endif %}
 
             formEditor.saveData(() => {
@@ -600,7 +596,7 @@
                 })
 
                 setTimeout(() => {
-                    window.location.href = "{% url 'obstacleViewer' %}";
+                    window.location.href = "{% url 'itemViewer' %}";
                 }, 1000);
 
                 Notiflix.Block.remove("#workbench");

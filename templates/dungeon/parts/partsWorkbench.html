@@ -96,7 +96,7 @@
 
         const hexGridSize = 30;
         const hexGrid = new Dashboard.HexGrid(canvas, hexGridSize, [
-            new Dashboard.Hex(new Dashboard.CubeCoordinate(0, 0, 0), hexGridSize, [])
+            new Dashboard.Hex(null, new Dashboard.CubeCoordinate(0, 0, 0), hexGridSize, [])
         ]);
         const gridEditor = new Dashboard.GridEditor(canvas, hexGrid);
         gridEditor.calculatePlaceholderHexes();

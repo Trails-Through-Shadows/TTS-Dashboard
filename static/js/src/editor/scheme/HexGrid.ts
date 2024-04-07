@@ -42,6 +42,7 @@ module Dashboard {
             private hexes: Hex[] = [],
         ) {
             this.canvas.addOnMouseHoverListener(this.mouseHoverListener);
+            console.warn(hexes);
             hexes.forEach(hex => this.mapNeighbors(hex));
         }
 
@@ -229,6 +230,8 @@ module Dashboard {
         }
 
         private mapNeighbors(hex: Hex) {
+            console.log(hex);
+
             hex.neighbors = CubeCoordinate.directions.map(direction => {
                 return this.getHexAt(hex.coords.add(direction))
             }).filter(neighbor => neighbor !== undefined && neighbor !== null);
