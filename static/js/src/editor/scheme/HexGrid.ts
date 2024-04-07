@@ -68,7 +68,7 @@ module Dashboard {
 
                             // Map hexes
                             this.hexes = data['hexes'].map(({q, r, s}) => {
-                                return new Hex(new Dashboard.CubeCoordinate(q, r, s), this.hexSize, []);
+                                return new Hex(null,new Dashboard.CubeCoordinate(q, r, s), this.hexSize, []);
                             })
 
                             // Map hex neighbors
@@ -278,7 +278,7 @@ module Dashboard {
         }
 
         addHexAt(CubeCoordinate: CubeCoordinate): void {
-            const hex = new Hex(CubeCoordinate, this.hexSize, []);
+            const hex = new Hex(null,CubeCoordinate, this.hexSize, []);
             this.mapNeighbors(hex);
             this.hexes.push(hex);
         }

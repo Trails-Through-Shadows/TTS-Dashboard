@@ -7,6 +7,12 @@ module Dashboard {
         QUEST
     }
 
+    export interface Door {
+        from: Part,
+        to: Part,
+        cords: CubeCoordinate
+    }
+
     export class Location {
 
         constructor(
