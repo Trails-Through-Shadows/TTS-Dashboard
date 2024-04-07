@@ -10,17 +10,14 @@ module Dashboard {
         FIRE_RESISTANCE,
         BLEED,
         BLEED_RESISTANCE,
-        DISARM,
-        DISARM_RESISTANCE,
-        ROOT,
-        ROOT_RESISTANCE,
         STUN,
         STUN_RESISTANCE,
         CONFUSION,
         CONFUSION_RESISTANCE,
         GUIDANCE,
-        INVINCIBILITY,
-        SHIELD,
+        PROTECTION,
+        VULNERABILITY,
+        VULNERABILITY_RESISTANCE,
         HEAL,
         REGENERATION,
         EMPOWER,
@@ -28,10 +25,7 @@ module Dashboard {
         ENFEEBLE_RESISTANCE,
         SPEED,
         SLOW,
-        REACH,
-        BONUS_HEALTH,
-        BONUS_DEFENCE,
-        BONUS_INITIATIVE
+        SLOW_RESISTANCE
     }
 
     export enum EffectTarget {
@@ -75,32 +69,31 @@ module Dashboard {
             };
         }
 
-        public toCard(collapsed: boolean = false, removeCallback: Function = null, addCallback: Function = null): HTMLElement {
+        public toCard(collapsed: boolean = false, removeCallback: Function = null, addCallback: Function = null, small: boolean = false): HTMLElement {
             const card = document.createElement('div');
             card.className = 'card bg-gray-100';
 
             card.innerHTML = `
-                <div class="card-header px-3 py-2 pointer sticky-top bg-gray-100" 
+                <div class="card-header ${small ? 'p-0 px-1' : 'py-2 px-3'} pointer sticky-top bg-gray-100 ${collapsed ? 'collapsed' : ''}" 
                     data-bs-toggle="collapse" 
                     data-bs-target="#effect${this.id}" 
                     aria-expanded="true" 
                     aria-controls="#effect${this.id}">
                     
                     <div class="row align-items-center">
-                        <div class="col-md-10">${this.type}</div>
-                        <div class="col-md-2 text-center">  
+                        <div class="col" style="font-size: 0.9rem">${this.type}</div>
+                        <div class="col-auto text-center">  
                             ${addCallback ? 
-                                `<button class="btn btn-sm btn-outline-success ms-1" 
+                                `<button class="btn ${small ? 'btn-xs' : 'btn-sm'} btn-outline-success ms-1" 
                                     data-id="${this.id}" 
                                     data-type="action" 
                                     data-action="add">
-                                    
                                     <i class="fa-solid fa-plus"></i>
                                 </button>` : ''
                             }
                                             
                             ${removeCallback ? 
-                                `<button class="btn btn-sm btn-outline-danger ms-1" 
+                                `<button class="btn ${small ? 'btn-xs' : 'btn-sm'} btn-outline-danger ms-1"  style="margin-bottom: 2px;"
                                     data-id="${this.id}" 
                                     data-type="action" 
                                     data-action="remove">
@@ -116,7 +109,7 @@ module Dashboard {
                     <ol class="list-group list-group-numbered py-2">
                         <li class="list-group-item bg-transparent font-small p-0 px-3"><b>Description:</b> ${this.description}</li>
                         <li class="list-group-item bg-transparent font-small p-0 px-3"><b>Strength:</b> ${this.strength}.lvl</li>
-                        <li class="list-group-item bg-transparent font-small p-0 px-3"><b>Duration:</b> ${this.duration} rounds</li>
+                        <li class="list-group-item bg-transparent font-small p-0 px-3"><b>Duration:</b> ${this.duration == -1 ? 'infinity' : this.duration} rounds</li>
                         <li class="list-group-item bg-transparent font-small p-0 px-3"><b>Target:</b> ${this.target}</li>
                     </ol>
                 </div>`;
