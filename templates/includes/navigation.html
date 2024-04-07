@@ -1,3 +1,4 @@
+{% load static %}
 {% load filters %}
 {% load i18n %}
 {% load gravatar %}
@@ -28,7 +29,7 @@
                     <a class="nav-link dropdown-toggle pt-1 px-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="card border-0 shadow align-items-center">
                             <div class="card-body text-dark align-items-center p-2 d-none d-lg-block">
-                                <img class="avatar rounded-circle" alt="Image placeholder" src="{% gravatar_url user.email 150 %}">
+                                <img class="avatar rounded-circle lazyload" alt="Image placeholder" src="{% static 'img/imgLoading.png' %}" data-src="{% gravatar_url user.email 150 %}">
 
                                 <span class="px-2 font-small fw-bold text-gray-900 text-center">
                                     {{ request.user.username }}
