@@ -61,9 +61,10 @@ module Dashboard {
                 attack: this.attack
                     ? this.attack.toJSON()
                     : null,
-                summonActions: this.summon && this.summon.length > 0
-                    ? this.summon.map(summon => summon.toJSON(this.id))
-                    : [],
+                // summonActions: this.summon && this.summon.length > 0
+                //     ? this.summon.map(summon => summon.toJSON(this.id))
+                //     : [],
+                summonActions: null,
                 restoreCards: this.restoreCard
                     ? this.restoreCard.toJSON()
                     : null,

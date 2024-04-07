@@ -67,8 +67,8 @@
     achievementsData = achievementsData.replace(/'([^']+)':/g, '"$1":');
     achievementsData = achievementsData.replace(/'([^']+)',/g, '"$1",');
 
-    let achievements = JSON.parse(achievementsData).map((achiv) => {
-        return new Dashboard.Achievement.fromJSON(achiv.achievement);
+    let achievements = JSON.parse(achievementsData).map((achive) => {
+        return new Dashboard.Achievement.fromJSON(achive.achievement);
     })
 
     const achievementsCard = document.getElementById('achievementsCard');
@@ -127,6 +127,17 @@
                 };
             });
             myDiagram.model.linkDataArray = data.links;
+            
+            // Event for click on node
+            myDiagram.addDiagramListener("ObjectSingleClicked", function(e) {
+                const part = e.subject.part;
+                if (!(part instanceof go.Link)) {
+                    const node = part;
+                    const key = node.data.key;
+                    
+                    console.log(key);
+                }
+            });
 
             myDiagram.startTransaction("change Layout");
 

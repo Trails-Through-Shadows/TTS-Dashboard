@@ -451,7 +451,7 @@
 
         const actionLvlReq = formRoot.querySelector('#actionLvlReq');
         actionLvlReq.addEventListener('input', () => {
-            formEditor.object.levelReq = actionLvlReq.value;
+            formEditor.object.levelReq = parseInt(actionLvlReq.value);
             formEditor.validate();
         });
 
@@ -473,7 +473,7 @@
                 formEditor.object.movement = new Dashboard.MovementAction(null, null, null, []);
             }
 
-            formEditor.object.movement.range = actionMovementRange.value;
+            formEditor.object.movement.range = parseInt(actionMovementRange.value);
             formEditor.validate();
         });
 

@@ -15,8 +15,6 @@ module Dashboard {
         ) {}
 
         public static fromJSON(json: any): Obstacle {
-            console.log(json);
-
             let effects: Effect[] = [];
             for (let effect of json.effects) {
                 effects.push(Effect.fromJSON(effect.effect));

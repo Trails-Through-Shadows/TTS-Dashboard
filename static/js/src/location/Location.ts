@@ -11,7 +11,7 @@ module Dashboard {
         cords: CubeCoordinate
     }
 
-    export class Location {
+    export class LocationREE {
         private parts: Part[] = [];
         private doors: Door[] = [];
 

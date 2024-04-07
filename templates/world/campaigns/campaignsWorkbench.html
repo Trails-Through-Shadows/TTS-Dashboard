@@ -1,0 +1,382 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% load filters %}
+{% load i18n %}
+
+{% block title %} World - Campaigns - Editor {% endblock %}
+
+{% block stylesheets %}
+    <!-- Empty -->
+{% endblock stylesheets %}
+
+{% block content %}
+    <input type="hidden" value="{{ csrf_token }}" id="csrftoken" readonly/>
+    
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+        <div class="d-block mb-4 mb-md-0">
+            <h2 class="h4 mb-0">{% trans 'Campaigns Workbench' %}</h2>
+            <p class="mb-0">{% trans 'Create or edit work campaign' %}</p>
+        </div>
+    </div>
+
+    <form id="workbench">
+        <div class="row">
+            <div class="col-5" id="campaignInformation">
+                <div class="row flex-column h-100">
+                    <div class="col-12 flex-fill mb-4">
+                        <div class="card card-body border-0 shadow h-100">
+                            <div class="card-header p-0">
+                                <h2 class="h5">{% trans 'Information:' %}</h2>
+                            </div>
+
+                            <div class="card-body p-0 formLoading">
+                                <div class="row">
+                                    <div class="col-4 align-self-center py-3">
+                                        <img src="{% static 'img/imgLoading.png' %}" id="itemImage" data-src="{% imageFor url %}" alt="Entry Image" class="lazyload img-fluid rounded">
+                                    </div>
+
+                                    <div class="col-8 align-self-center">
+                                        <div class="py-2">
+                                            <h2 class="h5 mb-2">
+                                                <label class="visually-hidden" for="entryTitle">Title</label>
+                                                <div class="input-group input-group">
+                                                    <div class="input-group-text">{% trans 'Title' %}</div>
+                                                    <input type="text" class="form-control" id="entryTitle" placeholder="{% trans 'Title' %}" required>
+                                                </div>
+                                            </h2>
+
+                                            <div class="d-flex align-items-center">
+                                                <div class="row gy-2 gx-3 align-items-center">
+                                                    <div class="col-4">
+                                                        <label class="visually-hidden" for="entryId">Id</label>
+                                                        <div class="input-group input-group-sm">
+                                                            <div class="input-group-text">{% trans 'ID' %}</div>
+                                                            <input type="text" class="form-control" id="entryId" placeholder="Entry Id" value="{{ itemId|default:0 }}" readonly>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-8">
+                                                        <label class="visually-hidden" for="itemTag">Tag</label>
+                                                        <div class="input-group input-group-sm">
+                                                            <div class="input-group-text">{% trans 'Tag' %}</div>
+                                                            <input type="text" class="form-control" id="itemTag" placeholder="{% trans 'Tag' %}" readonly>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="align-items-center mt-2">
+                                                <label for="entryDescription" class="form-label visually-hidden">{% trans 'Description' %}</label>
+                                                <textarea class="form-control" id="entryDescription" rows="3" placeholder="{% trans 'Description' %}"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card card-body border-0 shadow">
+                            <div class="row justify-content-evenly">
+                                <div class="col-lg-6 col-12">
+                                    <button class="btn btn-red-100 animate-up-2 w-100" type="reset" id="cancelButton">
+                                        {% trans 'Cancel' %}
+                                    </button>
+                                </div>
+
+                                <div class="col-lg-6 col-12 mt-2 mt-lg-0">
+                                    <button class="btn btn-green-100 animate-up-2 w-100" type="submit" id="saveButton">
+                                        {% if enemyId is not None %}
+                                            {% trans 'Save' %}
+                                        {% else %}
+                                            {% trans 'Create' %}
+                                        {% endif %}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-2">
+                        <div class="alert alert-success fade show validation" role="alert" id="informationValidation">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-7" id="campaignLocations">
+                <div class="row flex-column h-100">
+
+                    <div class="col-12 flex-fill">
+                        <div class="card card-body border-0 shadow h-100">
+                            <div class="card-header p-0 mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h2 class="h5 m-0">{% trans 'Locations:' %}</h2>
+
+                                    <div class="col-6 mb-2">
+                                        <div class="btn-toolbar justify-content-end">
+                                            <a href="javascript:void(0)" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center" id="addLocation">
+                                                <i class="fa-solid fa-arrow-pointer me-1"></i>
+                                                {% trans 'Select' %}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-0 cards-scroll formLoading">
+                                <div class="row gap-1" id="actionsList">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-2">
+                        <div class="alert alert-success fade show validation" role="alert" id="locationsValidation">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock content %}
+
+{% block javascripts %}
+    <script async>
+        const csrfToken = document.querySelector('#csrftoken').value;
+
+        // ---- | Urls
+
+        const allUrl = "{% url 'apiQueryTable' table="campaigns" %}";
+        const entryUrl = "{% url 'apiQueryTableID' table="campaigns" id=campaignId|default:0 %}";
+        const validateUrl = "{% url 'apiValidateTable' table="campaign" %}";
+
+        // ---- | Data
+
+        const formRoot = document.getElementById('workbench');
+        const formValidator = new Dashboard.FormValidator(formRoot, validateUrl);
+        const formEditor = new Dashboard.FormEditor(formRoot, entryUrl, formValidator);
+
+        const entryTitle = formRoot.querySelector('#entryTitle');
+        entryTitle.addEventListener('input', () => {
+            formEditor.object.title = entryTitle.value;
+            formEditor.validate();
+        });
+
+        const entryDescription = formRoot.querySelector('#entryDescription');
+        entryDescription.addEventListener('input', () => {
+            formEditor.object.description = entryDescription.value;
+            formEditor.validate();
+        });
+
+        const infoValidation = document.getElementById('informationValidation');
+        const locationsValidation = document.getElementById('locationsValidation');
+
+        formValidator.setOnStart(() => {
+            infoValidation.classList.remove('alert-success', 'alert-danger', 'alert-collapsed');
+            infoValidation.classList.add('alert-warning', 'validating');
+            infoValidation.innerHTML = '<i class="fa-solid fa-spinner-third me-1"></i> Validating...';
+
+            locationsValidation.classList.remove('alert-success', 'alert-danger', 'alert-collapsed');
+            locationsValidation.classList.add('alert-warning', 'validating');
+            locationsValidation.innerHTML = '<i class="fa-solid fa-spinner-third me-1"></i> Validating...';
+        })
+
+        formValidator.setOnSuccess(() => {
+            infoValidation.classList.remove('alert-warning', 'alert-danger', 'validating');
+            infoValidation.classList.add('alert-success', 'alert-collapsed');
+            infoValidation.innerHTML = '';
+
+            locationsValidation.classList.remove('alert-warning', 'alert-danger', 'validating');
+            locationsValidation.classList.add('alert-success', 'alert-collapsed');
+            locationsValidation.innerHTML = '';
+        })
+
+        formValidator.setOnFail((errors) => {
+            formValidator.onSuccess();
+
+            if (errors.length === 0) {
+                infoValidation.classList.remove('alert-success', 'alert-collapsed');
+                infoValidation.classList.add('alert-danger');
+                infoValidation.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> Internal Server error!';
+
+                locationsValidation.classList.remove('alert-success', 'alert-collapsed');
+                locationsValidation.classList.add('alert-danger');
+                locationsValidation.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> Internal Server error!';
+                return;
+            }
+
+            for (const err of errors) {
+                const errorDiv = document.createElement('div');
+                errorDiv.classList.add('d-block', 'row', 'mt-1');
+
+                if (!err.errors) {
+                    errorDiv.innerHTML = `
+                        <div class="col-12">
+                            <i class="fa-solid fa-exclamation-triangle me-1"></i>
+                            <span>${err.message}</span>
+                        </div>
+                    `;
+                } else {
+                    errorDiv.innerHTML = `
+                        <div class="col-12">
+                            <i class="fa-solid fa-exclamation-triangle me-1"></i>
+                            <span>${err.message}</span>
+                        </div>
+                        ${err.errors.map((field) => {
+                            return `
+                                <div class="col-12">
+                                    <span class="ms-1">* ${field.message}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    `;
+                }
+
+                switch (err.object) {
+                    default: {
+                        infoValidation.classList.remove('alert-success', 'alert-collapsed');
+                        infoValidation.classList.add('alert-danger');
+
+                        infoValidation.appendChild(errorDiv);
+                        break;
+                    }
+                }
+            }
+        })
+
+        {% if campaignId is not None %}
+            formEditor.queryData((data) => {
+                const campaign = Dashboard.Campaign.fromJSON(data);
+
+                {#const itemImage = document.getElementById('itemImage');#}
+                {#itemImage.src = item.url;#}
+
+                const entryTitle = document.getElementById('entryTitle');
+                entryTitle.value = campaign.title;
+
+                const entryDescription = document.getElementById('entryDescription');
+                entryDescription.value = campaign.description;
+
+                return campaign;
+            }, () => {
+                formEditor.validate();
+            });
+        {% else %}
+            formEditor.object = new Dashboard.Location(0, null, null, null, null);
+            formEditor.validate();
+        {% endif %}
+
+        // ----
+
+        const cancelButton = document.getElementById('cancelButton');
+        cancelButton.addEventListener('click', () => {
+            Swal.fire({
+                title: '{% trans 'Are you sure?' %}',
+                text: '{% trans 'You will loose all your changes!' %}',
+                icon: 'warning',
+                reverseButtons: true,
+                showCancelButton: true,
+                confirmButtonColor: Dashboard.Color.RED.lighten(0.2).toRGB(),
+                cancelButtonColor: Dashboard.Color.GREY.lighten(0.2).toRGB(),
+                confirmButtonText: '{% trans 'Yes, cancel!' %}',
+                cancelButtonText: '{% trans 'No, keep editing' %}',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{% url 'itemViewer' %}";
+                }
+            });
+        });
+
+        const saveButton = document.getElementById('saveButton');
+        saveButton.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            // Check form validity
+            const form = document.getElementById('workbench');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            if (formValidator.isValidating()) {
+                return Swal.fire({
+                    icon: 'warning',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Entry object is validating, please wait!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
+                });
+            }
+
+            if (!formEditor.isValid()) {
+                return Swal.fire({
+                    icon: 'error',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Entry object is not valid!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
+                });
+            }
+
+            Notiflix.Block.circle("#workbench", 'Saving...');
+
+            const entryIdInput = form.querySelector('#entryId');
+            const entryId = entryIdInput.value;
+
+            let url = "{% url 'apiQueryTable' table="obstacles" %}";
+            {% if partId is not undefined %}
+                url = "{% url 'apiQueryTableID' table="obstacles" id=0 %}".replace(0, entryId);
+            {% endif %}
+
+            formEditor.saveData(() => {
+                Swal.fire({
+                    icon: 'success',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Success, entry object saved!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
+                })
+
+                setTimeout(() => {
+                    window.location.href = "{% url 'obstacleViewer' %}";
+                }, 1000);
+
+                Notiflix.Block.remove("#workbench");
+            }, (responseText) => {
+                Notiflix.Block.remove("#workbench");
+
+                Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 10000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        toast.addEventListener('click', () => {
+                            const data = JSON.parse(responseText);
+                            const string = JSON.stringify(data, null, 4);
+
+                            Swal.fire({
+                                text: string,
+                                customClass: {
+                                    htmlContainer: 'text-start text-pre'
+                                },
+                                showConfirmButton: false,
+                            });
+                        })
+                    }
+                }).fire({
+                    icon: "error",
+                    title: '{% trans "Error, saving failed! Click for more information." %}'
+                });
+            });
+        });
+    </script>
+{% endblock javascripts %}

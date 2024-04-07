@@ -80,7 +80,7 @@ def campaignViewer(request):
 
 @login_required(login_url="/login/")
 def campaignWorkbench(request, id=None):
-    context = {"obstacleId": id}
+    context = {"campaignId": id}
     return render(request, 'world/campaigns/campaignsWorkbench.html', context)
 
 @login_required(login_url="/login/")

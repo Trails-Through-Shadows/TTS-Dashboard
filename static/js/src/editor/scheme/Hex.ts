@@ -18,11 +18,28 @@ module Dashboard {
         public vertices: Vertex[] = [];
 
         constructor(
+            public id: number = 0,
             public readonly coords: CubeCoordinate,
             public readonly hexSize: number = 30,
-            public neighbors: Hex[] = [],
+            public neighbors: Hex[] = []
         ) {
             this.vertices = this.calculateVertices(this.hexSize);
+        }
+
+        public static fromJSON(json: any): Hex {
+            return new Hex(
+                json.key.id,
+                new CubeCoordinate(json.q, json.r, json.s)
+            );
+        }
+
+        public toJSON(): any {
+            return {
+                id: this.id,
+                q: this.coords.q,
+                r: this.coords.r,
+                s: this.coords.s
+            };
         }
 
         calculateVertices(hexSize: number): Vertex[] {
