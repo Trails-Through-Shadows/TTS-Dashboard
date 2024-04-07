@@ -111,7 +111,7 @@
 
                                 <div class="col-lg-6 col-12 mt-2 mt-lg-0">
                                     <button class="btn btn-green-100 animate-up-2 w-100" type="submit" id="saveButton">
-                                        {% if enemyId is not None %}
+                                        {% if classId is not None %}
                                             {% trans 'Save' %}
                                         {% else %}
                                             {% trans 'Create' %}
@@ -360,7 +360,7 @@
                         event.preventDefault();
 
                         // Add to list
-                        const enemyActionsList = document.getElementById('classActionsList');
+                        const classActionsList = document.getElementById('classActionsList');
                         const actionCol = document.createElement('div');
                         actionCol.classList.add('col-12');
 
@@ -371,7 +371,7 @@
                             formEditor.validate();
                             actionCol.remove();
                         }));
-                        enemyActionsList.appendChild(actionCol);
+                        classActionsList.appendChild(actionCol);
 
                         // Add to object
                         const entry = formEditor.getObject();
@@ -507,7 +507,7 @@
                 const entryUrl = document.getElementById('entryUrl');
                 entryUrl.src = clazz.url;
 
-                const enemyActionsList = document.getElementById('enemyActionsList');
+                const classActionsList = document.getElementById('classActionsList');
                 clazz.actions.forEach((action) => {
                     const actionCol = document.createElement('div');
                     actionCol.classList.add('col-12');
@@ -519,10 +519,10 @@
                         actionCol.remove();
                         formEditor.validate();
                     }));
-                    enemyActionsList.appendChild(actionCol);
+                    classActionsList.appendChild(actionCol);
                 });
 
-                const enemyEffectsList = document.getElementById('enemyEffectsList');
+                const classEffectsList = document.getElementById('classEffectsList');
                 clazz.effects.forEach((effect) => {
                     const effectCol = document.createElement('div');
                     effectCol.classList.add('col-12');
@@ -534,7 +534,7 @@
                         effectCol.remove();
                         formEditor.validate();
                     }));
-                    enemyEffectsList.appendChild(effectCol);
+                    classEffectsList.appendChild(effectCol);
                 });
 
                 return clazz;
