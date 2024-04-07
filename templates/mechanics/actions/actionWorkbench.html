@@ -484,6 +484,10 @@
         function loadMovementSection() {
             const actionMovementDiv = formRoot.querySelector('#movement');
 
+            if (formEditor.object.movement === null || formEditor.object.movement === undefined) {
+                formEditor.object.movement = new Dashboard.MovementAction(null, null, null, []);
+            }
+
             if (!actionMovementReset.checked) {
                 actionMovementDiv.classList.add('darken');
                 formEditor.movementToggle = formEditor.object.movement;
