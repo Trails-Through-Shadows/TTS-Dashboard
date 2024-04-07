@@ -6,7 +6,11 @@
 {% block title %} Mechanics - Actions - Editor {% endblock %}
 
 {% block stylesheets %}
-    <!-- Empty -->
+<style>
+    .darken {
+        opacity: 0.5;
+    }
+</style>
 {% endblock stylesheets %}
 
 {% block content %}
@@ -119,7 +123,7 @@
             <div class="col-8" id="enemyActions">
                 <div class="row flex-row h-100 g-4">
                     <div class="col-4 flex-fill">
-                        <div class="card card-body border-0 shadow h-100">
+                        <div class="card card-body border-0 shadow h-100" id="movement">
                             <div class="card-header p-0 mb-2">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h2 class="h5 m-0">{% trans 'Movement Action:' %}</h2>
@@ -175,7 +179,7 @@
                     </div>
 
                     <div class="col-4 flex-fill">
-                        <div class="card card-body border-0 shadow h-100">
+                        <div class="card card-body border-0 shadow h-100" id="skill">
                             <div class="card-header p-0 mb-2">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h2 class="h5 m-0">{% trans 'Skill Action:' %}</h2>
@@ -241,14 +245,13 @@
                     </div>
 
                     <div class="col-4 flex-fill">
-                        <div class="card card-body border-0 shadow h-100">
+                        <div class="card card-body border-0 shadow h-100" id="restoreCards">
                             <div class="card-header p-0 mb-2">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h2 class="h5 m-0">{% trans 'RestoreCards Action:' %}</h2>
-                                    <button class="btn btn-xs d-inline-flex align-items-center redOnHover" id="removeRestoreCards">
-                                        <i class="fa-solid fa-trash me-1"></i>
-                                        Remove
-                                    </button>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="disableRestoreCards">
+                                    </div>
                                 </div>
                             </div>
 
@@ -288,7 +291,7 @@
                     </div>
 
                     <div class="col-8 flex-fill">
-                        <div class="card card-body border-0 shadow h-100">
+                        <div class="card card-body border-0 shadow h-100" id="attack">
                             <div class="card-header p-0 mb-2">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h2 class="h5 m-0">{% trans 'Attack Action:' %}</h2>
@@ -370,7 +373,7 @@
                     </div>
 
                     <div class="col-4 flex-fill">
-                        <div class="card card-body border-0 shadow h-100">
+                        <div class="card card-body border-0 shadow h-100" id="summonActions">
                             <div class="card-header p-0 mb-2">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h2 class="h5 m-0">{% trans 'SummonActions Action:' %}</h2>
@@ -574,17 +577,20 @@
             formEditor.validate();
         });
 
-        const actionRestoreCardsReset = formRoot.querySelector('#removeRestoreCards');
-        actionRestoreCardsReset.addEventListener('click', (event) => {
-            event.preventDefault();
+        const actionRestoreCardsDisable = formRoot.querySelector('#disableRestoreCards');
+        actionRestoreCardsDisable.addEventListener('input', () => {
+            // Disable and darken the restore cards action
+            const actionRestoreCardsDiv = formRoot.querySelector('#restoreCards');
 
-            actionRestoreCardsRandom.checked = false;
-            actionRestoreCardsTarget.value = "hidden";
-            actionRestoreCardsNumber.value = "";
+            if (actionRestoreCardsDisable.checked) {
+                actionRestoreCardsDiv.classList.add('darken');
+                formEditor.object.restoreCard = null;
+            } else {
+                actionRestoreCardsDiv.classList.remove('darken');
+            }
 
-            formEditor.object.restoreCard = null;
             formEditor.validate();
-        });
+        })
 
         const actionAttackRange = formRoot.querySelector('#actionAttackRange');
         actionAttackRange.addEventListener('input', () => {
