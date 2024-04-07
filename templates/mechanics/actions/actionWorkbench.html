@@ -102,7 +102,7 @@
 
                                 <div class="col-lg-6 col-12 mt-2 mt-lg-0">
                                     <button class="btn btn-green-100 animate-up-2 w-100" type="submit" id="saveButton">
-                                        {% if enemyId is not None %}
+                                        {% if actionId is not None %}
                                             {% trans 'Save' %}
                                         {% else %}
                                             {% trans 'Create' %}
@@ -123,24 +123,24 @@
             <div class="col-8" id="enemyActions">
                 <div class="row flex-row h-100 g-4">
                     <div class="col-4 flex-fill">
-                        <div class="card card-body border-0 shadow h-100" id="movement">
+                        <div class="card card-body border-0 shadow h-100">
                             <div class="card-header p-0 mb-2">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h2 class="h5 m-0">{% trans 'Movement Action:' %}</h2>
-                                    <button class="btn btn-xs d-inline-flex align-items-center redOnHover" id="removeMovement">
-                                        <i class="fa-solid fa-trash me-1"></i>
-                                        Remove
-                                    </button>
+                                    <div class="form-check form-switch">
+                                        <label for="disableMovement" class="form-label visually-hidden">{% trans 'Enable?' %}</label>
+                                        <input class="form-check-input colored-flip" type="checkbox" id="disableMovement">
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="card-body p-0">
+                            <div class="card-body p-0" id="movement">
                                 <div class="row justify-content-evenly">
                                     <div class="col-12">
                                         <label class="visually-hidden" for="actionMovementRange">{% trans 'Range' %}</label>
                                         <div class="input-group input-group-sm">
                                             <div class="input-group-text">{% trans 'Range' %}</div>
-                                            <input type="number" class="form-control" id="actionMovementRange" placeholder="{% trans 'Range' %}">
+                                            <input type="number" class="form-control" min=0 id="actionMovementRange" placeholder="{% trans 'Range' %}">
                                         </div>
                                     </div>
 
@@ -179,24 +179,24 @@
                     </div>
 
                     <div class="col-4 flex-fill">
-                        <div class="card card-body border-0 shadow h-100" id="skill">
+                        <div class="card card-body border-0 shadow h-100">
                             <div class="card-header p-0 mb-2">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h2 class="h5 m-0">{% trans 'Skill Action:' %}</h2>
-                                    <button class="btn btn-xs d-inline-flex align-items-center redOnHover" id="removeSkill">
-                                        <i class="fa-solid fa-trash me-1"></i>
-                                        Remove
-                                    </button>
+                                    <div class="form-check form-switch">
+                                        <label for="disableSkill" class="form-label visually-hidden">{% trans 'Enable?' %}</label>
+                                        <input class="form-check-input colored-flip" type="checkbox" id="disableSkill">
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="card-body p-0">
+                            <div class="card-body p-0" id="skill">
                                 <div class="row justify-content-evenly">
                                     <div class="col-12">
                                         <label class="visually-hidden" for="actionSkillRange">{% trans 'Range' %}</label>
                                         <div class="input-group input-group-sm">
                                             <div class="input-group-text">{% trans 'Range' %}</div>
-                                            <input type="number" class="form-control" id="actionSkillRange" placeholder="{% trans 'Range' %}">
+                                            <input type="number" class="form-control" min=0 id="actionSkillRange" placeholder="{% trans 'Range' %}">
                                         </div>
                                     </div>
 
@@ -245,17 +245,18 @@
                     </div>
 
                     <div class="col-4 flex-fill">
-                        <div class="card card-body border-0 shadow h-100" id="restoreCards">
+                        <div class="card card-body border-0 shadow h-100">
                             <div class="card-header p-0 mb-2">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h2 class="h5 m-0">{% trans 'RestoreCards Action:' %}</h2>
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="disableRestoreCards">
+                                        <label for="disableRestoreCards" class="form-label visually-hidden">{% trans 'Enable?' %}</label>
+                                        <input class="form-check-input colored-flip" type="checkbox" id="disableRestoreCards">
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="card-body p-0">
+                            <div class="card-body p-0" id="restoreCards">
                                 <div class="row justify-content-evenly">
                                     <div class="col-12">
                                         <div class="input-group input-group-sm">
@@ -291,24 +292,24 @@
                     </div>
 
                     <div class="col-8 flex-fill">
-                        <div class="card card-body border-0 shadow h-100" id="attack">
+                        <div class="card card-body border-0 shadow h-100">
                             <div class="card-header p-0 mb-2">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h2 class="h5 m-0">{% trans 'Attack Action:' %}</h2>
-                                    <button class="btn btn-xs d-inline-flex align-items-center redOnHover" id="removeAttack">
-                                        <i class="fa-solid fa-trash me-1"></i>
-                                        Remove
-                                    </button>
+                                    <div class="form-check form-switch">
+                                        <label for="disableSkill" class="form-label visually-hidden">{% trans 'Enable?' %}</label>
+                                        <input class="form-check-input colored-flip" type="checkbox" id="disableAttack">
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="card-body p-0">
+                            <div class="card-body p-0" id="attack">
                                 <div class="row justify-content-evenly">
                                     <div class="col-6">
                                         <label class="visually-hidden" for="actionAttackRange">{% trans 'Range' %}</label>
                                         <div class="input-group input-group-sm">
                                             <div class="input-group-text">{% trans 'Range' %}</div>
-                                            <input type="number" class="form-control" id="actionAttackRange" placeholder="{% trans 'Range' %}">
+                                            <input type="number" class="form-control" min=0 id="actionAttackRange" placeholder="{% trans 'Range' %}">
                                         </div>
                                     </div>
 
@@ -346,7 +347,7 @@
                                         <label class="visually-hidden" for="actionAttackNumber">{% trans 'Number of Attacks' %}</label>
                                         <div class="input-group input-group-sm">
                                             <div class="input-group-text">{% trans 'Number of Attacks' %}</div>
-                                            <input type="number" class="form-control" id="actionAttackNumber" placeholder="{% trans 'Number of Attacks' %}">
+                                            <input type="number" class="form-control" min=0 id="actionAttackNumber" placeholder="{% trans 'Number of Attacks' %}">
                                         </div>
                                     </div>
 
@@ -373,18 +374,14 @@
                     </div>
 
                     <div class="col-4 flex-fill">
-                        <div class="card card-body border-0 shadow h-100" id="summonActions">
+                        <div class="card card-body border-0 shadow h-100">
                             <div class="card-header p-0 mb-2">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h2 class="h5 m-0">{% trans 'SummonActions Action:' %}</h2>
-                                    <button class="btn btn-xs d-inline-flex align-items-center redOnHover" id="removeSummon">
-                                        <i class="fa-solid fa-trash me-1"></i>
-                                        Remove
-                                    </button>
                                 </div>
                             </div>
 
-                            <div class="card-body p-0">
+                            <div class="card-body p-0 darken" id="summonActions">
                                 <div class="row justify-content-evenly">
 
                                     <div class="col-12">
@@ -454,7 +451,7 @@
 
         const actionLvlReq = formRoot.querySelector('#actionLvlReq');
         actionLvlReq.addEventListener('input', () => {
-            formEditor.object.levelReq = parseInt(actionLvlReq.value);
+            formEditor.object.levelReq = parseInt("" + actionLvlReq.value);
             formEditor.validate();
         });
 
@@ -472,9 +469,7 @@
 
         const actionMovementRange = formRoot.querySelector('#actionMovementRange');
         actionMovementRange.addEventListener('input', () => {
-            if (formEditor.object.movement === null) {
-                formEditor.object.movement = new Dashboard.MovementAction(null, null, null, []);
-            }
+            console.log(formEditor.object.movement);
 
             formEditor.object.movement.range = parseInt(actionMovementRange.value);
             formEditor.validate();
@@ -482,30 +477,62 @@
 
         const actionMovementType = formRoot.querySelector('#actionMovementType');
         actionMovementType.addEventListener('input', () => {
-            if (formEditor.object.movement === null) {
-                formEditor.object.movement = new Dashboard.MovementAction(null, null, null, []);
-            }
-
             formEditor.object.movement.type = actionMovementType.value;
             formEditor.validate();
         });
 
-        const actionMovementReset = formRoot.querySelector('#removeMovement');
-        actionMovementReset.addEventListener('click', (event) => {
-            event.preventDefault();
+        function loadMovementSection() {
+            const actionMovementDiv = formRoot.querySelector('#movement');
 
-            actionMovementRange.value = "";
-            actionMovementType.value = "hidden";
-            const movementEffectsList = formRoot.querySelector('#movementEffectsList');
-            movementEffectsList.innerHTML = "";
+            if (!actionMovementReset.checked) {
+                actionMovementDiv.classList.add('darken');
+                formEditor.movementToggle = formEditor.object.movement;
+                formEditor.object.movement = null;
 
-            formEditor.object.movement = null;
+                // Disable all inputs
+                const inputs = actionMovementDiv.querySelectorAll('input, select, textarea, a');
+                inputs.forEach((input) => {
+                    if (input.id === 'disableMovement') {
+                        return;
+                    }
+                    if (input.tagName === 'A') {
+                        input.classList.add('disabled');
+                    }
+
+                    input.disabled = true;
+                });
+            } else {
+                actionMovementDiv.classList.remove('darken');
+                formEditor.object.movement = formEditor.movementToggle || formEditor.object.movement;
+                formEditor.movementToggle = null;
+
+                // Enable all inputs
+                const inputs = actionMovementDiv.querySelectorAll('input, select, textarea, a');
+                inputs.forEach((input) => {
+                    if (input.id === 'disableMovement') {
+                        return;
+                    }
+
+                    // If link add class
+                    if (input.tagName === 'A') {
+                        input.classList.remove('disabled');
+                    }
+
+                    input.disabled = false;
+                });
+            }
+
             formEditor.validate();
+        }
+
+        const actionMovementReset = formRoot.querySelector('#disableMovement');
+        actionMovementReset.addEventListener('click', (event) => {
+            loadMovementSection();
         });
 
         const actionSkillRange = formRoot.querySelector('#actionSkillRange');
         actionSkillRange.addEventListener('input', () => {
-            if (formEditor.object.skill === null) {
+            if (formEditor.object.skill === null || formEditor.object.skill === undefined) {
                 formEditor.object.skill = new Dashboard.SkillAction(null, null, null, [], null);
             }
 
@@ -525,7 +552,7 @@
 
         const actionSkillTarget = formRoot.querySelector('#actionSkillTarget');
         actionSkillTarget.addEventListener('input', () => {
-            if (formEditor.object.skill === null) {
+            if (formEditor.object.skill === null || formEditor.object.skill === undefined) {
                 formEditor.object.skill = new Dashboard.SkillAction(null, null, null, [], null);
             }
 
@@ -533,23 +560,62 @@
             formEditor.validate();
         });
 
-        const actionSkillReset = formRoot.querySelector('#removeSkill');
-        actionSkillReset.addEventListener('click', (event) => {
-            event.preventDefault();
+        function loadSkillSection() {
+            const actionRestoreCardsDiv = formRoot.querySelector('#skill');
 
-            actionSkillRange.value = "";
-            actionSkillArea.value = "";
-            actionSkillTarget.value = "hidden";
-            const actionEffectsList = formRoot.querySelector('#skillEffectsList');
-            actionEffectsList.innerHTML = "";
+            if (formEditor.object.skill === null || formEditor.object.skill === undefined) {
+                formEditor.object.skill = new Dashboard.SkillAction(null, null, null, [], null);
+            }
 
-            formEditor.object.skill = null;
+            if (!actionSkillReset.checked) {
+                actionRestoreCardsDiv.classList.add('darken');
+                formEditor.skillToggle = formEditor.object.skill;
+                formEditor.object.skill = null;
+
+                // Disable all inputs
+                const inputs = actionRestoreCardsDiv.querySelectorAll('input, select, textarea, a');
+                inputs.forEach((input) => {
+                    if (input.id === 'disableSkill') {
+                        return;
+                    }
+                    if (input.tagName === 'A') {
+                        input.classList.add('disabled');
+                    }
+
+                    input.disabled = true;
+                });
+            } else {
+                actionRestoreCardsDiv.classList.remove('darken');
+                formEditor.object.skill = formEditor.skillToggle || formEditor.object.skill;
+                formEditor.skillToggle = null;
+
+                // Enable all inputs
+                const inputs = actionRestoreCardsDiv.querySelectorAll('input, select, textarea, a');
+                inputs.forEach((input) => {
+                    if (input.id === 'disableSkill') {
+                        return;
+                    }
+
+                    // If link add class
+                    if (input.tagName === 'A') {
+                        input.classList.remove('disabled');
+                    }
+
+                    input.disabled = false;
+                });
+            }
+
             formEditor.validate();
+        }
+
+        const actionSkillReset = formRoot.querySelector('#disableSkill');
+        actionSkillReset.addEventListener('click', (event) => {
+            loadSkillSection();
         });
 
         const actionRestoreCardsTarget = formRoot.querySelector('#actionRestoreCardsTarget');
         actionRestoreCardsTarget.addEventListener('input', () => {
-            if (formEditor.object.restoreCard === null) {
+            if (formEditor.object.restoreCard === null || formEditor.object.restoreCard === undefined) {
                 formEditor.object.restoreCard = new Dashboard.RestoreCardAction(null, null, null, null);
             }
 
@@ -559,7 +625,7 @@
 
         const actionRestoreCardsNumber = formRoot.querySelector('#actionRestoreCardsNumber');
         actionRestoreCardsNumber.addEventListener('input', () => {
-            if (formEditor.object.restoreCard === null) {
+            if (formEditor.object.restoreCard === null || formEditor.object.restoreCard === undefined) {
                 formEditor.object.restoreCard = new Dashboard.RestoreCardAction(null, null, null, null);
             }
 
@@ -569,7 +635,7 @@
 
         const actionRestoreCardsRandom = formRoot.querySelector('#actionRestoreCardsRandom');
         actionRestoreCardsRandom.addEventListener('input', () => {
-            if (formEditor.object.restoreCard === null) {
+            if (formEditor.object.restoreCard === null || formEditor.object.restoreCard === undefined) {
                 formEditor.object.restoreCard = new Dashboard.RestoreCardAction(null, null, null, null);
             }
 
@@ -577,24 +643,62 @@
             formEditor.validate();
         });
 
-        const actionRestoreCardsDisable = formRoot.querySelector('#disableRestoreCards');
-        actionRestoreCardsDisable.addEventListener('input', () => {
-            // Disable and darken the restore cards action
+        function loadRestoreCardsSection() {
             const actionRestoreCardsDiv = formRoot.querySelector('#restoreCards');
 
-            if (actionRestoreCardsDisable.checked) {
+            if (formEditor.object.restoreCard === null || formEditor.object.restoreCard === undefined) {
+                formEditor.object.restoreCard = new Dashboard.RestoreCardAction(null, null, null, null);
+            }
+
+            if (!actionRestoreCardsDisable.checked) {
                 actionRestoreCardsDiv.classList.add('darken');
+                formEditor.restoreCardToggle = formEditor.object.restoreCard;
                 formEditor.object.restoreCard = null;
+
+                // Disable all inputs
+                const inputs = actionRestoreCardsDiv.querySelectorAll('input, select, textarea, a');
+                inputs.forEach((input) => {
+                    if (input.id === 'disableRestoreCards') {
+                        return;
+                    }
+                    if (input.tagName === 'A') {
+                        input.classList.add('disabled');
+                    }
+
+                    input.disabled = true;
+                });
             } else {
                 actionRestoreCardsDiv.classList.remove('darken');
+                formEditor.object.restoreCard = formEditor.restoreCardToggle || formEditor.object.restoreCard;
+                formEditor.restoreCardToggle = null;
+
+                // Enable all inputs
+                const inputs = actionRestoreCardsDiv.querySelectorAll('input, select, textarea, a');
+                inputs.forEach((input) => {
+                    if (input.id === 'disableRestoreCards') {
+                        return;
+                    }
+
+                    // If link add class
+                    if (input.tagName === 'A') {
+                        input.classList.remove('disabled');
+                    }
+
+                    input.disabled = false;
+                });
             }
 
             formEditor.validate();
+        }
+
+        const actionRestoreCardsDisable = formRoot.querySelector('#disableRestoreCards');
+        actionRestoreCardsDisable.addEventListener('input', () => {
+            loadRestoreCardsSection();
         })
 
         const actionAttackRange = formRoot.querySelector('#actionAttackRange');
         actionAttackRange.addEventListener('input', () => {
-            if (formEditor.object.attack === null) {
+            if (formEditor.object.attack === null || formEditor.object.attack === undefined) {
                 formEditor.object.attack = new Dashboard.AttackAction(null, null, null, null, [], null, null);
             }
 
@@ -604,7 +708,7 @@
 
         const actionAttackDamage = formRoot.querySelector('#actionAttackDamage');
         actionAttackDamage.addEventListener('input', () => {
-            if (formEditor.object.attack === null) {
+            if (formEditor.object.attack === null || formEditor.object.attack === undefined) {
                 formEditor.object.attack = new Dashboard.AttackAction(null, null, null, null, [], null, null);
             }
 
@@ -614,7 +718,7 @@
 
         const actionAttackArea = formRoot.querySelector('#actionAttackArea');
         actionAttackArea.addEventListener('input', () => {
-            if (formEditor.object.attack === null) {
+            if (formEditor.object.attack === null || formEditor.object.attack === undefined) {
                 formEditor.object.attack = new Dashboard.AttackAction(null, null, null, null, [], null, null);
             }
 
@@ -624,7 +728,7 @@
 
         const actionAttackNumber = formRoot.querySelector('#actionAttackNumber');
         actionAttackNumber.addEventListener('input', () => {
-            if (formEditor.object.attack === null) {
+            if (formEditor.object.attack === null || formEditor.object.attack === undefined) {
                 formEditor.object.attack = new Dashboard.AttackAction(null, null, null, null, [], null, null);
             }
 
@@ -634,7 +738,7 @@
 
         const actionAttackTarget = formRoot.querySelector('#actionAttackTarget');
         actionAttackTarget.addEventListener('input', () => {
-            if (formEditor.object.attack === null) {
+            if (formEditor.object.attack === null || formEditor.object.attack === undefined) {
                 formEditor.object.attack = new Dashboard.AttackAction(null, null, null, null, [], null, null);
             }
 
@@ -642,20 +746,57 @@
             formEditor.validate();
         });
 
-        const actionAttackReset = formRoot.querySelector('#removeAttack');
-        actionAttackReset.addEventListener('click', (event) => {
-            event.preventDefault();
+        function loadAttackSection() {
+            const actionAttackDiv = formRoot.querySelector('#attack');
 
-            actionAttackTarget.value = "hidden";
-            actionAttackRange.value = "";
-            actionAttackDamage.value = "";
-            actionAttackArea.value = "";
-            actionAttackNumber.value = "";
-            const attackEffectsList = formRoot.querySelector('#attackEffectsList');
-            attackEffectsList.innerHTML = "";
+            if (formEditor.object.attack === null || formEditor.object.attack === undefined) {
+                formEditor.object.attack = new Dashboard.AttackAction(null, null, null, null, [], null, null);
+            }
 
-            formEditor.object.attack = null;
+            if (!actionAttackReset.checked) {
+                actionAttackDiv.classList.add('darken');
+                formEditor.attackToggle = formEditor.object.attack;
+                formEditor.object.attack = null;
+
+                // Disable all inputs
+                const inputs = actionAttackDiv.querySelectorAll('input, select, textarea, a');
+                inputs.forEach((input) => {
+                    if (input.id === 'disableAttack') {
+                        return;
+                    }
+                    if (input.tagName === 'A') {
+                        input.classList.add('disabled');
+                    }
+
+                    input.disabled = true;
+                });
+            } else {
+                actionAttackDiv.classList.remove('darken');
+                formEditor.object.attack = formEditor.attackToggle || formEditor.object.attack;
+                formEditor.attackToggle = null;
+
+                // Enable all inputs
+                const inputs = actionAttackDiv.querySelectorAll('input, select, textarea, a');
+                inputs.forEach((input) => {
+                    if (input.id === 'disableAttack') {
+                        return;
+                    }
+
+                    // If link add class
+                    if (input.tagName === 'A') {
+                        input.classList.remove('disabled');
+                    }
+
+                    input.disabled = false;
+                });
+            }
+
             formEditor.validate();
+        }
+
+        const actionAttackReset = formRoot.querySelector('#disableAttack');
+        actionAttackReset.addEventListener('click', (event) => {
+            loadAttackSection();
         });
 
         const infoValidation = document.getElementById('informationValidation');
@@ -772,10 +913,6 @@
                         })
 
                         return;
-                    }
-
-                    if (formEditor.object.movement === null) {
-                        formEditor.object.movement = new Dashboard.MovementAction(null, null, null, []);
                     }
 
                     const effectType = effectForm.querySelector('#effectType').value;
@@ -933,7 +1070,7 @@
 
         {% if actionId is not None %}
             formEditor.queryData((data) => {
-                const action = Dashboard.Action.fromJSON(data);
+                let action = Dashboard.Action.fromJSON(data);
 
                 {#const actionImage = document.getElementById('actionImage');#}
                 {#actionImage.src = action.url;#}
@@ -969,6 +1106,10 @@
 
                         movementEffectsList.appendChild(card);
                     }
+
+                    actionMovementReset.checked = true;
+                } else {
+                    actionMovementReset.checked = false;
                 }
 
                 //-- Skill
@@ -993,6 +1134,10 @@
 
                         skillEffectsList.appendChild(card);
                     }
+
+                    actionSkillReset.checked = true;
+                } else {
+                    actionSkillReset.checked = false;
                 }
 
                 //-- RestoreCards
@@ -1006,6 +1151,10 @@
 
                     const actionRestoreCardsRandom = document.getElementById('actionRestoreCardsRandom');
                     actionRestoreCardsRandom.checked = restoreCardAction.random;
+
+                    actionRestoreCardsDisable.checked = true;
+                } else {
+                    actionRestoreCardsDisable.checked = false;
                 }
 
                 //-- Attack
@@ -1036,7 +1185,18 @@
 
                         attackEffectsList.appendChild(card);
                     }
+
+                    actionAttackReset.checked = true;
+                } else {
+                    actionAttackReset.checked = false;
                 }
+
+                setTimeout(() => {
+                    loadMovementSection();
+                    loadSkillSection();
+                    loadRestoreCardsSection();
+                    loadAttackSection();
+                }, 200);
 
                 return action;
             }, () => {
