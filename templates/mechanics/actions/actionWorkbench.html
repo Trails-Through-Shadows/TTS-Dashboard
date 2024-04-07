@@ -1,0 +1,1154 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% load filters %}
+{% load i18n %}
+
+{% block title %} Mechanics - Actions - Editor {% endblock %}
+
+{% block stylesheets %}
+    <!-- Empty -->
+{% endblock stylesheets %}
+
+{% block content %}
+    <input type="hidden" value="{{ csrf_token }}" id="csrftoken" readonly/>
+    
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+        <div class="d-block mb-4 mb-md-0">
+            <h2 class="h4 mb-0">{% trans 'Action Workbench' %}</h2>
+            <p class="mb-0">{% trans 'Create or edit dungeon actions' %}</p>
+        </div>
+    </div>
+
+    <form id="workbench">
+        <div class="row">
+            <div class="col-4" id="actionInformation">
+                <div class="row flex-column h-100">
+                    <div class="col-12 flex-fill mb-4">
+                        <div class="card card-body border-0 shadow h-100">
+                            <div class="card-header p-0">
+                                <h2 class="h5">{% trans 'Information:' %}</h2>
+                            </div>
+
+                            <div class="card-body p-0 formLoading">
+                                <div class="row h-100">
+                                    <div class="col-4 align-self-top py-3">
+                                        <img src="{% static 'img/imgLoading.png' %}" id="actionImage" data-src="{% imageFor url %}" alt="Entry Image" class="lazyload img-fluid rounded">
+                                    </div>
+
+                                    <div class="col-8 align-self-top">
+                                        <div class="py-2">
+                                            <h2 class="h5 mb-2">
+                                                <label class="visually-hidden" for="actionTitle">Title</label>
+                                                <div class="input-group input-group">
+                                                    <div class="input-group-text">{% trans 'Title' %}</div>
+                                                    <input type="text" class="form-control" id="actionTitle" placeholder="{% trans 'Title' %}" required>
+                                                </div>
+                                            </h2>
+
+                                            <div class="d-flex align-items-center">
+                                                <div class="row gy-2 gx-3 align-items-center">
+                                                    <div class="col-4">
+                                                        <label class="visually-hidden" for="entryId">Id</label>
+                                                        <div class="input-group input-group-sm">
+                                                            <div class="input-group-text">{% trans 'ID' %}</div>
+                                                            <input type="text" class="form-control" id="entryId" placeholder="Enemy Id" value="{{ itemId|default:0 }}" readonly>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-8">
+                                                        <label class="visually-hidden" for="actionLvlReq">Lvl. Req.</label>
+                                                        <div class="input-group input-group-sm">
+                                                            <div class="input-group-text">{% trans 'Lvl. Req.' %}</div>
+                                                            <input type="text" class="form-control" id="actionLvlReq" placeholder="{% trans 'Lvl. Req.' %}" required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="input-group input-group-sm mt-2">
+                                                <label class="input-group-text mb-0" for="actionDiscardType">Discard</label>
+                                                <select class="form-select" id="actionDiscardType" required>
+                                                    <option value="hidden" selected hidden disabled>Choose Discard</option>
+                                                    <option value="PERMANENT">PERMANENT</option>
+                                                    <option value="SHORT_REST">SHORT_REST</option>
+                                                    <option value="LONG_REST">LONG_REST</option>
+                                                    <option value="NEVER">NEVER</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="align-items-center mt-2 flex-fill">
+                                                <label for="actionDescription" class="form-label visually-hidden">{% trans 'Description' %}</label>
+                                                <textarea class="form-control" id="actionDescription" rows="3" placeholder="{% trans 'Description' %}"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card card-body border-0 shadow">
+                            <div class="row justify-content-evenly">
+                                <div class="col-lg-6 col-12">
+                                    <button class="btn btn-red-100 animate-up-2 w-100" type="reset" id="cancelButton">
+                                        {% trans 'Cancel' %}
+                                    </button>
+                                </div>
+
+                                <div class="col-lg-6 col-12 mt-2 mt-lg-0">
+                                    <button class="btn btn-green-100 animate-up-2 w-100" type="submit" id="saveButton">
+                                        {% if enemyId is not None %}
+                                            {% trans 'Save' %}
+                                        {% else %}
+                                            {% trans 'Create' %}
+                                        {% endif %}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-2">
+                        <div class="alert alert-success fade show validation" role="alert" id="informationValidation">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-8" id="enemyActions">
+                <div class="row flex-row h-100 g-4">
+                    <div class="col-4 flex-fill">
+                        <div class="card card-body border-0 shadow h-100">
+                            <div class="card-header p-0 mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h2 class="h5 m-0">{% trans 'Movement Action:' %}</h2>
+                                    <button class="btn btn-xs d-inline-flex align-items-center redOnHover" id="removeMovement">
+                                        <i class="fa-solid fa-trash me-1"></i>
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-0">
+                                <div class="row justify-content-evenly">
+                                    <div class="col-12">
+                                        <label class="visually-hidden" for="actionMovementRange">{% trans 'Range' %}</label>
+                                        <div class="input-group input-group-sm">
+                                            <div class="input-group-text">{% trans 'Range' %}</div>
+                                            <input type="number" class="form-control" id="actionMovementRange" placeholder="{% trans 'Range' %}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-2">
+                                        <div class="input-group input-group-sm">
+                                            <label class="input-group-text mb-0" for="actionMovementType">Type</label>
+                                            <select class="form-select" id="actionMovementType">
+                                                <option value="hidden" selected hidden disabled>Choose Type</option>
+                                                <option value="WALK">WALK</option>
+                                                <option value="JUMP">JUMP</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-2">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h2 class="h6 m-0">{% trans 'Effects:' %}</h2>
+
+                                            <div class="col">
+                                                <div class="btn-toolbar justify-content-end">
+                                                    <a href="javascript:void(0)" class="btn btn-xs btn-gray-800 d-inline-flex align-items-center" id="addMovementEffect">
+                                                        <i class="fa-solid fa-plus me-1"></i>
+                                                        {% trans 'Add' %}
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row flex-column gap-1 g-0 pt-2 smallCards" id="movementEffectsList">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-4 flex-fill">
+                        <div class="card card-body border-0 shadow h-100">
+                            <div class="card-header p-0 mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h2 class="h5 m-0">{% trans 'Skill Action:' %}</h2>
+                                    <button class="btn btn-xs d-inline-flex align-items-center redOnHover" id="removeSkill">
+                                        <i class="fa-solid fa-trash me-1"></i>
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-0">
+                                <div class="row justify-content-evenly">
+                                    <div class="col-12">
+                                        <label class="visually-hidden" for="actionSkillRange">{% trans 'Range' %}</label>
+                                        <div class="input-group input-group-sm">
+                                            <div class="input-group-text">{% trans 'Range' %}</div>
+                                            <input type="number" class="form-control" id="actionSkillRange" placeholder="{% trans 'Range' %}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-2">
+                                        <label class="visually-hidden" for="actionSkillArea">{% trans 'Area' %}</label>
+                                        <div class="input-group input-group-sm">
+                                            <div class="input-group-text">{% trans 'Area' %}</div>
+                                            <input type="number" class="form-control" id="actionSkillArea" placeholder="{% trans 'Area' %}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-2">
+                                        <div class="input-group input-group-sm">
+                                            <label class="input-group-text mb-0" for="actionSkillTarget">Target</label>
+                                            <select class="form-select" id="actionSkillTarget">
+                                                <option value="hidden" selected hidden disabled>Choose Target</option>
+                                                <option value="SELF">SELF</option>
+                                                <option value="ONE">ONE</option>
+                                                <option value="ALL">ALL</option>
+                                                <option value="ALL_ENEMIES">ALL_ENEMIES</option>
+                                                <option value="ALL_ALLIES">ALL_ALLIES</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-2">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h2 class="h6 m-0">{% trans 'Effects:' %}</h2>
+
+                                            <div class="col">
+                                                <div class="btn-toolbar justify-content-end">
+                                                    <a href="javascript:void(0)" class="btn btn-xs btn-gray-800 d-inline-flex align-items-center" id="addSkillEffect">
+                                                        <i class="fa-solid fa-plus me-1"></i>
+                                                        {% trans 'Add' %}
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row flex-column gap-1 g-0 pt-2 smallCards" id="skillEffectsList">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-4 flex-fill">
+                        <div class="card card-body border-0 shadow h-100">
+                            <div class="card-header p-0 mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h2 class="h5 m-0">{% trans 'RestoreCards Action:' %}</h2>
+                                    <button class="btn btn-xs d-inline-flex align-items-center redOnHover" id="removeRestoreCards">
+                                        <i class="fa-solid fa-trash me-1"></i>
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-0">
+                                <div class="row justify-content-evenly">
+                                    <div class="col-12">
+                                        <div class="input-group input-group-sm">
+                                            <label class="input-group-text mb-0" for="actionRestoreCardsTarget">Target</label>
+                                            <select class="form-select" id="actionRestoreCardsTarget">
+                                                <option value="hidden" selected hidden disabled>Choose Target</option>
+                                                <option value="SELF">SELF</option>
+                                                <option value="ONE">ONE</option>
+                                                <option value="ALL">ALL</option>
+                                                <option value="ALL_ENEMIES">ALL_ENEMIES</option>
+                                                <option value="ALL_ALLIES">ALL_ALLIES</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-2">
+                                        <label class="visually-hidden" for="actionRestoreCardsNumber">{% trans 'Count' %}</label>
+                                        <div class="input-group input-group-sm">
+                                            <div class="input-group-text">{% trans 'Count' %}</div>
+                                            <input type="number" class="form-control" id="actionRestoreCardsNumber" placeholder="{% trans 'Count' %}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 align-self-end  mt-2">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="actionRestoreCardsRandom">
+                                            <label class="form-check-label" for="actionRestoreCardsRandom">{% trans 'Random' %}?</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-8 flex-fill">
+                        <div class="card card-body border-0 shadow h-100">
+                            <div class="card-header p-0 mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h2 class="h5 m-0">{% trans 'Attack Action:' %}</h2>
+                                    <button class="btn btn-xs d-inline-flex align-items-center redOnHover" id="removeAttack">
+                                        <i class="fa-solid fa-trash me-1"></i>
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-0">
+                                <div class="row justify-content-evenly">
+                                    <div class="col-6">
+                                        <label class="visually-hidden" for="actionAttackRange">{% trans 'Range' %}</label>
+                                        <div class="input-group input-group-sm">
+                                            <div class="input-group-text">{% trans 'Range' %}</div>
+                                            <input type="number" class="form-control" id="actionAttackRange" placeholder="{% trans 'Range' %}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label class="visually-hidden" for="actionAttackDamage">{% trans 'Damage' %}</label>
+                                        <div class="input-group input-group-sm">
+                                            <div class="input-group-text">{% trans 'Damage' %}</div>
+                                            <input type="number" class="form-control" id="actionAttackDamage" placeholder="{% trans 'Damage' %}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6 mt-2">
+                                        <label class="visually-hidden" for="actionAttackArea">{% trans 'Area' %}</label>
+                                        <div class="input-group input-group-sm">
+                                            <div class="input-group-text">{% trans 'Area' %}</div>
+                                            <input type="number" class="form-control" id="actionAttackArea" placeholder="{% trans 'Area' %}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6 mt-2">
+                                        <div class="input-group input-group-sm">
+                                            <label class="input-group-text mb-0" for="actionAttackTarget">Target</label>
+                                            <select class="form-select" id="actionAttackTarget">
+                                                <option value="hidden" selected hidden disabled>Choose Target</option>
+                                                <option value="SELF">SELF</option>
+                                                <option value="ONE">ONE</option>
+                                                <option value="ALL">ALL</option>
+                                                <option value="ALL_ENEMIES">ALL_ENEMIES</option>
+                                                <option value="ALL_ALLIES">ALL_ALLIES</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-2">
+                                        <label class="visually-hidden" for="actionAttackNumber">{% trans 'Number of Attacks' %}</label>
+                                        <div class="input-group input-group-sm">
+                                            <div class="input-group-text">{% trans 'Number of Attacks' %}</div>
+                                            <input type="number" class="form-control" id="actionAttackNumber" placeholder="{% trans 'Number of Attacks' %}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-2">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h2 class="h6 m-0">{% trans 'Effects:' %}</h2>
+
+                                            <div class="col">
+                                                <div class="btn-toolbar justify-content-end">
+                                                    <a href="javascript:void(0)" class="btn btn-xs btn-gray-800 d-inline-flex align-items-center" id="addAttackEffect">
+                                                        <i class="fa-solid fa-plus me-1"></i>
+                                                        {% trans 'Add' %}
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row flex-column gap-1 g-0 pt-2 smallCards" id="attackEffectsList">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-4 flex-fill">
+                        <div class="card card-body border-0 shadow h-100">
+                            <div class="card-header p-0 mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h2 class="h5 m-0">{% trans 'SummonActions Action:' %}</h2>
+                                    <button class="btn btn-xs d-inline-flex align-items-center redOnHover" id="removeSummon">
+                                        <i class="fa-solid fa-trash me-1"></i>
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-0">
+                                <div class="row justify-content-evenly">
+
+                                    <div class="col-12">
+                                        <label class="visually-hidden" for="actionSummonRange">{% trans 'Range' %}</label>
+                                        <div class="input-group input-group-sm">
+                                            <div class="input-group-text">{% trans 'Range' %}</div>
+                                            <input type="number" class="form-control" id="actionSummonRange" placeholder="{% trans 'Range' %}" disabled>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                        <h2 class="h6 m-0">{% trans 'Summons:' %}</h2>
+
+                                        <div class="col">
+                                            <div class="btn-toolbar justify-content-end">
+                                                <a href="javascript:void(0)" class="btn btn-xs btn-gray-800 d-inline-flex align-items-center disabled" id="addSummon">
+                                                    <i class="fa-solid fa-plus me-1"></i>
+                                                    {% trans 'Add' %}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-2">
+                                        <div class="alert alert-danger fade show p-1 px-2 mb-2" role="alert">
+                                            <i class="fa-solid fa-exclamation-triangle me-1"></i>
+                                            {% trans 'Summons were not implemented!' %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-2">
+                        <div class="alert alert-success fade show validation" role="alert" id="actionsValidation">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock content %}
+
+{% block javascripts %}
+    <script async>
+        const csrfToken = document.querySelector('#csrftoken').value;
+
+        // ---- | Urls
+
+        const allUrl = "{% url 'apiQueryTable' table="actions" %}";
+        const entryUrl = "{% url 'apiQueryTableID' table="actions" id=actionId|default:0 %}";
+        const validateUrl = "{% url 'apiValidateTable' table="action" %}";
+
+        // ---- | Data
+
+        const formRoot = document.getElementById('workbench');
+        const formValidator = new Dashboard.FormValidator(formRoot, validateUrl);
+        const formEditor = new Dashboard.FormEditor(formRoot, entryUrl, formValidator);
+
+        const actionTitle = formRoot.querySelector('#actionTitle');
+        actionTitle.addEventListener('input', () => {
+            formEditor.object.title = actionTitle.value;
+            formEditor.validate();
+        });
+
+        const actionLvlReq = formRoot.querySelector('#actionLvlReq');
+        actionLvlReq.addEventListener('input', () => {
+            formEditor.object.levelReq = actionLvlReq.value;
+            formEditor.validate();
+        });
+
+        const actionDiscardType = formRoot.querySelector('#actionDiscardType');
+        actionDiscardType.addEventListener('input', () => {
+            formEditor.object.discard = actionDiscardType.value;
+            formEditor.validate();
+        });
+
+        const actionDescription = formRoot.querySelector('#actionDescription');
+        actionDescription.addEventListener('input', () => {
+            formEditor.object.description = actionDescription.value;
+            formEditor.validate();
+        });
+
+        const actionMovementRange = formRoot.querySelector('#actionMovementRange');
+        actionMovementRange.addEventListener('input', () => {
+            if (formEditor.object.movement === null) {
+                formEditor.object.movement = new Dashboard.MovementAction(null, null, null, []);
+            }
+
+            formEditor.object.movement.range = actionMovementRange.value;
+            formEditor.validate();
+        });
+
+        const actionMovementType = formRoot.querySelector('#actionMovementType');
+        actionMovementType.addEventListener('input', () => {
+            if (formEditor.object.movement === null) {
+                formEditor.object.movement = new Dashboard.MovementAction(null, null, null, []);
+            }
+
+            formEditor.object.movement.type = actionMovementType.value;
+            formEditor.validate();
+        });
+
+        const actionMovementReset = formRoot.querySelector('#removeMovement');
+        actionMovementReset.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            actionMovementRange.value = "";
+            actionMovementType.value = "hidden";
+            const movementEffectsList = formRoot.querySelector('#movementEffectsList');
+            movementEffectsList.innerHTML = "";
+
+            formEditor.object.movement = null;
+            formEditor.validate();
+        });
+
+        const actionSkillRange = formRoot.querySelector('#actionSkillRange');
+        actionSkillRange.addEventListener('input', () => {
+            if (formEditor.object.skill === null) {
+                formEditor.object.skill = new Dashboard.SkillAction(null, null, null, [], null);
+            }
+
+            formEditor.object.skill.range = parseInt(actionSkillRange.value);
+            formEditor.validate();
+        });
+
+        const actionSkillArea = formRoot.querySelector('#actionSkillArea');
+        actionSkillArea.addEventListener('input', () => {
+            if (formEditor.object.skill === null) {
+                formEditor.object.skill = new Dashboard.SkillAction(null, null, null, [], null);
+            }
+
+            formEditor.object.skill.area = actionSkillArea.value;
+            formEditor.validate();
+        });
+
+        const actionSkillTarget = formRoot.querySelector('#actionSkillTarget');
+        actionSkillTarget.addEventListener('input', () => {
+            if (formEditor.object.skill === null) {
+                formEditor.object.skill = new Dashboard.SkillAction(null, null, null, [], null);
+            }
+
+            formEditor.object.skill.target = actionSkillTarget.value;
+            formEditor.validate();
+        });
+
+        const actionSkillReset = formRoot.querySelector('#removeSkill');
+        actionSkillReset.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            actionSkillRange.value = "";
+            actionSkillArea.value = "";
+            actionSkillTarget.value = "hidden";
+            const actionEffectsList = formRoot.querySelector('#skillEffectsList');
+            actionEffectsList.innerHTML = "";
+
+            formEditor.object.skill = null;
+            formEditor.validate();
+        });
+
+        const actionRestoreCardsTarget = formRoot.querySelector('#actionRestoreCardsTarget');
+        actionRestoreCardsTarget.addEventListener('input', () => {
+            if (formEditor.object.restoreCard === null) {
+                formEditor.object.restoreCard = new Dashboard.RestoreCardAction(null, null, null, null);
+            }
+
+            formEditor.object.restoreCard.target = actionRestoreCardsTarget.value;
+            formEditor.validate();
+        });
+
+        const actionRestoreCardsNumber = formRoot.querySelector('#actionRestoreCardsNumber');
+        actionRestoreCardsNumber.addEventListener('input', () => {
+            if (formEditor.object.restoreCard === null) {
+                formEditor.object.restoreCard = new Dashboard.RestoreCardAction(null, null, null, null);
+            }
+
+            formEditor.object.restoreCard.numCards = parseInt(actionRestoreCardsNumber.value);
+            formEditor.validate();
+        });
+
+        const actionRestoreCardsRandom = formRoot.querySelector('#actionRestoreCardsRandom');
+        actionRestoreCardsRandom.addEventListener('input', () => {
+            if (formEditor.object.restoreCard === null) {
+                formEditor.object.restoreCard = new Dashboard.RestoreCardAction(null, null, null, null);
+            }
+
+            formEditor.object.restoreCard.random = actionRestoreCardsRandom.checked;
+            formEditor.validate();
+        });
+
+        const actionRestoreCardsReset = formRoot.querySelector('#removeRestoreCards');
+        actionRestoreCardsReset.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            actionRestoreCardsRandom.checked = false;
+            actionRestoreCardsTarget.value = "hidden";
+            actionRestoreCardsNumber.value = "";
+
+            formEditor.object.restoreCard = null;
+            formEditor.validate();
+        });
+
+        const actionAttackRange = formRoot.querySelector('#actionAttackRange');
+        actionAttackRange.addEventListener('input', () => {
+            if (formEditor.object.attack === null) {
+                formEditor.object.attack = new Dashboard.AttackAction(null, null, null, null, [], null, null);
+            }
+
+            formEditor.object.attack.range = parseInt(actionAttackRange.value);
+            formEditor.validate();
+        });
+
+        const actionAttackDamage = formRoot.querySelector('#actionAttackDamage');
+        actionAttackDamage.addEventListener('input', () => {
+            if (formEditor.object.attack === null) {
+                formEditor.object.attack = new Dashboard.AttackAction(null, null, null, null, [], null, null);
+            }
+
+            formEditor.object.attack.damage = parseInt(actionAttackDamage.value);
+            formEditor.validate();
+        });
+
+        const actionAttackArea = formRoot.querySelector('#actionAttackArea');
+        actionAttackArea.addEventListener('input', () => {
+            if (formEditor.object.attack === null) {
+                formEditor.object.attack = new Dashboard.AttackAction(null, null, null, null, [], null, null);
+            }
+
+            formEditor.object.attack.area = parseInt(actionAttackArea.value);
+            formEditor.validate();
+        });
+
+        const actionAttackNumber = formRoot.querySelector('#actionAttackNumber');
+        actionAttackNumber.addEventListener('input', () => {
+            if (formEditor.object.attack === null) {
+                formEditor.object.attack = new Dashboard.AttackAction(null, null, null, null, [], null, null);
+            }
+
+            formEditor.object.attack.numAttacks = parseInt(actionAttackNumber.value);
+            formEditor.validate();
+        });
+
+        const actionAttackTarget = formRoot.querySelector('#actionAttackTarget');
+        actionAttackTarget.addEventListener('input', () => {
+            if (formEditor.object.attack === null) {
+                formEditor.object.attack = new Dashboard.AttackAction(null, null, null, null, [], null, null);
+            }
+
+            formEditor.object.attack.target = actionAttackTarget.value;
+            formEditor.validate();
+        });
+
+        const actionAttackReset = formRoot.querySelector('#removeAttack');
+        actionAttackReset.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            actionAttackTarget.value = "hidden";
+            actionAttackRange.value = "";
+            actionAttackDamage.value = "";
+            actionAttackArea.value = "";
+            actionAttackNumber.value = "";
+            const attackEffectsList = formRoot.querySelector('#attackEffectsList');
+            attackEffectsList.innerHTML = "";
+
+            formEditor.object.attack = null;
+            formEditor.validate();
+        });
+
+        const infoValidation = document.getElementById('informationValidation');
+        const actionsValidation = document.getElementById('actionsValidation');
+
+        formValidator.setOnStart(() => {
+            infoValidation.classList.remove('alert-success', 'alert-danger', 'alert-collapsed');
+            infoValidation.classList.add('alert-warning', 'validating');
+            infoValidation.innerHTML = '<i class="fa-solid fa-spinner-third me-1"></i> Validating...';
+
+            actionsValidation.classList.remove('alert-success', 'alert-danger', 'alert-collapsed');
+            actionsValidation.classList.add('alert-warning', 'validating');
+            actionsValidation.innerHTML = '<i class="fa-solid fa-spinner-third me-1"></i> Validating...';
+        })
+
+        formValidator.setOnSuccess(() => {
+            infoValidation.classList.remove('alert-warning', 'alert-danger', 'validating');
+            infoValidation.classList.add('alert-success', 'alert-collapsed');
+            infoValidation.innerHTML = '';
+
+            actionsValidation.classList.remove('alert-warning', 'alert-danger', 'validating');
+            actionsValidation.classList.add('alert-success', 'alert-collapsed');
+            actionsValidation.innerHTML = '';
+        })
+
+        formValidator.setOnFail((errors) => {
+            formValidator.onSuccess();
+
+            if (errors.length === 0) {
+                actionsValidation.classList.remove('alert-success', 'alert-collapsed');
+                actionsValidation.classList.add('alert-danger');
+                actionsValidation.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> Internal Server error!';
+
+                infoValidation.classList.remove('alert-success', 'alert-collapsed');
+                infoValidation.classList.add('alert-danger');
+                infoValidation.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> Internal Server error!';
+                return;
+            }
+
+            for (const err of errors) {
+                const errorDiv = document.createElement('div');
+                errorDiv.classList.add('d-block', 'row', 'mt-1');
+
+                if (!err.errors) {
+                    errorDiv.innerHTML = `
+                        <div class="col-12">
+                            <i class="fa-solid fa-exclamation-triangle me-1"></i>
+                            <span>${err.message}</span>
+                        </div>
+                    `;
+                } else {
+                    errorDiv.innerHTML = `
+                        <div class="col-12">
+                            <i class="fa-solid fa-exclamation-triangle me-1"></i>
+                            <span id=errorMessageHeader>${err.message}</span>
+                        </div>
+                        ${err.errors.map((field) => {
+                            return `
+                                <div class="col-12">
+                                    <span class="ms-1">* ${field.message}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    `;
+                }
+
+                switch (err.object) {
+                    case 'Movement':
+                    case 'Skill':
+                    case 'RestoreCards':
+                    case 'Attack':
+                    case 'Action': {
+                        if (err.field !== "levelReq") {
+                            actionsValidation.classList.remove('alert-success', 'alert-collapsed');
+                            actionsValidation.classList.add('alert-danger');
+
+                            actionsValidation.appendChild(errorDiv);
+                            break;
+                        }
+                    }
+
+                    default: {
+                        infoValidation.classList.remove('alert-success', 'alert-collapsed');
+                        infoValidation.classList.add('alert-danger');
+
+                        infoValidation.appendChild(errorDiv);
+                        break;
+                    }
+                }
+            }
+        })
+
+        const addMovementEffect = document.querySelector('#addMovementEffect');
+        addMovementEffect.addEventListener('click', () => {
+            let promise = Dashboard.Modal.openModal("mechanics/effects/effectsWorkbench.html");
+            promise.then((modal) => {
+                const modalRoot = modal.modal;
+
+                const effectForm = modalRoot.querySelector('#effectWorkbench');
+                const effectSubmitForm = modalRoot.querySelector('#effectSubmit');
+
+                function submitForm(event) {
+                    event.preventDefault();
+
+                    if (!effectForm.checkValidity()) {
+                        Swal.fire({
+                            icon: 'error',
+                            toast: true,
+                            position: 'top-end',
+                            title: '{% trans 'Error!' %}',
+                            text: '{% trans 'Effect form is not valid!' %}',
+                            showConfirmButton: false,
+                            timer: 2500
+                        })
+
+                        return;
+                    }
+
+                    if (formEditor.object.movement === null) {
+                        formEditor.object.movement = new Dashboard.MovementAction(null, null, null, []);
+                    }
+
+                    const effectType = effectForm.querySelector('#effectType').value;
+                    const effectTarget = effectForm.querySelector('#effectTarget').value;
+                    const effectDescription = effectForm.querySelector('#effectDescription').value;
+
+                    const effectStrengthInfinity = effectForm.querySelector('#effectStrengthInfinity').checked;
+                    const effectStrength = effectStrengthInfinity ? -1 : effectForm.querySelector('#effectStrength').value;
+
+                    const effectDurationInfinity = effectForm.querySelector('#effectDurationInfinity').checked;
+                    const effectDuration = effectDurationInfinity ? -1 : effectForm.querySelector('#effectDuration').value;
+
+                    const effect = new Dashboard.Effect(null, effectType, effectDescription, effectDuration, effectStrength, effectTarget);
+                    formEditor.object.movement.effects.push(effect);
+                    formEditor.validate();
+
+                    const movementEffectsList = document.getElementById('movementEffectsList');
+                    const card = effect.toCard(true, () => {
+                        movementEffectsList.removeChild(card);
+                        formEditor.object.movement.effects = formEditor.object.movement.effects.filter((e) => e !== effect);
+                        formEditor.validate();
+                    }, null, true);
+
+                    movementEffectsList.appendChild(card);
+
+                    modal.close();
+                }
+
+                effectSubmitForm.addEventListener('click', submitForm);
+                effectForm.addEventListener('submit', submitForm);
+            });
+        });
+
+        const addSkillEffect = document.querySelector('#addSkillEffect');
+        addSkillEffect.addEventListener('click', () => {
+            let promise = Dashboard.Modal.openModal("mechanics/effects/effectsWorkbench.html");
+            promise.then((modal) => {
+                const modalRoot = modal.modal;
+
+                const effectForm = modalRoot.querySelector('#effectWorkbench');
+                const effectSubmitForm = modalRoot.querySelector('#effectSubmit');
+
+                function submitForm(event) {
+                    event.preventDefault();
+
+                    if (!effectForm.checkValidity()) {
+                        Swal.fire({
+                            icon: 'error',
+                            toast: true,
+                            position: 'top-end',
+                            title: '{% trans 'Error!' %}',
+                            text: '{% trans 'Effect form is not valid!' %}',
+                            showConfirmButton: false,
+                            timer: 2500
+                        })
+
+                        return;
+                    }
+
+                    if (formEditor.object.skill === null) {
+                        formEditor.object.skill = new Dashboard.SkillAction(null, null, null, [], null);
+                    }
+
+                    const effectType = effectForm.querySelector('#effectType').value;
+                    const effectTarget = effectForm.querySelector('#effectTarget').value;
+                    const effectDescription = effectForm.querySelector('#effectDescription').value;
+
+                    const effectStrengthInfinity = effectForm.querySelector('#effectStrengthInfinity').checked;
+                    const effectStrength = effectStrengthInfinity ? -1 : effectForm.querySelector('#effectStrength').value;
+
+                    const effectDurationInfinity = effectForm.querySelector('#effectDurationInfinity').checked;
+                    const effectDuration = effectDurationInfinity ? -1 : effectForm.querySelector('#effectDuration').value;
+
+                    const effect = new Dashboard.Effect(null, effectType, effectDescription, effectDuration, effectStrength, effectTarget);
+                    formEditor.object.skill.effects.push(effect);
+                    formEditor.validate();
+
+                    const skillEffectsList = document.getElementById('skillEffectsList');
+                    const card = effect.toCard(true, () => {
+                        skillEffectsList.removeChild(card);
+                        formEditor.object.skill.effects = formEditor.object.skill.effects.filter((e) => e !== effect);
+                        formEditor.validate();
+                    }, null, true);
+
+                    skillEffectsList.appendChild(card);
+
+                    modal.close();
+                }
+
+                effectSubmitForm.addEventListener('click', submitForm);
+                effectForm.addEventListener('submit', submitForm);
+            });
+        });
+
+        const addAttackEffect = document.querySelector('#addAttackEffect');
+        addAttackEffect.addEventListener('click', () => {
+            let promise = Dashboard.Modal.openModal("mechanics/effects/effectsWorkbench.html");
+            promise.then((modal) => {
+                const modalRoot = modal.modal;
+
+                const effectForm = modalRoot.querySelector('#effectWorkbench');
+                const effectSubmitForm = modalRoot.querySelector('#effectSubmit');
+
+                function submitForm(event) {
+                    event.preventDefault();
+
+                    if (!effectForm.checkValidity()) {
+                        Swal.fire({
+                            icon: 'error',
+                            toast: true,
+                            position: 'top-end',
+                            title: '{% trans 'Error!' %}',
+                            text: '{% trans 'Effect form is not valid!' %}',
+                            showConfirmButton: false,
+                            timer: 2500
+                        })
+
+                        return;
+                    }
+
+                    if (formEditor.object.attack === null) {
+                        formEditor.object.attack = new Dashboard.AttackAction(null, null, null, null, [], null, null);
+                    }
+
+                    const effectType = effectForm.querySelector('#effectType').value;
+                    const effectTarget = effectForm.querySelector('#effectTarget').value;
+                    const effectDescription = effectForm.querySelector('#effectDescription').value;
+
+                    const effectStrengthInfinity = effectForm.querySelector('#effectStrengthInfinity').checked;
+                    const effectStrength = effectStrengthInfinity ? -1 : effectForm.querySelector('#effectStrength').value;
+
+                    const effectDurationInfinity = effectForm.querySelector('#effectDurationInfinity').checked;
+                    const effectDuration = effectDurationInfinity ? -1 : effectForm.querySelector('#effectDuration').value;
+
+                    const effect = new Dashboard.Effect(null, effectType, effectDescription, effectDuration, effectStrength, effectTarget);
+                    formEditor.object.attack.effects.push(effect);
+                    formEditor.validate();
+
+                    const attackEffectsList = document.getElementById('attackEffectsList');
+                    const card = effect.toCard(true, () => {
+                        attackEffectsList.removeChild(card);
+                        formEditor.object.attack.effects = formEditor.object.attack.effects.filter((e) => e !== effect);
+                        formEditor.validate();
+                    }, null, true);
+
+                    attackEffectsList.appendChild(card);
+
+                    modal.close();
+                }
+
+                effectSubmitForm.addEventListener('click', submitForm);
+                effectForm.addEventListener('submit', submitForm);
+            });
+        });
+
+        {% if actionId is not None %}
+            formEditor.queryData((data) => {
+                const action = Dashboard.Action.fromJSON(data);
+
+                {#const actionImage = document.getElementById('actionImage');#}
+                {#actionImage.src = action.url;#}
+
+                const actionTitle = document.getElementById('actionTitle');
+                actionTitle.value = action.title;
+
+                const actionLvlReq = document.getElementById('actionLvlReq');
+                actionLvlReq.value = action.levelReq;
+
+                const actionDiscardType = document.getElementById('actionDiscardType');
+                actionDiscardType.value = action.discard;
+
+                const actionDescription = document.getElementById('actionDescription');
+                actionDescription.value = action.description;
+
+                //-- Movement
+                const movementAction = action.movement;
+                if (movementAction) {
+                    const actionMovementRange = document.getElementById('actionMovementRange');
+                    actionMovementRange.value = movementAction.range;
+
+                    const actionMovementType = document.getElementById('actionMovementType');
+                    actionMovementType.value = movementAction.type;
+
+                    const movementEffectsList = document.getElementById('movementEffectsList');
+                    for (const effect of movementAction.effects) {
+                        const card = effect.toCard(true, () => {
+                            movementEffectsList.removeChild(card);
+                            action.movement.effects = action.movement.effects.filter((e) => e !== effect);
+                            formEditor.validate();
+                        }, null, true);
+
+                        movementEffectsList.appendChild(card);
+                    }
+                }
+
+                //-- Skill
+                const skillAction = action.skill;
+                if (skillAction) {
+                    const actionSkillRange = document.getElementById('actionSkillRange');
+                    actionSkillRange.value = skillAction.range;
+
+                    const actionSkillArea = document.getElementById('actionSkillArea');
+                    actionSkillArea.value = skillAction.area;
+
+                    const actionSkillTarget = document.getElementById('actionSkillTarget');
+                    actionSkillTarget.value = skillAction.target;
+
+                    const skillEffectsList = document.getElementById('skillEffectsList');
+                    for (const effect of skillAction.effects) {
+                        const card = effect.toCard(true, () => {
+                            skillEffectsList.removeChild(card);
+                            action.skill.effects = action.skill.effects.filter((e) => e !== effect);
+                            formEditor.validate();
+                        }, null, true);
+
+                        skillEffectsList.appendChild(card);
+                    }
+                }
+
+                //-- RestoreCards
+                const restoreCardAction = action.restoreCard;
+                if (restoreCardAction) {
+                    const actionRestoreCardsTarget = document.getElementById('actionRestoreCardsTarget');
+                    actionRestoreCardsTarget.value = restoreCardAction.target;
+
+                    const actionRestoreCardsNumber = document.getElementById('actionRestoreCardsNumber');
+                    actionRestoreCardsNumber.value = restoreCardAction.numCards;
+
+                    const actionRestoreCardsRandom = document.getElementById('actionRestoreCardsRandom');
+                    actionRestoreCardsRandom.checked = restoreCardAction.random;
+                }
+
+                //-- Attack
+                const attackAction = action.attack;
+                if (attackAction) {
+                    const actionAttackRange = document.getElementById('actionAttackRange');
+                    actionAttackRange.value = attackAction.range;
+
+                    const actionAttackDamage = document.getElementById('actionAttackDamage');
+                    actionAttackDamage.value = attackAction.damage;
+
+                    const actionAttackArea = document.getElementById('actionAttackArea');
+                    actionAttackArea.value = attackAction.area;
+
+                    const actionAttackNumber = document.getElementById('actionAttackNumber');
+                    actionAttackNumber.value = attackAction.numAttacks;
+
+                    const actionAttackTarget = document.getElementById('actionAttackTarget');
+                    actionAttackTarget.value = attackAction.target;
+
+                    const attackEffectsList = document.getElementById('attackEffectsList');
+                    for (const effect of attackAction.effects) {
+                        const card = effect.toCard(true, () => {
+                            attackEffectsList.removeChild(card);
+                            action.attack.effects = action.attack.effects.filter((e) => e !== effect);
+                            formEditor.validate();
+                        }, null, true);
+
+                        attackEffectsList.appendChild(card);
+                    }
+                }
+
+                return action;
+            }, () => {
+                formEditor.validate();
+            });
+        {% else %}
+            formEditor.object = new Dashboard.Action(0, "", "", null, null, null, [], null, null, null, 0);
+            formEditor.validate();
+        {% endif %}
+
+        // ----
+
+        const cancelButton = document.getElementById('cancelButton');
+        cancelButton.addEventListener('click', () => {
+            Swal.fire({
+                title: '{% trans 'Are you sure?' %}',
+                text: '{% trans 'You will loose all your changes!' %}',
+                icon: 'warning',
+                reverseButtons: true,
+                showCancelButton: true,
+                confirmButtonColor: Dashboard.Color.RED.lighten(0.2).toRGB(),
+                cancelButtonColor: Dashboard.Color.GREY.lighten(0.2).toRGB(),
+                confirmButtonText: '{% trans 'Yes, cancel!' %}',
+                cancelButtonText: '{% trans 'No, keep editing' %}',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{% url 'actionViewer' %}";
+                }
+            });
+        });
+
+        const saveButton = document.getElementById('saveButton');
+        saveButton.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            // Check form validity
+            const form = document.getElementById('workbench');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            if (formValidator.isValidating()) {
+                return Swal.fire({
+                    icon: 'warning',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Entry object is validating, please wait!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
+                });
+            }
+
+            if (!formEditor.isValid()) {
+                return Swal.fire({
+                    icon: 'error',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Entry object is not valid!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
+                });
+            }
+
+            Notiflix.Block.circle("#workbench", 'Saving...');
+
+            const entryIdInput = form.querySelector('#entryId');
+            const entryId = entryIdInput.value;
+
+            let url = "{% url 'apiQueryTable' table="actions" %}";
+            {% if actionId is not undefined %}
+                url = "{% url 'apiQueryTableID' table="actions" id=0 %}".replace(0, entryId);
+            {% endif %}
+
+            formEditor.saveData(() => {
+                Swal.fire({
+                    icon: 'success',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Success, entry object saved!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
+                })
+
+                setTimeout(() => {
+                    window.location.href = "{% url 'actionViewer' %}";
+                }, 1000);
+
+                Notiflix.Block.remove("#workbench");
+            }, (responseText) => {
+                Notiflix.Block.remove("#workbench");
+
+                Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 10000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        toast.addEventListener('click', () => {
+                            const data = JSON.parse(responseText);
+                            const string = JSON.stringify(data, null, 4);
+
+                            Swal.fire({
+                                text: string,
+                                customClass: {
+                                    htmlContainer: 'text-start text-pre'
+                                },
+                                showConfirmButton: false,
+                            });
+                        })
+                    }
+                }).fire({
+                    icon: "error",
+                    title: '{% trans "Error, saving failed! Click for more information." %}'
+                });
+            });
+        });
+    </script>
+{% endblock javascripts %}

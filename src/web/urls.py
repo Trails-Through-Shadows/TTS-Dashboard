@@ -25,6 +25,8 @@ urlpatterns = [
     path('dungeon/obstacles/workbench/<int:id>/', views.obstacleWorkbench, name="obstacleWorkbenchEdit"),
 
     path('mechanics/actions/', views.actionViewer, name="actionViewer"),
+    path('mechanics/actions/workbench/', views.actionWorkbench, name="actionWorkbench"),
+    path('mechanics/actions/workbench/<int:id>/', views.actionWorkbench, name="actionWorkbenchEdit"),
 
     path('mechanics/effects/', views.effectViewer, name="effectViewer"),
 

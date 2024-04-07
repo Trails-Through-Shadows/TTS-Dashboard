@@ -6,7 +6,7 @@ module Dashboard {
             public range: number,
             public area: number,
             public effects: Effect[],
-            public target: EffectTarget[]
+            public target: EffectTarget
         ) {}
 
         public static fromJSON(json: any): SkillAction {

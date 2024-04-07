@@ -107,8 +107,14 @@ module Dashboard {
                     }
                 });
 
+                xOff = xOff / doors.length;
+                yOff = yOff / doors.length;
+
                 console.log("Offset", xOff, yOff);
-                part.grid.setStaticOffset({x: xOff + (move ? (this.hexSize / 2) -1 : 0), y: yOff});
+                part.grid.setStaticOffset({
+                    x: xOff + (move ? (this.hexSize / 2) -1 : 0),
+                    y: yOff
+                });
                 part.grid.draw(doorHexes);
             });
         }

@@ -39,6 +39,11 @@ def actionViewer(request):
     return render(request, 'mechanics/actions/actionsViewer.html')
 
 @login_required(login_url="/login/")
+def actionWorkbench(request, id=None):
+    context = {"actionId": id}
+    return render(request, 'mechanics/actions/actionWorkbench.html', context)
+
+@login_required(login_url="/login/")
 def effectViewer(request):
     return render(request, 'mechanics/effects/effectsViewer.html')
 

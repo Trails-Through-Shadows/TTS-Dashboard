@@ -87,7 +87,10 @@ module Dashboard {
         }
 
         drawCoordinates(ctx: CanvasRenderingContext2D, textColor: Color, offset: Offset): void {
-            this.drawText(ctx, `${this.coords.q}, ${this.coords.r}, ${this.coords.s}`, textColor, offset);
+            // Scale with hexSize, 30 = 1
+            const scale = this.hexSize / 30;
+
+            this.drawText(ctx, `${this.coords.q}, ${this.coords.r}, ${this.coords.s}`, textColor, offset, scale);
         }
 
         drawText(ctx: CanvasRenderingContext2D, text: string, textColor: Color, offset: Offset, scale: number = 1): void {
