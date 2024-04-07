@@ -41,6 +41,8 @@ urlpatterns = [
     path('character/classes/workbench/<int:id>/', views.classWorkbench, name="classWorkbenchEdit"),
 
     path('character/races/', views.raceViewer, name="raceViewer"),
+    path('character/races/workbench/', views.raceWorkbench, name="raceWorkbench"),
+    path('character/races/workbench/<int:id>/', views.raceWorkbench, name="raceWorkbenchEdit"),
 
     path('world/campaigns/', views.campaignViewer, name="campaignViewer"),
     path('world/campaigns/workbench/', views.itemWorkbench, name="campaignsWorkbench"),

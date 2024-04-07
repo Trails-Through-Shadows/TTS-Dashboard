@@ -70,6 +70,11 @@ def raceViewer(request):
     return render(request, 'character/races/racesViewer.html')
 
 @login_required(login_url="/login/")
+def raceWorkbench(request, id=None):
+    context = {"raceId": id}
+    return render(request, 'character/races/racesWorkbench.html', context)
+
+@login_required(login_url="/login/")
 def campaignViewer(request):
     return render(request, 'world/campaigns/campaignsViewer.html')
 
