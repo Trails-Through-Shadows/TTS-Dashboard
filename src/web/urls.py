@@ -37,6 +37,8 @@ urlpatterns = [
     path('mechanics/summons/', views.effectViewer, name="summonViewer"),
 
     path('character/classes/', views.classViewer, name="classViewer"),
+    path('character/classes/workbench/', views.classWorkbench, name="classWorkbench"),
+    path('character/classes/workbench/<int:id>/', views.classWorkbench, name="classWorkbenchEdit"),
 
     path('character/races/', views.raceViewer, name="raceViewer"),
 

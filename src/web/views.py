@@ -61,6 +61,11 @@ def classViewer(request):
     return render(request, 'character/classes/classesViewer.html')
 
 @login_required(login_url="/login/")
+def classWorkbench(request, id=None):
+    context = {"classId": id}
+    return render(request, 'character/classes/classesWorkbench.html', context)
+
+@login_required(login_url="/login/")
 def raceViewer(request):
     return render(request, 'character/races/racesViewer.html')
 

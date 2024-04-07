@@ -1,0 +1,659 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% load filters %}
+{% load i18n %}
+
+{% block title %} Character - Classes - Editor {% endblock %}
+
+{% block stylesheets %}
+    <!-- Empty -->
+{% endblock stylesheets %}
+
+{% block content %}
+    <input type="hidden" value="{{ csrf_token }}" id="csrftoken" readonly/>
+    
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+        <div class="d-block mb-4 mb-md-0">
+            <h2 class="h4 mb-0">{% trans 'Class Workbench' %}</h2>
+            <p class="mb-0">{% trans 'Create or edit character class' %}</p>
+        </div>
+    </div>
+
+    <form id="workbench">
+        <div class="row">
+            <div class="col-5" id="classInformation">
+                <div class="row flex-column h-100">
+                    <div class="col-12 flex-fill mb-4">
+                        <div class="card card-body border-0 shadow h-100">
+                            <div class="card-header p-0">
+                                <h2 class="h5">{% trans 'Information:' %}</h2>
+                            </div>
+
+                            <div class="card-body p-0 formLoading">
+                                <div class="row">
+                                    <div class="col-4 align-self-center py-3">
+                                        <img src="{% static 'img/imgLoading.png' %}" id="entryUrl" alt="Entry Image" class="lazyload img-fluid rounded">
+                                    </div>
+
+                                    <div class="col-8 align-self-center">
+                                        <div class="py-2">
+                                            <h2 class="h5 mb-2">
+                                                <label class="visually-hidden" for="entryTitle">Title</label>
+                                                <div class="input-group input-group">
+                                                    <div class="input-group-text">{% trans 'Title' %}</div>
+                                                    <input type="text" class="form-control" id="entryTitle" placeholder="{% trans 'Title' %}" >
+                                                </div>
+                                            </h2>
+
+                                            <div class="d-flex align-items-center">
+                                                <div class="row gy-2 gx-3 align-items-center">
+                                                    <div class="col-4">
+                                                        <label class="visually-hidden" for="entryId">Id</label>
+                                                        <div class="input-group input-group-sm">
+                                                            <div class="input-group-text">{% trans 'ID' %}</div>
+                                                            <input type="text" class="form-control" id="entryId" placeholder="Entry Id" value="{{ classId|default:0 }}" readonly>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-8">
+                                                        <label class="visually-hidden" for="entryTag">Tag</label>
+                                                        <div class="input-group input-group-sm">
+                                                            <div class="input-group-text">{% trans 'Tag' %}</div>
+                                                            <input type="text" class="form-control" id="entryTag" placeholder="{% trans 'Tag' %}" >
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="align-items-center mt-2">
+                                                <label for="entryDescription" class="form-label visually-hidden">{% trans 'Description' %}</label>
+                                                <textarea class="form-control" id="entryDescription" rows="3" placeholder="{% trans 'Description' %}"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-4">
+                                        <label class="visually-hidden" for="baseInitiative">{% trans 'Base Initiative' %}</label>
+                                        <div class="input-group">
+                                            <div class="input-group-text">INI</div>
+                                            <input type="text" class="form-control" id="baseInitiative" placeholder="{% trans 'Initiative' %}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-4">
+                                        <label class="visually-hidden" for="baseHealth">{% trans 'Base Health' %}</label>
+                                        <div class="input-group">
+                                            <div class="input-group-text">HP</div>
+                                            <input type="text" class="form-control" id="baseHealth" placeholder="{% trans 'Health' %}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-4">
+                                        <label class="visually-hidden" for="baseDefence">{% trans 'Base Defence' %}</label>
+                                        <div class="input-group">
+                                            <div class="input-group-text">DEF</div>
+                                            <input type="text" class="form-control" id="baseDefence" placeholder="{% trans 'Defence' %}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card card-body border-0 shadow">
+                            <div class="row justify-content-evenly">
+                                <div class="col-lg-6 col-12">
+                                    <button class="btn btn-red-100 animate-up-2 w-100" type="button" id="cancelButton">
+                                        {% trans 'Cancel' %}
+                                    </button>
+                                </div>
+
+                                <div class="col-lg-6 col-12 mt-2 mt-lg-0">
+                                    <button class="btn btn-green-100 animate-up-2 w-100" type="submit" id="saveButton">
+                                        {% if enemyId is not None %}
+                                            {% trans 'Save' %}
+                                        {% else %}
+                                            {% trans 'Create' %}
+                                        {% endif %}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-2">
+                        <div class="alert alert-success fade show validation" role="alert" id="informationValidation">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-4" id="classActions">
+                <div class="row flex-column h-100">
+
+                    <div class="col-12 flex-fill">
+                        <div class="card card-body border-0 shadow h-100">
+                            <div class="card-header p-0 mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h2 class="h5 m-0">{% trans 'Actions:' %}</h2>
+
+                                    <div class="col-6 mb-2">
+                                        <div class="btn-toolbar justify-content-end">
+                                            <a href="javascript:void(0)" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center" id="addAction">
+                                                <i class="fa-solid fa-plus me-1"></i>
+                                                {% trans 'Add' %}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-0 cards-scroll formLoading">
+                                <div class="row gap-1" id="classActionsList">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-2">
+                        <div class="alert alert-success fade show validation" role="alert" id="actionsValidation">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-3" id="classEffects">
+                <div class="row flex-column h-100">
+                    <div class="col-12 flex-fill">
+                        <div class="card card-body border-0 shadow h-100">
+                            <div class="card-header p-0 mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h2 class="h5 m-0">{% trans 'Effects:' %}</h2>
+
+                                    <div class="col-6 mb-2">
+                                        <div class="btn-toolbar justify-content-end">
+                                            <a href="javascript:void(0)" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center" id="addEffect">
+                                                <i class="fa-solid fa-plus me-1"></i>
+                                                {% trans 'Add' %}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-0 formLoading">
+                                <div class="row flex-column gap-1" id="classEffectsList">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-2">
+                        <div class="alert alert-success fade show validation" role="alert" id="effectsValidation">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock content %}
+
+{% block javascripts %}
+    <script async>
+        const csrfToken = document.querySelector('#csrftoken').value;
+
+        // ---- | Urls
+
+        const allUrl = "{% url 'apiQueryTable' table="classes" %}";
+        const entryUrl = "{% url 'apiQueryTableID' table="classes" id=classId|default:0 %}";
+        const validateUrl = "{% url 'apiValidateTable' table="class" %}";
+
+        // ---- | Data
+
+        const formRoot = document.getElementById('workbench');
+        const formValidator = new Dashboard.FormValidator(formRoot, validateUrl);
+        const formEditor = new Dashboard.FormEditor(formRoot, entryUrl, formValidator);
+
+        const entryTitle = formRoot.querySelector('#entryTitle');
+        entryTitle.addEventListener('input', () => {
+            formEditor.object.title = entryTitle.value;
+            formEditor.validate();
+        });
+
+        const entryTag = formRoot.querySelector('#entryTag');
+        entryTag.addEventListener('input', () => {
+            formEditor.object.tag = entryTag.value;
+            formEditor.validate();
+        });
+
+        const entryDescription = formRoot.querySelector('#entryDescription');
+        entryDescription.addEventListener('input', () => {
+            formEditor.object.description = entryDescription.value;
+            formEditor.validate();
+        });
+
+        const baseInitiative = formRoot.querySelector('#baseInitiative');
+        baseInitiative.addEventListener('input', () => {
+            try {
+                formEditor.object.baseInitiative = parseInt(baseInitiative.value);
+                formEditor.validate();
+            } catch (e) {
+                // TODO:
+            }
+        });
+
+        const baseHealth = formRoot.querySelector('#baseHealth');
+        baseHealth.addEventListener('input', () => {
+            try {
+                formEditor.object.baseHealth = parseInt(baseHealth.value);
+                formEditor.validate();
+            } catch (e) {
+                // TODO:
+            }
+        });
+
+        const baseDefence = formRoot.querySelector('#baseDefence');
+        baseDefence.addEventListener('input', () => {
+            try {
+                formEditor.object.baseDefence = parseInt(baseDefence.value);
+                formEditor.validate();
+            } catch (e) {
+                // TODO:
+            }
+        });
+        
+        const addActionButton = document.querySelector('#addAction');
+        addActionButton.addEventListener('click', () => {
+            Dashboard.Modal.openSearch("mechanics/actions/actionsSearch.html", "actions");
+        });
+
+        const addEffectButton = document.querySelector('#addEffect');
+        addEffectButton.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            let promise = Dashboard.Modal.openModal("mechanics/effects/effectsWorkbench.html");
+            promise.then((modal) => {
+                const modalRoot = modal.modal;
+
+                const effectForm = modalRoot.querySelector('#effectWorkbench');
+                const effectSubmitForm = modalRoot.querySelector('#effectSubmit');
+
+                function submitForm(event) {
+                    event.preventDefault();
+
+                    if (!effectForm.checkValidity()) {
+                        Swal.fire({
+                            icon: 'error',
+                            toast: true,
+                            position: 'top-end',
+                            title: '{% trans 'Error!' %}',
+                            text: '{% trans 'Effect form is not valid!' %}',
+                            showConfirmButton: false,
+                            timer: 2500
+                        })
+
+                        return;
+                    }
+
+                    const effectType = effectForm.querySelector('#effectType').value;
+                    const effectTarget = effectForm.querySelector('#effectTarget').value;
+                    const effectDescription = effectForm.querySelector('#effectDescription').value;
+                    
+                    const effectStrengthInfinity = effectForm.querySelector('#effectStrengthInfinity').checked;
+                    const effectStrength = effectStrengthInfinity ? -1 : effectForm.querySelector('#effectStrength').value;
+                    
+                    const effectDurationInfinity = effectForm.querySelector('#effectDurationInfinity').checked;
+                    const effectDuration = effectDurationInfinity ? -1 : effectForm.querySelector('#effectDuration').value;
+
+                    const effect = new Dashboard.Effect(null, effectType, effectDescription, effectDuration, effectStrength, effectTarget);
+                    formEditor.object.effects.push(effect);
+                    formEditor.validate();
+
+                    const effectCol = document.createElement('div');
+                    effectCol.classList.add('col-12');
+
+                    effectCol.appendChild(effect.toCard(true, (event, id) => {
+                        event.preventDefault();
+
+                        const entry = formEditor.object;
+                        entry.effects = entry.effects.filter(eff => eff !== effect);
+                        effectCol.remove();
+                        formEditor.validate();
+                    }));
+
+                    const enemyEffectsList = document.getElementById('classEffectsList');
+                    enemyEffectsList.appendChild(effectCol);
+
+                    modal.close();
+                }
+
+                effectSubmitForm.addEventListener('click', submitForm);
+                effectForm.addEventListener('submit', submitForm);
+            });
+        });
+
+        // On searchDataLoaded event
+        document.addEventListener('searchDataLoaded', (event) => {
+            const type = event.detail.type;
+
+            const warn = document.createElement('div');
+            warn.id = 'warn';
+            warn.classList.add('alert', 'alert-warning', 'text-center');
+            warn.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> All actions used.';
+
+            if (type === 'actions') {
+                const actions = event.detail.data;
+
+                for (const action of actions) {
+                    let removed = false;
+                    formEditor.getObject().actions.forEach((entry) => {
+                        removed = removed || entry.id === action.id;
+                    });
+
+                    if (removed) {
+                        action.card.remove();
+                        continue;
+                    }
+
+                    action.card.querySelector('button[data-action="add"]').addEventListener('click', (event) => {
+                        event.preventDefault();
+
+                        // Add to list
+                        const enemyActionsList = document.getElementById('classActionsList');
+                        const actionCol = document.createElement('div');
+                        actionCol.classList.add('col-12');
+
+                        actionCol.appendChild(action.toCard(true, (event, id) => {
+                            event.preventDefault();
+
+                            formEditor.object.actions = formEditor.object.actions.filter(action => action.id !== id);
+                            formEditor.validate();
+                            actionCol.remove();
+                        }));
+                        enemyActionsList.appendChild(actionCol);
+
+                        // Add to object
+                        const entry = formEditor.getObject();
+                        entry.actions.push(action);
+
+                        action.card.remove();
+                        formEditor.validate();
+                    });
+                }
+            }
+
+            if (type === 'effects') {
+
+            }
+        });
+
+        const infoValidation = document.getElementById('informationValidation');
+        const actionsValidation = document.getElementById('actionsValidation');
+        const effectsValidation = document.getElementById('effectsValidation');
+
+        formValidator.setOnStart(() => {
+            infoValidation.classList.remove('alert-success', 'alert-danger', 'alert-collapsed');
+            infoValidation.classList.add('alert-warning', 'validating');
+            infoValidation.innerHTML = '<i class="fa-solid fa-spinner-third me-1"></i> Validating...';
+
+            actionsValidation.classList.remove('alert-success', 'alert-danger', 'alert-collapsed');
+            actionsValidation.classList.add('alert-warning', 'validating');
+            actionsValidation.innerHTML = '<i class="fa-solid fa-spinner-third me-1"></i> Validating...';
+
+            effectsValidation.classList.remove('alert-success', 'alert-danger', 'alert-collapsed');
+            effectsValidation.classList.add('alert-warning', 'validating');
+            effectsValidation.innerHTML = '<i class="fa-solid fa-spinner-third me-1"></i> Validating...';
+        })
+
+        formValidator.setOnSuccess(() => {
+            infoValidation.classList.remove('alert-warning', 'alert-danger', 'validating');
+            infoValidation.classList.add('alert-success', 'alert-collapsed');
+            infoValidation.innerHTML = '';
+
+            actionsValidation.classList.remove('alert-warning', 'alert-danger', 'validating');
+            actionsValidation.classList.add('alert-success', 'alert-collapsed');
+            actionsValidation.innerHTML = '';
+
+            effectsValidation.classList.remove('alert-warning', 'alert-danger', 'validating');
+            effectsValidation.classList.add('alert-success', 'alert-collapsed');
+            effectsValidation.innerHTML = '';
+        })
+
+        formValidator.setOnFail((errors) => {
+            formValidator.onSuccess();
+
+            if (errors.length === 0) {
+                effectsValidation.classList.remove('alert-success', 'alert-collapsed');
+                effectsValidation.classList.add('alert-danger');
+                effectsValidation.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> Internal Server error!';
+
+                actionsValidation.classList.remove('alert-success', 'alert-collapsed');
+                actionsValidation.classList.add('alert-danger');
+                actionsValidation.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> Internal Server error!';
+
+                infoValidation.classList.remove('alert-success', 'alert-collapsed');
+                infoValidation.classList.add('alert-danger');
+                infoValidation.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> Internal Server error!';
+                return;
+            }
+
+            for (const err of errors) {
+                const errorDiv = document.createElement('div');
+                errorDiv.classList.add('d-block', 'row', 'mt-1');
+
+                if (!err.errors) {
+                    errorDiv.innerHTML = `
+                        <div class="col-12">
+                            <i class="fa-solid fa-exclamation-triangle me-1"></i>
+                            <span>${err.message}</span>
+                        </div>
+                    `;
+                } else {
+                    errorDiv.innerHTML = `
+                        <div class="col-12">
+                            <i class="fa-solid fa-exclamation-triangle me-1"></i>
+                            <span>${err.message}</span>
+                        </div>
+                        ${err.errors.map((field) => {
+                            return `
+                                <div class="col-12">
+                                    <span class="ms-1">* ${field.message}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    `;
+                }
+
+                switch (err.object) {
+                    case 'Effect': {
+                        effectsValidation.classList.remove('alert-success', 'alert-collapsed');
+                        effectsValidation.classList.add('alert-danger');
+
+                        effectsValidation.appendChild(errorDiv);
+                        break;
+                    }
+
+                    case 'Action': {
+                        actionsValidation.classList.remove('alert-success', 'alert-collapsed');
+                        actionsValidation.classList.add('alert-danger');
+
+                        actionsValidation.appendChild(errorDiv);
+                        break;
+                    }
+
+                    default: {
+                        infoValidation.classList.remove('alert-success', 'alert-collapsed');
+                        infoValidation.classList.add('alert-danger');
+
+                        infoValidation.appendChild(errorDiv);
+                        break;
+                    }
+                }
+            }
+        })
+
+        {% if classId is not None %}
+            formEditor.queryData((data) => {
+                const clazz = Dashboard.Clazz.fromJSON(data);
+
+                entryTitle.value = clazz.title;
+                entryTag.value = clazz.tag;
+                entryDescription.value = clazz.description;
+                baseInitiative.value = clazz.baseInitiative;
+                baseHealth.value = clazz.baseHealth;
+                baseDefence.value = clazz.baseDefence;
+                
+                const entryUrl = document.getElementById('entryUrl');
+                entryUrl.src = clazz.url;
+
+                const enemyActionsList = document.getElementById('enemyActionsList');
+                clazz.actions.forEach((action) => {
+                    const actionCol = document.createElement('div');
+                    actionCol.classList.add('col-12');
+
+                    actionCol.appendChild(action.toCard(true, (event, id) => {
+                        event.preventDefault();
+
+                        clazz.actions = clazz.actions.filter(action => action.id !== id);
+                        actionCol.remove();
+                        formEditor.validate();
+                    }));
+                    enemyActionsList.appendChild(actionCol);
+                });
+
+                const enemyEffectsList = document.getElementById('enemyEffectsList');
+                clazz.effects.forEach((effect) => {
+                    const effectCol = document.createElement('div');
+                    effectCol.classList.add('col-12');
+
+                    effectCol.appendChild(effect.toCard(true, (event, id) => {
+                        event.preventDefault();
+
+                        clazz.effects = clazz.effects.filter(effect => effect.id !== id);
+                        effectCol.remove();
+                        formEditor.validate();
+                    }));
+                    enemyEffectsList.appendChild(effectCol);
+                });
+
+                return clazz;
+            }, () => {
+                formEditor.validate();
+            });
+        {% else %}
+            formEditor.object = new Dashboard.Enemy(null, "", "", "", 0, 0, 0, [], []);
+        {% endif %}
+
+        // ----
+
+        const cancelButton = document.getElementById('cancelButton');
+        cancelButton.addEventListener('click', () => {
+            Swal.fire({
+                title: '{% trans 'Are you sure?' %}',
+                text: '{% trans 'You will loose all your changes!' %}',
+                icon: 'warning',
+                reverseButtons: true,
+                showCancelButton: true,
+                confirmButtonColor: Dashboard.Color.RED.lighten(0.2).toRGB(),
+                cancelButtonColor: Dashboard.Color.GREY.lighten(0.2).toRGB(),
+                confirmButtonText: '{% trans 'Yes, cancel!' %}',
+                cancelButtonText: '{% trans 'No, keep editing' %}',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{% url 'enemyViewer' %}";
+                }
+            });
+        });
+
+        const saveButton = document.getElementById('saveButton');
+        saveButton.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            // Check form validity
+            const form = document.getElementById('workbench');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            if (formValidator.isValidating()) {
+                return Swal.fire({
+                    icon: 'warning',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Enemy is validating, please wait!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
+                });
+            }
+
+            if (!formEditor.isValid()) {
+                return Swal.fire({
+                    icon: 'error',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Enemy is not valid!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
+                });
+            }
+
+            Notiflix.Block.circle("#workbench", 'Saving...');
+
+            const entryIdInput = form.querySelector('#entryId');
+            const entryId = entryIdInput.value;
+
+            let url = "{% url 'apiQueryTable' table="enemies" %}";
+            {% if classId is not undefined %}
+                url = "{% url 'apiQueryTableID' table="classes" id=0 %}".replace(0, entryId);
+            {% endif %}
+
+            formEditor.saveData(() => {
+                Swal.fire({
+                    icon: 'success',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Success, enemy saved!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
+                })
+
+                setTimeout(() => {
+                    window.location.href = "{% url 'enemyViewer' %}";
+                }, 1000);
+
+                Notiflix.Block.remove("#workbench");
+            }, (responseText) => {
+                Notiflix.Block.remove("#workbench");
+
+                Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 10000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        toast.addEventListener('click', () => {
+                            const data = JSON.parse(responseText);
+                            const string = JSON.stringify(data, null, 4);
+
+                            Swal.fire({
+                                text: string,
+                                customClass: {
+                                    htmlContainer: 'text-start text-pre'
+                                },
+                                showConfirmButton: false,
+                            });
+                        })
+                    }
+                }).fire({
+                    icon: "error",
+                    title: '{% trans "Error, saving failed! Click for more information." %}'
+                });
+            });
+        });
+    </script>
+{% endblock javascripts %}
