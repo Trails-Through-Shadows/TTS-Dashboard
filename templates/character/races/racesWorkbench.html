@@ -226,26 +226,6 @@
                 // TODO:
             }
         });
-
-        const baseHealth = formRoot.querySelector('#baseHealth');
-        baseHealth.addEventListener('input', () => {
-            try {
-                formEditor.object.baseHealth = parseInt(baseHealth.value);
-                formEditor.validate();
-            } catch (e) {
-                // TODO:
-            }
-        });
-
-        const baseDefence = formRoot.querySelector('#baseDefence');
-        baseDefence.addEventListener('input', () => {
-            try {
-                formEditor.object.baseDefence = parseInt(baseDefence.value);
-                formEditor.validate();
-            } catch (e) {
-                // TODO:
-            }
-        });
         
         const addActionButton = document.querySelector('#addAction');
         addActionButton.addEventListener('click', () => {
@@ -479,27 +459,25 @@
 
         {% if raceId is not None %}
             formEditor.queryData((data) => {
-                const clazz = Dashboard.Race.fromJSON(data);
+                const race = Dashboard.Race.fromJSON(data);
 
-                entryTitle.value = clazz.title;
-                entryTag.value = clazz.tag;
-                entryDescription.value = clazz.description;
-                baseInitiative.value = clazz.baseInitiative;
-                baseHealth.value = clazz.baseHealth;
-                baseDefence.value = clazz.baseDefence;
-                
+                entryTitle.value = race.title;
+                entryTag.value = race.tag;
+                entryDescription.value = race.description;
+                baseInitiative.value = race.baseInitiative;
+
                 const entryUrl = document.getElementById('entryUrl');
-                entryUrl.src = clazz.url;
+                entryUrl.src = race.url;
 
                 const enemyActionsList = document.getElementById('enemyActionsList');
-                clazz.actions.forEach((action) => {
+                race.actions.forEach((action) => {
                     const actionCol = document.createElement('div');
                     actionCol.classList.add('col-12');
 
                     actionCol.appendChild(action.toCard(true, (event, id) => {
                         event.preventDefault();
 
-                        clazz.actions = clazz.actions.filter(action => action.id !== id);
+                        race.actions = race.actions.filter(action => action.id !== id);
                         actionCol.remove();
                         formEditor.validate();
                     }));
@@ -507,26 +485,26 @@
                 });
 
                 const raceEffectsList = document.getElementById('raceEffectsList');
-                clazz.effects.forEach((effect) => {
+                race.effects.forEach((effect) => {
                     const effectCol = document.createElement('div');
                     effectCol.classList.add('col-12');
 
                     effectCol.appendChild(effect.toCard(true, (event, id) => {
                         event.preventDefault();
 
-                        clazz.effects = clazz.effects.filter(effect => effect.id !== id);
+                        race.effects = race.effects.filter(effect => effect.id !== id);
                         effectCol.remove();
                         formEditor.validate();
                     }));
                     raceEffectsList.appendChild(effectCol);
                 });
 
-                return clazz;
+                return race;
             }, () => {
                 formEditor.validate();
             });
         {% else %}
-            formEditor.object = new Dashboard.Enemy(null, "", "", "", 0, 0, 0, [], []);
+            formEditor.object = new Dashboard.Race(0, "", "", "", 0, "", [], [])
         {% endif %}
 
         // ----
