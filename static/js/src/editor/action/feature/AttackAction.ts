@@ -15,7 +15,7 @@ module Dashboard {
             let effects: Effect[] = [];
             if (json.effects) {
                 for (let effect of json.effects) {
-                    effects.push(Effect.fromJSON(effect));
+                    effects.push(Effect.fromJSON(effect.effect));
                 }
             }
 
