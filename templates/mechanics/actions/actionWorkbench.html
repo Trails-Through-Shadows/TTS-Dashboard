@@ -63,7 +63,7 @@
                                                         <label class="visually-hidden" for="actionLvlReq">Lvl. Req.</label>
                                                         <div class="input-group input-group-sm">
                                                             <div class="input-group-text">{% trans 'Lvl. Req.' %}</div>
-                                                            <input type="text" class="form-control" id="actionLvlReq" placeholder="{% trans 'Lvl. Req.' %}" required>
+                                                            <input type="text" class="form-control" id="actionLvlReq" placeholder="{% trans 'Lvl. Req.' %}" value="1" required>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -347,7 +347,7 @@
                                         <label class="visually-hidden" for="actionAttackNumber">{% trans 'Number of Attacks' %}</label>
                                         <div class="input-group input-group-sm">
                                             <div class="input-group-text">{% trans 'Number of Attacks' %}</div>
-                                            <input type="number" class="form-control" min=0 id="actionAttackNumber" placeholder="{% trans 'Number of Attacks' %}">
+                                            <input type="number" class="form-control" min=0 id="actionAttackNumber" placeholder="{% trans 'Number of Attacks' %}" value="1">
                                         </div>
                                     </div>
 
@@ -1083,7 +1083,7 @@
                 actionTitle.value = action.title;
 
                 const actionLvlReq = document.getElementById('actionLvlReq');
-                actionLvlReq.value = action.levelReq;
+                actionLvlReq.value = action.levelReq || 1;
 
                 const actionDiscardType = document.getElementById('actionDiscardType');
                 actionDiscardType.value = action.discard;
@@ -1174,7 +1174,7 @@
                     actionAttackArea.value = attackAction.area;
 
                     const actionAttackNumber = document.getElementById('actionAttackNumber');
-                    actionAttackNumber.value = attackAction.numAttacks;
+                    actionAttackNumber.value = attackAction.numAttacks || 1;
 
                     const actionAttackTarget = document.getElementById('actionAttackTarget');
                     actionAttackTarget.value = attackAction.target;
@@ -1208,6 +1208,10 @@
             });
         {% else %}
             formEditor.object = new Dashboard.Action(0, "", "", null, null, null, [], null, null, null, 0);
+            loadMovementSection();
+            loadSkillSection();
+            loadRestoreCardsSection();
+            loadAttackSection();
             formEditor.validate();
         {% endif %}
 
