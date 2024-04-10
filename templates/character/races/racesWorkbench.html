@@ -324,7 +324,9 @@
                         event.preventDefault();
 
                         // Add to list
-                        const enemyActionsList = document.getElementById('raceActionsList');
+                        const raceActionsList = document.getElementById('raceActionsList');
+                        console.log(raceActionsList);
+                        
                         const actionCol = document.createElement('div');
                         actionCol.classList.add('col-12');
 
@@ -335,7 +337,7 @@
                             formEditor.validate();
                             actionCol.remove();
                         }));
-                        enemyActionsList.appendChild(actionCol);
+                        raceActionsList.appendChild(actionCol);
 
                         // Add to object
                         const entry = formEditor.getObject();
@@ -469,7 +471,7 @@
                 const entryUrl = document.getElementById('entryUrl');
                 entryUrl.src = race.url;
 
-                const enemyActionsList = document.getElementById('enemyActionsList');
+                const raceActionsList = document.getElementById('raceActionsList');
                 race.actions.forEach((action) => {
                     const actionCol = document.createElement('div');
                     actionCol.classList.add('col-12');
@@ -481,7 +483,7 @@
                         actionCol.remove();
                         formEditor.validate();
                     }));
-                    enemyActionsList.appendChild(actionCol);
+                    raceActionsList.appendChild(actionCol);
                 });
 
                 const raceEffectsList = document.getElementById('raceEffectsList');
