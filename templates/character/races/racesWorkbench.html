@@ -544,7 +544,7 @@
                     icon: 'warning',
                     toast: true,
                     position: 'top-end',
-                    text: '{% trans "Enemy is validating, please wait!" %}',
+                    text: '{% trans "Race is validating, please wait!" %}',
                     showConfirmButton: false,
                     timer: 2500
                 });
@@ -555,7 +555,7 @@
                     icon: 'error',
                     toast: true,
                     position: 'top-end',
-                    text: '{% trans "Enemy is not valid!" %}',
+                    text: '{% trans "Race is not valid!" %}',
                     showConfirmButton: false,
                     timer: 2500
                 });
@@ -566,9 +566,9 @@
             const entryIdInput = form.querySelector('#entryId');
             const entryId = entryIdInput.value;
 
-            let url = "{% url 'apiQueryTable' table="enemies" %}";
-            {% if classId is not undefined %}
-                url = "{% url 'apiQueryTableID' table="classes" id=0 %}".replace(0, entryId);
+            let url = "{% url 'apiQueryTable' table="races" %}";
+            {% if raceId is not undefined %}
+                url = "{% url 'apiQueryTableID' table="races" id=0 %}".replace(0, entryId);
             {% endif %}
 
             formEditor.saveData(() => {
@@ -582,7 +582,7 @@
                 })
 
                 setTimeout(() => {
-                    window.location.href = "{% url 'enemyViewer' %}";
+                    window.location.href = "{% url 'raceViewer' %}";
                 }, 1000);
 
                 Notiflix.Block.remove("#workbench");

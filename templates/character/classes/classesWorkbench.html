@@ -382,10 +382,6 @@
                     });
                 }
             }
-
-            if (type === 'effects') {
-
-            }
         });
 
         const infoValidation = document.getElementById('informationValidation');
@@ -604,7 +600,7 @@
             const entryIdInput = form.querySelector('#entryId');
             const entryId = entryIdInput.value;
 
-            let url = "{% url 'apiQueryTable' table="enemies" %}";
+            let url = "{% url 'apiQueryTable' table="classes" %}";
             {% if classId is not undefined %}
                 url = "{% url 'apiQueryTableID' table="classes" id=0 %}".replace(0, entryId);
             {% endif %}
@@ -620,7 +616,7 @@
                 })
 
                 setTimeout(() => {
-                    window.location.href = "{% url 'enemyViewer' %}";
+                    window.location.href = "{% url 'classViewer' %}";
                 }, 1000);
 
                 Notiflix.Block.remove("#workbench");
