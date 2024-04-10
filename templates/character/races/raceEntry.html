@@ -57,8 +57,14 @@
 
 <script id="entryDataScript">
     let actionsJSON = "{{ actions|safe|escapejs }}";
+    actionsJSON = actionsJSON.replace(/"([^"]*)"/g, function(match, p1) {
+        return match.replace(p1, p1.replace(/'/g, "|qts|"));
+    });
     actionsJSON = actionsJSON.replace(/'/g, '"');
     actionsJSON = actionsJSON.replace(/None/g, 'null');
+    actionsJSON = actionsJSON.replace("True", "true");
+    actionsJSON = actionsJSON.replace("False", "false");
+    actionsJSON = actionsJSON.replace("|qts|", "'");
 
     const actionsCard = document.getElementById('actionsCard');
     if (actionsJSON == null || actionsJSON == '[]') {
@@ -77,8 +83,14 @@
     }
 
     let effectsJSON = "{{ effects|safe|escapejs }}";
+    effectsJSON = effectsJSON.replace(/"([^"]*)"/g, function(match, p1) {
+        return match.replace(p1, p1.replace(/'/g, "|qts|"));
+    });
     effectsJSON = effectsJSON.replace(/'/g, '"');
     effectsJSON = effectsJSON.replace(/None/g, 'null');
+    effectsJSON = effectsJSON.replace("True", "true");
+    effectsJSON = effectsJSON.replace("False", "false");
+    effectsJSON = effectsJSON.replace("|qts|", "'");
 
     const effectsCards = document.getElementById('effectsCard');
     if (effectsJSON == null || effectsJSON == '[]') {

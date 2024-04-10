@@ -10,7 +10,6 @@ from requests import request as req
 
 from dashboard.settings import API_URL
 from django.http import JsonResponse, HttpResponse, FileResponse
-import time
 
 
 def requestAPI(method, url, jsonData=None):
