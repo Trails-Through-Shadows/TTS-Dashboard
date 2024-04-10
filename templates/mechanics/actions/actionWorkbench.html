@@ -35,55 +35,55 @@
 
                             <div class="card-body p-0 formLoading">
                                 <div class="row h-100">
-                                    <div class="col-4 align-self-top py-3">
+                                    <div class="col-4 align-self-center py-3">
                                         <img src="{% static 'img/imgLoading.png' %}" id="actionImage" data-src="{% imageFor url %}" alt="Entry Image" class="lazyload img-fluid rounded">
                                     </div>
 
-                                    <div class="col-8 align-self-top">
-                                        <div class="py-2">
-                                            <h2 class="h5 mb-2">
-                                                <label class="visually-hidden" for="actionTitle">Title</label>
-                                                <div class="input-group input-group">
-                                                    <div class="input-group-text">{% trans 'Title' %}</div>
-                                                    <input type="text" class="form-control" id="actionTitle" placeholder="{% trans 'Title' %}" required>
-                                                </div>
-                                            </h2>
+                                    <div class="col-8 align-self-center py-3">
+                                        <h2 class="h5 mb-2">
+                                            <label class="visually-hidden" for="actionTitle">Title</label>
+                                            <div class="input-group input-group">
+                                                <div class="input-group-text">{% trans 'Title' %}</div>
+                                                <input type="text" class="form-control" id="actionTitle" placeholder="{% trans 'Title' %}" required>
+                                            </div>
+                                        </h2>
 
-                                            <div class="d-flex align-items-center">
-                                                <div class="row gy-2 gx-3 align-items-center">
-                                                    <div class="col-4">
-                                                        <label class="visually-hidden" for="entryId">Id</label>
-                                                        <div class="input-group input-group-sm">
-                                                            <div class="input-group-text">{% trans 'ID' %}</div>
-                                                            <input type="text" class="form-control" id="entryId" placeholder="Enemy Id" value="{{ itemId|default:0 }}" readonly>
-                                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <div class="row gy-2 gx-3 align-items-center">
+                                                <div class="col-4">
+                                                    <label class="visually-hidden" for="entryId">Id</label>
+                                                    <div class="input-group input-group-sm">
+                                                        <div class="input-group-text">{% trans 'ID' %}</div>
+                                                        <input type="text" class="form-control" id="entryId" placeholder="Enemy Id" value="{{ itemId|default:0 }}" readonly>
                                                     </div>
+                                                </div>
 
-                                                    <div class="col-8">
-                                                        <label class="visually-hidden" for="actionLvlReq">Lvl. Req.</label>
-                                                        <div class="input-group input-group-sm">
-                                                            <div class="input-group-text">{% trans 'Lvl. Req.' %}</div>
-                                                            <input type="text" class="form-control" id="actionLvlReq" placeholder="{% trans 'Lvl. Req.' %}" value="1" required>
-                                                        </div>
+                                                <div class="col-8">
+                                                    <label class="visually-hidden" for="actionLvlReq">Lvl. Req.</label>
+                                                    <div class="input-group input-group-sm">
+                                                        <div class="input-group-text">{% trans 'Lvl. Req.' %}</div>
+                                                        <input type="text" class="form-control" id="actionLvlReq" placeholder="{% trans 'Lvl. Req.' %}" value="1" required>
                                                     </div>
                                                 </div>
                                             </div>
+                                        </div>
 
-                                            <div class="input-group input-group-sm mt-2">
-                                                <label class="input-group-text mb-0" for="actionDiscardType">Discard</label>
-                                                <select class="form-select" id="actionDiscardType" required>
-                                                    <option value="hidden" selected hidden disabled>Choose Discard</option>
-                                                    <option value="PERMANENT">PERMANENT</option>
-                                                    <option value="SHORT_REST">SHORT_REST</option>
-                                                    <option value="LONG_REST">LONG_REST</option>
-                                                    <option value="NEVER">NEVER</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="align-items-center mt-2 flex-fill">
-                                                <label for="actionDescription" class="form-label visually-hidden">{% trans 'Description' %}</label>
-                                                <textarea class="form-control" id="actionDescription" rows="3" placeholder="{% trans 'Description' %}"></textarea>
-                                            </div>
+                                        <div class="input-group input-group-sm mt-2">
+                                            <label class="input-group-text mb-0" for="actionDiscardType">Discard</label>
+                                            <select class="form-select" id="actionDiscardType" required>
+                                                <option value="hidden" selected hidden disabled>Choose Discard</option>
+                                                <option value="PERMANENT">PERMANENT</option>
+                                                <option value="SHORT_REST">SHORT_REST</option>
+                                                <option value="LONG_REST">LONG_REST</option>
+                                                <option value="NEVER">NEVER</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-12 align-self-top">
+                                        <div class="align-items-center mt-2 flex-fill">
+                                            <label for="actionDescription" class="form-label visually-hidden">{% trans 'Description' %}</label>
+                                            <textarea class="form-control" id="actionDescription" rows="3" placeholder="{% trans 'Description' %}"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -754,7 +754,7 @@
             const actionAttackDiv = formRoot.querySelector('#attack');
 
             if (formEditor.object.attack === null || formEditor.object.attack === undefined) {
-                formEditor.object.attack = new Dashboard.AttackAction(null, null, null, null, [], null, null);
+                formEditor.object.attack = new Dashboard.AttackAction(null, null, null, null, [], null, 1);
             }
 
             if (!actionAttackReset.checked) {
@@ -873,7 +873,7 @@
                     case 'RestoreCards':
                     case 'Attack':
                     case 'Action': {
-                        if (err.field !== "levelReq") {
+                        if (err.field !== "levelReq" && err.field !== "discard" && err.field !== "description") {
                             actionsValidation.classList.remove('alert-success', 'alert-collapsed');
                             actionsValidation.classList.add('alert-danger');
 
@@ -1076,6 +1076,10 @@
             formEditor.queryData((data) => {
                 let action = Dashboard.Action.fromJSON(data);
 
+                if (action.levelReq === 0) {
+                    action.levelReq = 1;
+                }
+
                 {#const actionImage = document.getElementById('actionImage');#}
                 {#actionImage.src = action.url;#}
 
@@ -1083,7 +1087,7 @@
                 actionTitle.value = action.title;
 
                 const actionLvlReq = document.getElementById('actionLvlReq');
-                actionLvlReq.value = action.levelReq || 1;
+                actionLvlReq.value = action.levelReq;
 
                 const actionDiscardType = document.getElementById('actionDiscardType');
                 actionDiscardType.value = action.discard;
@@ -1164,6 +1168,10 @@
                 //-- Attack
                 const attackAction = action.attack;
                 if (attackAction) {
+                    if (attackAction.numAttacks === 0) {
+                        attackAction.numAttacks = 1;
+                    }
+
                     const actionAttackRange = document.getElementById('actionAttackRange');
                     actionAttackRange.value = attackAction.range;
 
@@ -1174,7 +1182,7 @@
                     actionAttackArea.value = attackAction.area;
 
                     const actionAttackNumber = document.getElementById('actionAttackNumber');
-                    actionAttackNumber.value = attackAction.numAttacks || 1;
+                    actionAttackNumber.value = attackAction.numAttacks
 
                     const actionAttackTarget = document.getElementById('actionAttackTarget');
                     actionAttackTarget.value = attackAction.target;
@@ -1207,7 +1215,8 @@
                 formEditor.validate();
             });
         {% else %}
-            formEditor.object = new Dashboard.Action(0, "", "", null, null, null, [], null, null, null, 0);
+            formEditor.object = new Dashboard.Action(0, "", "", null, null, null, [], null, null, null, 1);
+            formEditor.object.levelReq = 1;
             loadMovementSection();
             loadSkillSection();
             loadRestoreCardsSection();
