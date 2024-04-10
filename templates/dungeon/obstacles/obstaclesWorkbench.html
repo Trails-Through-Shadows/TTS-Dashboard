@@ -233,9 +233,7 @@
                 const effectForm = modalRoot.querySelector('#effectWorkbench');
                 const effectSubmitForm = modalRoot.querySelector('#effectSubmit');
 
-                function submitForm(event) {
-                    event.preventDefault();
-                    
+                function submitForm() {
                     if (!effectForm.checkValidity()) {
                         Swal.fire({
                             icon: 'error',
@@ -470,9 +468,7 @@
                 url = "{% url 'apiQueryTableID' table="obstacles" id=0 %}".replace(0, entryId);
             {% endif %}
 
-            formEditor.saveData((event) => {
-                event.preventDefault();
-                
+            formEditor.saveData(() => {
                 Swal.fire({
                     icon: 'success',
                     toast: true,
