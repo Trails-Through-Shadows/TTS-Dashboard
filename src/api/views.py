@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 -*-
+import base64
 import json
 
 from django.contrib.auth.decorators import login_required
@@ -24,6 +25,9 @@ def requestAPI(method, url, jsonData=None):
     if jsonData is not None:
         print("- Data: ", jsonData)
 
+    credentials = "shadefa11en:ourPassword"
+    hash = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
+
     try:
         response = req(
             method=method,
@@ -32,6 +36,7 @@ def requestAPI(method, url, jsonData=None):
             headers={
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
+                'Authorization': 'Basic ' + hash
             },
         )
 
