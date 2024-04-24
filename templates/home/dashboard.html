@@ -179,9 +179,15 @@
             let nameText = draw.text(name).font({fill: black, size: 20, family: 'Helvetica'}).move(x + 60, y);
 
             if (value == "ALL_ENEMIES") {
-                value = "ENEMIES";
+                value = "All Enemies";
             } else if (value == "ALL_ALLIES") {
-                value = "ALLIES";
+                value = "All Allies";
+            } else if (value == "SELF") {
+                value = "Self";
+            } else if (value == "ALL") {
+                value = "All";
+            } else if (value == "ONE") {
+                value = "One";
             }
 
             let valueText = draw.text(value).font({fill: black, size: 30, family: 'Helvetica'}).move(x + 60, y+20);
@@ -248,11 +254,11 @@
                 currentWidthOffset += drawIcon("arrow", "Area", action.skill.area, currentWidthOffset, currentHeightOffset);
             }
 
-            currentHeightOffset += 60;
-
-            for (let effect of action.skill.effects) {
-
-            }
+            {#currentHeightOffset += 60;#}
+            {##}
+            {#for (let effect of action.skill.effects) {#}
+            {##}
+            {# }#}
 
 
             currentHeightOffset += 100;
