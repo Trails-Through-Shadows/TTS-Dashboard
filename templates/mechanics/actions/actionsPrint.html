@@ -1,26 +1,75 @@
-{% extends "layouts/../layouts/base.html" %}
 {% load static %}
+{% load filters %}
+{% load i18n %}
 
-{% block title %} Dashboard {% endblock %}
+<div class="modal" id="modal" aria-hidden="true">
+    <div class="modal-overlay" tabindex="-1" data-micromodal-close>
+        <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <header class="modal-header border-0" style="flex-direction: row-reverse;">
+                <button class="modal-close hvr-grow" aria-label="Close modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </header>
 
-{% block stylesheets %}
-    <!-- Custom styles -->
-    <style>
-    #card {
-        margin: 10px;
-    }
-    </style>
-{% endblock stylesheets %}
+            <main class="modal-body pt-0 pb-0" style="max-height: 620px; margin-left: 12.5px;">
+                <div id="card" style="scale: 0.7; transform-origin: 0; -webkit-transform-origin-y: top; -webkit-transform-origin-x: left;"></div>
+            </main>
 
-{% block content %}
-    <input type="text" id="actionId" value="12">
-    <button id="generate">Generate</button>
-    <div id="card"></div>
-{% endblock content %}
+            <footer class="modal-footer border-0">
+                <a href="#" target="_top" id="actionDownload" class="btn btn-sm btn-gray-800">
+                    <i class="fa-solid fa-check"></i>
+                    {% trans 'Download' %}
+                </a>
+            </footer>
+        </div>
+    </div>
+</div>
 
-{% block javascripts %}
-    <!-- Custom javascripts -->
-    <script >
+<script id="afterScript" async>
+    const csrfToken = document.querySelector('#csrftoken').value;
+
+    const downloadButton = document.getElementById("actionDownload");
+    downloadButton.addEventListener("click", async function (event) {
+        event.preventDefault();
+
+        const svg = document.getElementById("card").firstChild;
+
+        // Convert each image to base64
+        const images = svg.querySelectorAll("image");
+        for (let i = 0; i < images.length; i++) {
+            const image = images[i];
+            const url = image.getAttribute("href");
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const reader = new FileReader();
+            reader.onload = function () {
+                image.setAttribute("href", reader.result);
+            };
+            reader.readAsDataURL(blob);
+        }
+
+        // Wait for all images to be converted
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        const svgData = new XMLSerializer().serializeToString(svg);
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        const img = new Image();
+        img.onload = function () {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+
+            const a = document.createElement("a");
+            a.download = "download.png";
+            a.href = canvas.toDataURL("image/png");
+            a.click();
+        };
+        img.src = "data:image/svg+xml;base64," + btoa(svgData);
+    });
+
     async function generateCard(actionId) {
         // remove previous card
         let card = document.getElementById("card");
@@ -44,12 +93,10 @@
         {#    fill: "#000",#}
         {#    "text-anchor":"start",#}
         {# });#}
-
-        const response = await fetch('http://localhost:8080/actions/' + actionId + "/card", {
+        const response = await fetch('{% url 'apiCardData' actionId=0 %}'.replace('0', actionId), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Basic ' + btoa("shadefa11en" + ":" + "ourPassword").toString('base64')
             }
         });
 
@@ -291,13 +338,5 @@
 
     }
 
-    document.getElementById("generate").addEventListener("click", function () {
-        let actionId = document.getElementById("actionId").value;
-        generateCard(actionId);
-    });
-
-    generateCard(12);
-
-
-    </script>
-{% endblock javascripts %}
+    generateCard({{ actionId }});
+</script>

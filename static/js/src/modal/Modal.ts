@@ -62,6 +62,12 @@ module Dashboard {
 
                     if (autoRemove) {
                         this.modal.remove();
+
+                        // Remove script with id afterScript
+                        const afterScript = document.querySelector('#afterScript');
+                        if (afterScript) {
+                            afterScript.remove();
+                        }
                     }
 
                     Modal.openedModel = null;
@@ -127,6 +133,48 @@ module Dashboard {
                 request.setRequestHeader('X-CSRFToken', csrfToken);
                 request.send(JSON.stringify({
                     template: template
+                }));
+            });
+        }
+
+        public static openCardView(template: string, actionId: number, closeOnEscape: boolean = true, closeOnBackdrop: boolean = true) {
+            const csrfToken = (document.querySelector('#csrftoken') as HTMLInputElement).value;
+
+            return new Promise<Modal>((resolve, reject) => {
+                const request = new XMLHttpRequest();
+                request.onreadystatechange = () => {
+                    if (request.readyState === 4) {
+                        const status = request.status;
+
+                        if (status === 200) {
+                            const htmlContent = request.responseText;
+
+                            // Append the modal to the body
+                            const body = document.querySelector('body');
+                            body.insertAdjacentHTML('beforeend', htmlContent);
+
+                            // Select modal
+                            const modalDiv = body.querySelector('#modal');
+                            const modal = new Modal(modalDiv as HTMLElement, closeOnEscape, closeOnBackdrop);
+                            modal.open();
+
+                            // Evaluate the script
+                            const afterScript = document.querySelector('#afterScript');
+                            eval(afterScript.innerHTML);
+
+                            resolve(modal);
+                        } else {
+                            reject();
+                        }
+                    }
+                };
+
+                request.open('POST', `/en/api/modal`, true);
+                request.setRequestHeader('Content-Type', 'application/json');
+                request.setRequestHeader('X-CSRFToken', csrfToken);
+                request.send(JSON.stringify({
+                    template: template,
+                    actionId: actionId
                 }));
             });
         }

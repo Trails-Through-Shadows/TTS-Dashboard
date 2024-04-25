@@ -232,3 +232,9 @@ def createMap(request, id):
     responseCode, responseData = requestAPI("get", url)
 
     return JsonResponse(responseData, status=responseCode)
+
+def createCardData(request, actionId):
+    url = f"{API_URL}/actions/{actionId}/card"
+    responseCode, responseData = requestAPI("get", url)
+
+    return JsonResponse(responseData, status=responseCode)

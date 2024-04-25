@@ -212,6 +212,16 @@
                 data.queryData(apiUrlSingle.replace('0', id));
             });
 
+            table.setAction("print", (element) => {
+                const id = element.getAttribute('data-entry');
+
+                console.log(`Button | Printing entry ${id}`);
+                let promise = Dashboard.Modal.openCardView("mechanics/actions/actionsPrint.html", id);
+                promise.then((modal) => {
+                    const modalRoot = modal.modal;
+                });
+            });
+
             table.setAction("delete", (element) => {
                 const id = element.getAttribute('data-entry');
 

@@ -9,5 +9,6 @@ urlpatterns = [
     path('campaign/<int:id>/map', createMap, name='apiCreateMap'),
     path('filters', createFilter, name='apiCreateFilter'),
     path('modal', createModal, name='apiCreateModal'),
-    path('modal/<str:table>', createSearchModal, name='apiCreateSearchModal')
+    path('modal/<str:table>', createSearchModal, name='apiCreateSearchModal'),
+    path('card/<int:actionId>', createCardData, name='apiCardData')
 ]
