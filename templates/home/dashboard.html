@@ -5,299 +5,99 @@
 
 {% block stylesheets %}
     <!-- Custom styles -->
-    <style>
-    #card {
-        margin: 10px;
-    }
-    </style>
 {% endblock stylesheets %}
 
 {% block content %}
-    <input type="text" id="actionId" value="12">
-    <button id="generate">Generate</button>
-    <div id="card"></div>
+    <input type="hidden" value="{{ csrf_token }}" id="csrftoken" readonly/>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title m-0">Trails Through Shadows</h4>
+                                </div>
+
+                                <div class="card-body">
+                                    <p>
+                                        Trails Through Shadows is a narrative tabletop game with hybrid parts - you need both our game and your phone/laptop/projector.
+                                        It's heavily inspired by Gloomhaven and Forgotten Waters, which can be seen in the combat system and branching paths based
+                                        on the player's choices in the narrative.
+                                    </p>
+                                    <p>
+                                        The game is played in two parts - the physical board game and the digital companion app. The board game is where the players
+                                        will move their characters, fight monsters, and make decisions that will affect the story. The companion app will provide the
+                                        narrative, the branching paths, and the combat system.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title m-0">Project Sections / Links</h4>
+                                </div>
+
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <a href="https://play.tts-game.fun" target="_blank" class="btn btn-primary btn-xs btn-block">play.tts-game.fun</a> is an online game visualizer that will show the game board and the narrative playground for player journey.
+                                            You need to use this during the game to see what's happening in the game using your license key on any kind of device.
+                                        </div>
+
+                                        <div class="col-12">
+                                            <a href="https://api.tts-game.fun" target="_blank" class="btn btn-primary btn-xs btn-block">api.tts-game.fun</a> is the API providing all the game logic, data and the narrative for the game.
+                                            You can use this API to create your own game visualizer or play the game in any other way you want.
+                                        </div>
+
+                                        <div class="col-12">
+                                            <a href="https://docs.tts-game.fun" target="_blank" class="btn btn-primary btn-xs btn-block">docs.tts-game.fun</a> is the documentation for the whole project.
+                                            You can see there all the game rules, how to play the game all the game data and the API documentation.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title m-0">Project showcase illustration</h4>
+                                </div>
+
+                                <div class="card-body">
+                                    <img src="{% static 'img/illustrations/game.png' %}" class="img-fluid" alt="Trails Through Shadows" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title m-0">Source Codes</h4>
+                                </div>
+
+                                <div class="card-body">
+                                    All the source codes for the project are available on GitHub.
+                                    You can find them on the following link <a href="https://github.com/Trails-Through-Shadows" target="_blank">Trails Through Shadows</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
 
 {% block javascripts %}
     <!-- Custom javascripts -->
-    <script >
-    async function generateCard(actionId) {
-        // remove previous card
-        let card = document.getElementById("card");
-        while (card.firstChild) {
-            card.removeChild(card.firstChild);
-        }
-
-        let height = 880;
-        let width = 630;
-        {#let s = Snap("#testCard");#}
-        {#let rect = s.rect(0, 0, width, height);#}
-        {#rect.attr({#}
-        {#    fill: "rgba(186,218,85,0)",#}
-        {#    stroke: "#000",#}
-        {#    strokeWidth: 5#}
-        {# });#}
-        {#let text = s.text(10, 50, "Hello, Worldf jdhfkjhdsufhsdufhsd fkjdhsfkj hsdkjf hsdkjf hdkjhf sdkjf hds!");#}
-        {#text.attr({#}
-        {#    fontFamily: "Arial",#}
-        {#    fontSize: 50,#}
-        {#    fill: "#000",#}
-        {#    "text-anchor":"start",#}
-        {# });#}
-
-        const response = await fetch('http://localhost:8080/actions/' + actionId + "/card", {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Basic ' + btoa("shadefa11en" + ":" + "ourPassword").toString('base64')
-            }
-        });
-
-        const action = await response.json();
-
-        console.log(action);
-
-        // check if status is 200
-        if (action.status == "BAD_REQUEST" || action.status == "NOT_FOUND") {
-            console.log("Error: ", action.message);
-            return;
-        }
-
-        let gradient = new SVG.Color(action.color).to('#fff');
-        let black = '#000';
-        let color = gradient.at(0).toHex();
-        let lightColor = gradient.at(0.9).toHex();
-
-        let draw = SVG().addTo('#card').size(width, height);
-
-        let border = draw.rect(width, height).radius(20).attr({fill: black});
-        let backgroundBorder = draw.rect(width - 5, height - 5).radius(18).attr({fill: color}).move(2.5, 2.5);
-        let background = draw.rect(width - 10, height - 10).radius(18).attr({fill: lightColor}).move(5, 5);
-
-        // icon at right left corner
-        let source = draw.rect(100, 100).radius(20).attr({fill: black}).move(width - 100, 0);
-        let sourceBackground = draw.rect(95, 95).radius(18).attr({fill: lightColor}).move(width - 97.5, 2.5);
-
-        // print action.icon as image to source background
-        let image = draw.image(action.icon + "?size=90&radius=15").move(width - 95, 5);
-
-        let textWidth = width - 400;
-        let currentHeightOffset = 20;
-        console.log("init:", currentHeightOffset);
-
-        // title
-        let title = draw.text(function (add) {
-            let prevLength = 0;
-            let split = action.title.split(' ');
-            for (let i = 0; i < split.length; i += 1) {
-                let char = split[i];
-                let newline = false;
-                if (add.length() - prevLength > textWidth - 150) {
-                    {#console.log("new line:", add);#}
-                    prevLength = add.length();
-                    newline = true;
-                }
-                {#console.log(char);#}
-                {#console.log(add, add.length());#}
-                if (newline) {
-                    add.tspan(char).newLine();
-                } else {
-                    add.tspan(' ' + char);
-                }
-            }
-        });
-        title.font({fill: black, size: 50, family: 'Helvetica', weight: 'bold'}).move(20, currentHeightOffset);
-        currentHeightOffset += title.bbox().height + 20;
-        console.log("after tit:", currentHeightOffset);
-
-        // description
-        let description = draw.text(function (add) {
-            let prevLength = 0;
-            let descSplit = action.description.split(' ');
-            for (let i = 0; i < descSplit.length; i += 1) {
-                let char = descSplit[i];
-                let newline = false;
-                if (add.length() - prevLength > textWidth) {
-                    {#console.log("new line:", add);#}
-                    prevLength = add.length();
-                    newline = true;
-                }
-                {#console.log(char);#}
-                {#console.log(add, add.length());#}
-                if (newline) {
-                    add.tspan(char).newLine();
-                } else {
-                    add.tspan(' ' + char);
-                }
-            }
-        });
-        description.font({fill: black, size: 30, family: 'Helvetica'}).move(20, currentHeightOffset);
-        currentHeightOffset += description.bbox().height;
-        console.log("after desc:", currentHeightOffset);
-
-        // line after description
-        let line = draw.line(20, currentHeightOffset + 20, width - 20, currentHeightOffset + 20).stroke({
-            width: 2,
-            color: black
-        });
-        currentHeightOffset += 60;
-
-
-        function drawIcon(icon, name, value, x, y) {
-            let iconPath;
-
-            switch (icon) {
-                case "bow":
-                    iconPath = "{% static 'img/card/feature/bow-svgrepo-com.svg' %}";
-                    break;
-                case "tag":
-                    iconPath = "{% static 'img/card/feature/tag-svgrepo-com.svg' %}";
-                    break;
-                case "muscle":
-                    iconPath = "{% static 'img/card/feature/muscle-svgrepo-com.svg' %}";
-                    break;
-                case "arrow":
-                    iconPath = "{% static 'img/card/feature/arrow-increase-svgrepo-com.svg' %}";
-                    break;
-                case "hash":
-                    iconPath = "{% static 'img/card/feature/hash-02-svgrepo-com.svg' %}";
-                    break;
-                case "person":
-                    iconPath = "{% static 'img/card/feature/person-svgrepo-com.svg' %}";
-                    break;
-                case "random":
-                    iconPath = "{% static 'img/card/feature/random-1dice-svgrepo-com.svg' %}";
-                    break;
-                case "target":
-                    iconPath = "{% static 'img/card/feature/target-2-svgrepo-com.svg' %}";
-                    break;
-                default:
-                    iconPath = "{% static 'img/card/feature/question-svgrepo-com.svg' %}";
-            }
-
-            draw.image(iconPath).move(x, y).size(50, 50);
-            let nameText = draw.text(name).font({fill: black, size: 20, family: 'Helvetica'}).move(x + 60, y);
-
-            if (value == "ALL_ENEMIES") {
-                value = "All Enemies";
-            } else if (value == "ALL_ALLIES") {
-                value = "All Allies";
-            } else if (value == "SELF") {
-                value = "Self";
-            } else if (value == "ALL") {
-                value = "All";
-            } else if (value == "ONE") {
-                value = "One";
-            }
-
-            let valueText = draw.text(value).font({fill: black, size: 30, family: 'Helvetica'}).move(x + 60, y+20);
-
-            let biggerLength = nameText.length() > valueText.length() ? nameText.length() : valueText.length();
-            return 50 + biggerLength + 30;
-        }
-
-        // movement
-        if (action.movement != null) {
-            let currentWidthOffset = 20;
-            draw.text("Movement").font({fill: black, size: 40, family: 'Helvetica'}).move(20, currentHeightOffset);
-            currentHeightOffset += 60;
-            currentWidthOffset += drawIcon("bow", "Range", action.movement.range, currentWidthOffset, currentHeightOffset);
-            currentWidthOffset += drawIcon("tag", "Type", action.movement.type, currentWidthOffset, currentHeightOffset);
-            currentHeightOffset += 100;
-        }
-
-        // attack
-        if (action.attack != null) {
-            let currentWidthOffset = 20;
-            draw.text("Attack").font({fill: black, size: 40, family: 'Helvetica'}).move(20, currentHeightOffset);
-            currentHeightOffset += 60;
-
-            // not null
-            currentWidthOffset += drawIcon("muscle", "Damage", action.attack.damage, currentWidthOffset, currentHeightOffset);
-            currentWidthOffset += drawIcon("bow", "Range", action.attack.range, currentWidthOffset, currentHeightOffset);
-
-            let hasArea = action.attack.area != null && action.attack.area != "1" && action.attack.area != "0";
-            let hasNumber = action.attack.numberOfAttacks != null && action.attack.numberOfAttacks != "1";
-
-            if (hasArea || hasNumber) {
-                currentHeightOffset += 80;
-                currentWidthOffset = 20;
-            }
-            currentWidthOffset += drawIcon("person", "Target", action.attack.target, currentWidthOffset, currentHeightOffset);
-
-            // nullable
-
-            if (hasArea || hasNumber) {
-                if (hasArea) {
-                    currentWidthOffset += drawIcon("arrow", "Area", action.attack.area, currentWidthOffset, currentHeightOffset);
-                }
-                if (hasNumber) {
-                    currentWidthOffset += drawIcon("hash", "Count", action.attack.numberOfAttacks, currentWidthOffset, currentHeightOffset);
-                }
-            }
-
-            currentHeightOffset += 100;
-        }
-
-        // skill
-        if (action.skill != null) {
-            let currentWidthOffset = 20;
-            draw.text("Skill").font({fill: black, size: 40, family: 'Helvetica'}).move(20, currentHeightOffset);
-            currentHeightOffset += 60;
-
-            // not null
-            currentWidthOffset += drawIcon("bow", "Range", action.skill.range, currentWidthOffset, currentHeightOffset);
-            currentWidthOffset += drawIcon("person", "Target", action.skill.target, currentWidthOffset, currentHeightOffset);
-
-            // nullable
-            if (action.skill.area != null && action.skill.area != "1" && action.skill.area != "0") {
-                currentWidthOffset += drawIcon("arrow", "Area", action.skill.area, currentWidthOffset, currentHeightOffset);
-            }
-
-            {#currentHeightOffset += 60;#}
-            {##}
-            {#for (let effect of action.skill.effects) {#}
-            {##}
-            {# }#}
-
-
-            currentHeightOffset += 100;
-        }
-
-        // restoreCards
-        if (action.restoreCards != null) {
-            let currentWidthOffset = 20;
-            draw.text("Restore Cards").font({fill: black, size: 40, family: 'Helvetica'}).move(20, currentHeightOffset);
-            currentHeightOffset += 60;
-
-            // not null
-            currentWidthOffset += drawIcon("hash", "Count", action.restoreCards.numCards, currentWidthOffset, currentHeightOffset);
-            currentWidthOffset += drawIcon("person", "Target", action.restoreCards.target, currentWidthOffset, currentHeightOffset);
-
-            // nullable
-            if (action.restoreCards.random == true) {
-                currentWidthOffset += drawIcon("random", "Random", action.restoreCards.random, currentWidthOffset, currentHeightOffset);
-            }
-
-            currentHeightOffset += 100;
-        }
-
-        // discard at right bottom corner
-        if (action.discard !== "NEVER") {
-            let discardBorder = draw.rect(170, 50).radius(20).attr({fill: black}).move(width - 170, height - 50);
-            let discardBackground = draw.rect(165, 44).radius(18).attr({fill: lightColor}).move(width - 167.5, height - 47.5);
-            let discardText = draw.text("Discard").font({fill: black, size: 30, family: 'Helvetica'}).move(width - 137, height - 40);
-        }
-
-    }
-
-    document.getElementById("generate").addEventListener("click", function () {
-        let actionId = document.getElementById("actionId").value;
-        generateCard(actionId);
-    });
-
-    generateCard(12);
-
-
-    </script>
 {% endblock javascripts %}
