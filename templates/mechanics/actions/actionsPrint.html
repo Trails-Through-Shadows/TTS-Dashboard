@@ -126,7 +126,16 @@
         let sourceBackground = draw.rect(95, 95).radius(18).attr({fill: lightColor}).move(width - 97.5, 2.5);
 
         // print action.icon as image to source background
-        let image = draw.image(action.icon + "?size=90&radius=15").move(width - 95, 5);
+        if (action.icon == null) {
+            if (action.source == "ENEMY") {
+                action.icon = "{% static 'img/card/feature/hydra-ugly-enemy-legend-svgrepo-com.svg' %}";
+            } else {
+                action.icon = "{% static 'img/card/feature/question-svgrepo-com.svg' %}";
+            }
+            let image = draw.image(action.icon).size(90, 90).move(width - 99, 5);
+        } else {
+            let image = draw.image(action.icon + "?size=90&radius=15").move(width - 95, 5);
+        }
 
         let textWidth = width - 400;
         let currentHeightOffset = 20;
@@ -190,6 +199,63 @@
         currentHeightOffset += 60;
 
 
+        function drawEffect(effect, x, y) {
+            let iconPath = "{% static 'img/card/feature/hash-02-svgrepo-com.svg' %}";
+
+            console.log("drawing effect:", effect);
+
+            let wordSize = 30;
+            let imageWidth = 50;
+
+            if (effect.duration == null) {
+                effect.duration = "-";
+            }
+            if (effect.strength == null) {
+                effect.strength = "-";
+            }
+
+            let durationText = draw.text(effect.duration).font({fill: black, size: wordSize, family: 'Helvetica'}).move(x, y + 20);
+            let image = draw.image(iconPath).size(imageWidth, imageWidth).move(x + durationText.length(), y);
+            let strengthText = draw.text(effect.strength).font({fill: black, size: wordSize, family: 'Helvetica'}).move(x + imageWidth + durationText.length(), y + 20);
+
+            // temp write effect.name above in small text
+            let typeHeight = 10;
+            // if type contains _
+            if (effect.type.includes("_")) {
+                effect.type = effect.type.replace("_", "\n");
+                typeHeight = 20;
+            }
+            let nameText = draw.text(effect.type).font({fill: black, size: 10, family: 'Helvetica'}).move(x, y - typeHeight);
+
+            console.log("effect width:", durationText.length() + imageWidth + strengthText.length() + 20);
+            {#return durationText.length() + imageWidth + strengthText.length() + 20;#}
+            return 100
+        }
+
+        function drawEffects(effects, y) {
+            let count = effects.length;
+            if (count === 0) {
+                return 0;
+            }
+
+            let currentWidthOffset = 20;
+            let currentHeightOffset = y;
+            currentHeightOffset += 70;
+
+            let effectBorderWidth = 100 * count + 20;
+            draw.rect(effectBorderWidth, 80).radius(20).attr({fill: black}).move(currentWidthOffset, currentHeightOffset);
+            draw.rect(effectBorderWidth - 5, 75).radius(18).attr({fill: lightColor}).move(currentWidthOffset + 2.5, currentHeightOffset + 2.5);
+
+            currentWidthOffset += 20;
+            currentHeightOffset += 15;
+
+            for (let effect of effects) {
+                currentWidthOffset += drawEffect(effect.effect, currentWidthOffset, currentHeightOffset);
+            }
+
+            return 80;
+        }
+
         function drawIcon(icon, name, value, x, y) {
             let iconPath;
 
@@ -248,8 +314,12 @@
             let currentWidthOffset = 20;
             draw.text("Movement").font({fill: black, size: 40, family: 'Helvetica'}).move(20, currentHeightOffset);
             currentHeightOffset += 60;
+
             currentWidthOffset += drawIcon("bow", "Range", action.movement.range, currentWidthOffset, currentHeightOffset);
             currentWidthOffset += drawIcon("tag", "Type", action.movement.type, currentWidthOffset, currentHeightOffset);
+
+            currentHeightOffset += drawEffects(action.movement.effects, currentHeightOffset);
+
             currentHeightOffset += 100;
         }
 
@@ -283,6 +353,8 @@
                 }
             }
 
+            currentHeightOffset += drawEffects(action.attack.effects, currentHeightOffset);
+
             currentHeightOffset += 100;
         }
 
@@ -301,12 +373,7 @@
                 currentWidthOffset += drawIcon("arrow", "Area", action.skill.area, currentWidthOffset, currentHeightOffset);
             }
 
-            {#currentHeightOffset += 60;#}
-            {##}
-            {#for (let effect of action.skill.effects) {#}
-            {##}
-            {# }#}
-
+            currentHeightOffset += drawEffects(action.skill.effects, currentHeightOffset);
 
             currentHeightOffset += 100;
         }
@@ -322,7 +389,7 @@
             currentWidthOffset += drawIcon("person", "Target", action.restoreCards.target, currentWidthOffset, currentHeightOffset);
 
             // nullable
-            if (action.restoreCards.random == true) {
+            if (action.restoreCards.random === true) {
                 currentWidthOffset += drawIcon("random", "Random", action.restoreCards.random, currentWidthOffset, currentHeightOffset);
             }
 
