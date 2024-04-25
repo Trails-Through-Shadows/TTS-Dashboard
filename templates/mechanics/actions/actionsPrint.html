@@ -200,12 +200,12 @@
 
 
         function drawEffect(effect, x, y) {
-            let iconPath = "{% static 'img/card/feature/hash-02-svgrepo-com.svg' %}";
+            let iconPath = effect.url.replace(".png", ".svg.png").replace("https://api.tts-game.fun", );
 
             console.log("drawing effect:", effect);
 
             let wordSize = 30;
-            let imageWidth = 50;
+            let imageWidth = 70;
 
             if (effect.duration == null) {
                 effect.duration = "-";
@@ -214,22 +214,12 @@
                 effect.strength = "-";
             }
 
-            let durationText = draw.text(effect.duration).font({fill: black, size: wordSize, family: 'Helvetica'}).move(x, y + 20);
+            let durationText = draw.text(effect.duration).font({fill: black, size: wordSize, family: 'Helvetica'}).move(x, y + 40);
             let image = draw.image(iconPath).size(imageWidth, imageWidth).move(x + durationText.length(), y);
-            let strengthText = draw.text(effect.strength).font({fill: black, size: wordSize, family: 'Helvetica'}).move(x + imageWidth + durationText.length(), y + 20);
-
-            // temp write effect.name above in small text
-            let typeHeight = 10;
-            // if type contains _
-            if (effect.type.includes("_")) {
-                effect.type = effect.type.replace("_", "\n");
-                typeHeight = 20;
-            }
-            let nameText = draw.text(effect.type).font({fill: black, size: 10, family: 'Helvetica'}).move(x, y - typeHeight);
+            let strengthText = draw.text(effect.strength).font({fill: black, size: wordSize, family: 'Helvetica'}).move(x + imageWidth + durationText.length(), y + 40);
 
             console.log("effect width:", durationText.length() + imageWidth + strengthText.length() + 20);
-            {#return durationText.length() + imageWidth + strengthText.length() + 20;#}
-            return 100
+            return 120;
         }
 
         function drawEffects(effects, y) {
@@ -242,12 +232,12 @@
             let currentHeightOffset = y;
             currentHeightOffset += 70;
 
-            let effectBorderWidth = 100 * count + 20;
-            draw.rect(effectBorderWidth, 80).radius(20).attr({fill: black}).move(currentWidthOffset, currentHeightOffset);
-            draw.rect(effectBorderWidth - 5, 75).radius(18).attr({fill: lightColor}).move(currentWidthOffset + 2.5, currentHeightOffset + 2.5);
+            let effectBorderWidth = 120 * count + 20;
+            draw.rect(effectBorderWidth, 90).radius(20).attr({fill: black}).move(currentWidthOffset, currentHeightOffset);
+            draw.rect(effectBorderWidth - 5, 85).radius(18).attr({fill: lightColor}).move(currentWidthOffset + 2.5, currentHeightOffset + 2.5);
 
             currentWidthOffset += 20;
-            currentHeightOffset += 15;
+            currentHeightOffset += 10;
 
             for (let effect of effects) {
                 currentWidthOffset += drawEffect(effect.effect, currentWidthOffset, currentHeightOffset);
