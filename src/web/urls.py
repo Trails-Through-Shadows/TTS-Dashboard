@@ -34,7 +34,9 @@ urlpatterns = [
     path('mechanics/items/workbench/', views.itemWorkbench, name="itemsWorkbench"),
     path('mechanics/items/workbench/<int:id>/', views.itemWorkbench, name="itemsWorkbenchEdit"),
 
-    path('mechanics/summons/', views.effectViewer, name="summonViewer"),
+    path('mechanics/summons/', views.summonViewer, name="summonViewer"),
+    # path('mechanics/summons/workbench/', views.summonWorkbench, name="summonWorkbench"),
+    # path('mechanics/summons/workbench/<int:id>/', views.summonWorkbench, name="summonWorkbenchEdit"),
 
     path('character/classes/', views.classViewer, name="classViewer"),
     path('character/classes/workbench/', views.classWorkbench, name="classWorkbench"),
@@ -48,7 +50,19 @@ urlpatterns = [
     path('world/campaigns/workbench/', views.campaignWorkbench, name="campaignWorkbench"),
     path('world/campaigns/workbench/<int:id>/', views.campaignWorkbench, name="campaignWorkbenchEdit"),
 
-    path('world/stories/', views.campaignViewer, name="storyViewer"),
+    path('world/stories/', views.storyViewer, name="storyViewer"),
+    # path('world/stories/workbench/', views.storyWorkbench, name="storyWorkbench"),
+    # path('world/stories/workbench/<int:id>/', views.storyWorkbench, name="storyWorkbenchEdit"),
 
-    path('world/achievements/', views.campaignViewer, name="achievementViewer")
+    path('world/achievements/', views.achievementViewer, name="achievementViewer"),
+    # path('world/achievements/workbench/', views.achievementWorkbench, name="achievementWorkbench"),
+    # path('world/achievements/workbench/<int:id>/', views.achievementWorkbench, name="achievementWorkbenchEdit"),
+
+    path('player-data/adventures/', views.adventureViewer, name="adventureViewer"),
+    # path('player-data/adventures/workbench/', views.adventureWorkbench, name="adventureWorkbench"),
+    # path('player-data/adventures/workbench/<int:id>/', views.adventureWorkbench, name="adventureWorkbenchEdit"),
+
+    path('player-data/licenses/', views.licenseViewer, name="licenseViewer"),
+    # path('player-data/licenses/workbench/', views.licenseWorkbench, name="licenseWorkbench"),
+    # path('player-data/licenses/workbench/<int:id>/', views.licenseWorkbench, name="licenseWorkbenchEdit"),
 ]

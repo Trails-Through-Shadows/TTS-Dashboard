@@ -184,7 +184,8 @@
 
         const tableFilter = new Dashboard.TableFilter([
             { title: 'Title contains:', key: 'title', type: 'has', hidden: true },
-            {#{ title: 'Target', key: 'target', type: 'of' },#} // TODO: Add target filter
+            { title: 'Target', key: 'discard', type: 'of', bounds: ['NEVER', 'SHORT_REST', 'LONG_REST', 'PERMANENT'] },
+            { title: 'Level Req. between:', key: 'levelReq', type: 'bwn', bounds: {min: 0, max: 20} },
         ]);
         const tableSorter = new Dashboard.TableSorter([
             { key: "id", order: "asc" },

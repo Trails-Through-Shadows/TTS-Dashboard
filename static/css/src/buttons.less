@@ -5,67 +5,71 @@
 @red-background: #FECACA;
 
 .btn-color-styles(@base-color, @background-color) {
-  color: @base-color;
-  background-color: @background-color;
-  border-color: @background-color;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(17, 24, 39, 0.075);
+	color: @base-color;
+	background-color: @background-color;
+	border-color: @background-color;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(17, 24, 39, 0.075);
 }
 
 /** Green Button **/
 
 .btn-green-100 {
-  .btn-color-styles(@green-base, @green-background);
+	.btn-color-styles(@green-base, @green-background);
 }
 
 .btn-green-100:hover {
-  color: @green-base;
-  background-color: mix(@green-background, white, 40%);
-  border-color: mix(@green-background, white, 40%);
+	color: @green-base;
+	background-color: mix(@green-background, white, 40%);
+	border-color: mix(@green-background, white, 40%);
 }
 
 .btn-check:focus + .btn-green-100, .btn-green-100:focus {
-  .btn-color-styles(mix(@green-background, white, 40%), mix(@green-background, white, 40%));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(23, 82, 53, 0.075), 0 0 0 0.18rem rgba(210, 214, 217, 0.5);
+	.btn-color-styles(mix(@green-background, white, 40%), mix(@green-background, white, 40%));
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(23, 82, 53, 0.075), 0 0 0 0.18rem rgba(210, 214, 217, 0.5);
 }
 
 /** Red Button **/
 
 .btn-red-100 {
-  .btn-color-styles(@red-base, @red-background);
+	.btn-color-styles(@red-base, @red-background);
 }
 
 .btn-red-100:hover {
-  color: @red-base;
-  background-color: mix(@red-background, white, 40%);
-  border-color: mix(@red-background, white, 40%);
+	color: @red-base;
+	background-color: mix(@red-background, white, 40%);
+	border-color: mix(@red-background, white, 40%);
 }
 
 .btn-check:focus + .btn-red-100, .btn-red-100:focus {
-  .btn-color-styles(mix(@red-background, white, 40%), mix(@red-background, white, 40%));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(239, 68, 68, 0.075), 0 0 0 0.18rem rgba(210, 214, 217, 0.5);
+	.btn-color-styles(mix(@red-background, white, 40%), mix(@red-background, white, 40%));
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(239, 68, 68, 0.075), 0 0 0 0.18rem rgba(210, 214, 217, 0.5);
 }
 
 .disabled {
-  cursor: not-allowed !important;
+	cursor: not-allowed !important;
 }
 
 .card-header.collapsed {
-  border-bottom: 0;
+	border-bottom: 0;
 }
 
 .smallCards li {
-  font-size: 0.7rem;
+	font-size: 0.7rem;
 }
 
 .redOnHover:hover {
-  color: @red-base !important;
+	color: @red-base !important;
 }
 
 // When input checkbox is checked, change the color of the button
 .colored-flip:checked {
-    background-color: @green-background;
+	background-color: @green-background;
 }
 
 .colored-flip {
-    background-color: @red-background;
+	background-color: @red-background;
+}
+
+.blocked {
+	opacity: 0.5;
 }

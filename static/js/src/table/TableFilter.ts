@@ -12,6 +12,7 @@ module Dashboard {
         GREATER_THAN_OR_EQUAL = 'gte',
         BETWEEN = 'bwn',
         IS = 'is',
+        OF = 'of',
     }
 
     export type Filter = {
@@ -80,8 +81,10 @@ module Dashboard {
 
                                 const input = filterForm.querySelector(`#input-${filter.key}`) as HTMLInputElement;
                                 let value: number | {} | string = input.value;
+                                console.log(filter);
 
                                 if (filter.type == FilterType.BETWEEN) {
+                                    console.log(input);
                                     const minValue = input.querySelector(".slider-from") as HTMLInputElement;
                                     const maxValue = input.querySelector(".slider-to") as HTMLInputElement;
 
@@ -89,6 +92,14 @@ module Dashboard {
                                         min: minValue.value,
                                         max: maxValue.value
                                     };
+                                }
+
+                                if (filter.type == FilterType.OF) {
+                                    value = input.value;
+                                }
+
+                                if (filter.type == FilterType.IS) {
+                                    value = input.checked;
                                 }
 
                                 filter.value = value

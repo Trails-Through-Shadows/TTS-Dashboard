@@ -327,9 +327,9 @@
             const entryIdInput = form.querySelector('#entryId');
             const entryId = entryIdInput.value;
 
-            let url = "{% url 'apiQueryTable' table="obstacles" %}";
+            let url = "{% url 'apiQueryTable' table="campaigns" %}";
             {% if partId is not undefined %}
-                url = "{% url 'apiQueryTableID' table="obstacles" id=0 %}".replace(0, entryId);
+                url = "{% url 'apiQueryTableID' table="campaigns" id=0 %}".replace(0, entryId);
             {% endif %}
 
             formEditor.saveData(() => {

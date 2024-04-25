@@ -25,7 +25,9 @@ module Dashboard {
             public doors: Door[],
             public startHexes: Hex[],
             public enemies: Enemy[],
-            public obstacles: Obstacle[]
+            public obstacles: Obstacle[],
+            public paths: any[] = [],
+            public stories: any[] = [],
         ) {}
 
         public static fromJSON(json: any): Location {
@@ -45,6 +47,10 @@ module Dashboard {
                     : null,
                 json.obstacles && json.obstacles.length > 0
                     ? json.obstacles.map((obstacle: any) => Dashboard.Obstacle.fromJSON(obstacle.obstacle))
+                    : null,
+                json.paths,
+                json.stories && json.stories.length > 0
+                    ? json.stories.map((story: any) => Dashboard.Story.fromJSON(story))
                     : null
             );
 

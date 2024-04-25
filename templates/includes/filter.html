@@ -53,6 +53,23 @@
                                         </div>
                                     </div>
                                 {% endcase %}
+
+                                {% case "of" %}
+                                    <div class="col-4 align-self-center">
+                                        <p class="m-0">{{ item.title }}</p>
+                                    </div>
+
+                                    <div class="col-8 text">
+                                        <div class="form-check form-switch p-0 m-0">
+                                            <select class="form-select" id="input-{{ item.key }}" value="{{ item.value }}">
+                                                <option value="" disabled selected hidden="">{% trans 'Select option' %}</option>
+                                                {% for option in item.bounds %}
+                                                    <option value="{{ option }}">{{ option }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                {% endcase %}
     
                                 {% case "has" %}
                                     <div class="col-4 text-center align-self-center">
