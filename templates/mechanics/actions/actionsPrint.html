@@ -122,7 +122,7 @@
 
         let border = draw.rect(width, height).radius(20).attr({fill: black});
         let backgroundBorder = draw.rect(width - 5, height - 5).radius(18).attr({fill: color}).move(2.5, 2.5);
-        let background = draw.rect(width - 10, height - 10).radius(18).attr({fill: lightColor}).move(5, 5);
+        let background = draw.rect(width - 10, height - 10).radius(16).attr({fill: lightColor}).move(5, 5);
 
         // icon at right left corner
         let source = draw.rect(100, 100).radius(20).attr({fill: black}).move(width - 100, 0);
@@ -205,7 +205,8 @@
         currentHeightOffset += 60;
 
         function drawEffect(effect, x, y) {
-            let iconPath = effect.url.replace(".png", ".svg.png").replace("https://api.tts-game.fun", );
+            let iconPath = effect.url.replace(".png", ".svg").replace("/images/", "/images/svgs/");
+            console.log("icon path:", iconPath);
 
             let wordSize = 30;
             let imageWidth = 70;
