@@ -11,14 +11,19 @@
                 </button>
             </header>
 
-            <main class="modal-body pt-0 pb-0" style="max-height: 620px; margin-left: 12.5px;">
+            <main class="modal-body pt-0 pb-0" id="loading" style="max-height: 620px; margin-left: 12.5px;">
                 <div id="card" style="scale: 0.7; transform-origin: 0; -webkit-transform-origin-y: top; -webkit-transform-origin-x: left;"></div>
             </main>
 
             <footer class="modal-footer border-0">
-                <a href="#" target="_top" id="actionDownload" class="btn btn-sm btn-gray-800">
-                    <i class="fa-solid fa-check"></i>
-                    {% trans 'Download' %}
+                <a href="#" target="_top" id="actionDownloadPNG" class="btn btn-sm btn-gray-800">
+                    <i class="fa-solid fa-file-image"></i>
+                    {% trans 'Download as PNG' %}
+                </a>
+
+                <a href="#" target="_top" id="actionDownloadPDF" class="btn btn-sm btn-gray-800">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    {% trans 'Download as PDF' %}
                 </a>
             </footer>
         </div>
@@ -28,31 +33,27 @@
 <script id="afterScript" async>
     const csrfToken = document.querySelector('#csrftoken').value;
 
-    const downloadButton = document.getElementById("actionDownload");
-    downloadButton.addEventListener("click", async function (event) {
-        event.preventDefault();
+    Notiflix.Block.circle("#loading", 'Loading...');
 
-        const svg = document.getElementById("card").firstChild;
+    function convertSVGToPDF(svg, filename) {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
 
-        // Convert each image to base64
-        const images = svg.querySelectorAll("image");
-        for (let i = 0; i < images.length; i++) {
-            const image = images[i];
-            const url = image.getAttribute("href");
-            const response = await fetch(url);
-            const blob = await response.blob();
-            const reader = new FileReader();
-            reader.onload = function () {
-                image.setAttribute("href", reader.result);
-            };
-            reader.readAsDataURL(blob);
-        }
+        const img = new Image();
+        img.onload = function () {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
 
-        // Wait for all images to be converted
-        await new Promise(resolve => setTimeout(resolve, 1000));
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF("p", "mm", "a6");
+            pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, 210/2, 297/2);
+            pdf.save(filename);
+        };
+        img.src = "data:image/svg+xml;base64," + btoa(svg);
+    }
 
-        const svgData = new XMLSerializer().serializeToString(svg);
-
+    function convertSVGToPNG(svg, filename) {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
 
@@ -63,11 +64,29 @@
             ctx.drawImage(img, 0, 0);
 
             const a = document.createElement("a");
-            a.download = "download.png";
             a.href = canvas.toDataURL("image/png");
+            a.download = filename;
             a.click();
         };
-        img.src = "data:image/svg+xml;base64," + btoa(svgData);
+        img.src = "data:image/svg+xml;base64," + btoa(svg);
+    }
+
+    const actionDownloadPNG = document.getElementById("actionDownloadPNG");
+    actionDownloadPNG.addEventListener("click", async function (event) {
+        event.preventDefault();
+
+        const svg = document.getElementById("card").firstChild;
+        const svgData = new XMLSerializer().serializeToString(svg);
+        convertSVGToPNG(svgData, "download.png");
+    });
+
+    const actionDownloadPDF = document.getElementById("actionDownloadPDF");
+    actionDownloadPDF.addEventListener("click", async function (event) {
+        event.preventDefault();
+
+        const svg = document.getElementById("card").firstChild;
+        const svgData = new XMLSerializer().serializeToString(svg);
+        convertSVGToPDF(svgData, "download.pdf");
     });
 
     async function generateCard(actionId) {
@@ -79,20 +98,7 @@
 
         let height = 880;
         let width = 630;
-        {#let s = Snap("#testCard");#}
-        {#let rect = s.rect(0, 0, width, height);#}
-        {#rect.attr({#}
-        {#    fill: "rgba(186,218,85,0)",#}
-        {#    stroke: "#000",#}
-        {#    strokeWidth: 5#}
-        {# });#}
-        {#let text = s.text(10, 50, "Hello, Worldf jdhfkjhdsufhsdufhsd fkjdhsfkj hsdkjf hsdkjf hdkjhf sdkjf hds!");#}
-        {#text.attr({#}
-        {#    fontFamily: "Arial",#}
-        {#    fontSize: 50,#}
-        {#    fill: "#000",#}
-        {#    "text-anchor":"start",#}
-        {# });#}
+
         const response = await fetch('{% url 'apiCardData' actionId=0 %}'.replace('0', actionId), {
             method: 'GET',
             headers: {
@@ -100,11 +106,8 @@
             }
         });
 
-        const action = await response.json();
-
-        console.log(action);
-
         // check if status is 200
+        const action = await response.json();
         if (action.status == "BAD_REQUEST" || action.status == "NOT_FOUND") {
             console.log("Error: ", action.message);
             return;
@@ -132,6 +135,7 @@
             } else {
                 action.icon = "{% static 'img/card/feature/question-svgrepo-com.svg' %}";
             }
+
             let image = draw.image(action.icon).size(90, 90).move(width - 99, 5);
         } else {
             let image = draw.image(action.icon + "?size=90&radius=15").move(width - 95, 5);
@@ -145,16 +149,16 @@
         let title = draw.text(function (add) {
             let prevLength = 0;
             let split = action.title.split(' ');
+
             for (let i = 0; i < split.length; i += 1) {
                 let char = split[i];
                 let newline = false;
+
                 if (add.length() - prevLength > textWidth - 150) {
-                    {#console.log("new line:", add);#}
                     prevLength = add.length();
                     newline = true;
                 }
-                {#console.log(char);#}
-                {#console.log(add, add.length());#}
+
                 if (newline) {
                     add.tspan(char).newLine();
                 } else {
@@ -162,6 +166,7 @@
                 }
             }
         });
+
         title.font({fill: black, size: 50, family: 'Helvetica', weight: 'bold'}).move(20, currentHeightOffset);
         currentHeightOffset += title.bbox().height + 20;
         console.log("after tit:", currentHeightOffset);
@@ -170,16 +175,16 @@
         let description = draw.text(function (add) {
             let prevLength = 0;
             let descSplit = action.description.split(' ');
+
             for (let i = 0; i < descSplit.length; i += 1) {
                 let char = descSplit[i];
                 let newline = false;
+
                 if (add.length() - prevLength > textWidth) {
-                    {#console.log("new line:", add);#}
                     prevLength = add.length();
                     newline = true;
                 }
-                {#console.log(char);#}
-                {#console.log(add, add.length());#}
+
                 if (newline) {
                     add.tspan(char).newLine();
                 } else {
@@ -187,6 +192,7 @@
                 }
             }
         });
+
         description.font({fill: black, size: 30, family: 'Helvetica'}).move(20, currentHeightOffset);
         currentHeightOffset += description.bbox().height;
         console.log("after desc:", currentHeightOffset);
@@ -198,11 +204,8 @@
         });
         currentHeightOffset += 60;
 
-
         function drawEffect(effect, x, y) {
             let iconPath = effect.url.replace(".png", ".svg.png").replace("https://api.tts-game.fun", );
-
-            console.log("drawing effect:", effect);
 
             let wordSize = 30;
             let imageWidth = 70;
@@ -393,6 +396,25 @@
             let discardText = draw.text("Discard").font({fill: black, size: 30, family: 'Helvetica'}).move(width - 137, height - 40);
         }
 
+        const svg = document.getElementById("card").firstChild;
+
+        // Convert each image to base64
+        const images = svg.querySelectorAll("image");
+        for (let i = 0; i < images.length; i++) {
+            const image = images[i];
+            const url = image.getAttribute("href");
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const reader = new FileReader();
+            reader.onload = function () {
+                image.setAttribute("href", reader.result);
+            };
+            reader.readAsDataURL(blob);
+        }
+
+        // Wait for all images to be converted
+        await new Promise(resolve => setTimeout(resolve, 250));
+        Notiflix.Block.remove("#loading");
     }
 
     generateCard({{ actionId }});

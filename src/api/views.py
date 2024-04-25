@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 import base64
 import json
+import time
 
 from django.contrib.auth.decorators import login_required
 from django.template import loader
@@ -197,6 +198,9 @@ def validateTable(request, table):
     responseCode, responseData = requestAPI("post", url, data)
     status = responseCode == 200 or responseCode == 406
 
+    # TODO: Remove in future... just for testing
+    time.sleep(1)
+
     return JsonResponse(responseData, status=200 if status else responseCode, safe=False)
 
 def createFilter(request):
@@ -205,6 +209,7 @@ def createFilter(request):
     if request.body:
         data = json.loads(request.body)
 
+    data['apiUrl'] = API_URL
     html_template = loader.get_template("includes/filter.html")
     return HttpResponse(html_template.render(data, request))
 
@@ -214,6 +219,7 @@ def createModal(request):
     if request.body:
         data = json.loads(request.body)
 
+    data['apiUrl'] = API_URL
     html_template = loader.get_template(data['template'])
     return HttpResponse(html_template.render(data, request))
 
@@ -224,6 +230,7 @@ def createSearchModal(request, table):
         data = json.loads(request.body)
 
     data['table'] = table
+    data['apiUrl'] = API_URL
     html_template = loader.get_template(data['template'])
     return HttpResponse(html_template.render(data, request))
 

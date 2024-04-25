@@ -1,0 +1,46 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% load filters %}
+{% load i18n %}
+
+{% block title %} Mechanics - Summons {% endblock %}
+
+{% block stylesheets %}
+    <!-- Empty -->
+{% endblock stylesheets %}
+
+{% block content %}
+    <input type="hidden" value="{{ csrf_token }}" id="csrftoken" readonly/>
+
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+        <div class="d-block mb-4 mb-md-0">
+            <h2 class="h4">{% translate 'All Summons' %}</h2>
+            <p class="mb-0">{% translate 'Manage of all summons in database' %}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <section class="vh-80 d-flex align-items-center justify-content-center">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 text-center d-flex align-items-center justify-content-center">
+                        <div>
+                            <img class="img-fluid w-75" src="{% static 'img/illustrations/404.svg' %}" alt="404 not found">
+                            <h1 class="mt-5">
+                                {% trans 'Under Construction' %}
+                            </h1>
+
+                            <p class="lead my-4">
+                                This page is skipped due to the lack of time to implement it. <br>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock content %}
+
+{% block javascripts %}
+    <!-- Empty -->
+{% endblock javascripts %}

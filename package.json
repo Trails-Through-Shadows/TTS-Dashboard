@@ -23,6 +23,7 @@
     "bootstrap": "^5.3.2",
     "gojs": "^2.3.14",
     "hover.css": "^2.3.2",
+    "jspdf": "^2.5.1",
     "notiflix": "^3.2.7",
     "notyf": "^3.10.0",
     "nouislider": "^15.7.1",

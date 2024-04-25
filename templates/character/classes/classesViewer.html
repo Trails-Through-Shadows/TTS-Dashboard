@@ -24,7 +24,7 @@
             <div class="table-settings mb-2">
                 <div class="row align-items-center justify-content-between">
                     <div class="col-12 col-sm-6">
-                        <div class="input-group fmxw-500">
+                        <div class="input-group">
                             <span class="input-group-text">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </span>
@@ -39,7 +39,7 @@
                     </div>
 
                     <div class="col-12 col-sm-6">
-                        <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
+                        <div class="btn-toolbar mb-2 mb-md-0 mt-2 mt-sm-0 justify-content-end">
                             <a href="{% url 'classWorkbench' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
                                 <i class="fa-solid fa-plus me-1"></i>
                                 {% trans 'New Class' %}
@@ -104,7 +104,7 @@
                         </ul>
                     </nav>
 
-                    <div class="fw-normal small mt-4 mt-lg-0">
+                    <div class="fw-normal small mt-4 mt-sm-0">
                         {% trans 'Showing' %} <b>10</b> {% trans 'of' %} <b>10</b> {% trans 'entries' %}
                     </div>
                 </div>
@@ -187,9 +187,19 @@
 
         const tableFilter = new Dashboard.TableFilter([
             { title: 'Title contains:', key: 'title', type: 'has', hidden: true },
+            { title: 'Base Health:', key: 'health', type: 'bwn', bounds: {min: 0, max: 500} },
+            { title: 'Base Defence:', key: 'defence', type: 'bwn', bounds: {min: 0, max: 500} },
+            { title: 'Base Initiative:', key: 'initiative', type: 'bwn', bounds: {min: 0, max: 500} },
         ]);
         const tableSorter = new Dashboard.TableSorter([
             { key: "id", order: "asc" },
+            { key: "title" },
+            { key: "tag" },
+            { key: "health" },
+            { key: "defence" },
+            { key: "initiative" },
+            { key: "effects" },
+            { key: "actions" },
         ], true);
         const tableSearch = new Dashboard.TableSearch(
             (input) => { // On Search input

@@ -26,31 +26,8 @@
                             <label for="effectType" class="form-label mb-1"> Effect Type </label>
                             <select class="form-control" id="effectType" required>
                                 <option value="hidden" selected hidden disabled>Choose Type</option>
-                                <option value="PUSH">PUSH</option>
-                                <option value="PULL">PULL</option>
-                                <option value="FORCED_MOVEMENT_RESISTANCE">FORCED_MOVEMENT_RESISTANCE</option>
-                                <option value="POISON">POISON</option>
-                                <option value="POISON_RESISTANCE">POISON_RESISTANCE</option>
-                                <option value="FIRE">FIRE</option>
-                                <option value="FIRE_RESISTANCE">FIRE_RESISTANCE</option>
-                                <option value="BLEED">BLEED</option>
-                                <option value="BLEED_RESISTANCE">BLEED_RESISTANCE</option>
-                                <option value="STUN">STUN</option>
-                                <option value="STUN_RESISTANCE">STUN_RESISTANCE</option>
-                                <option value="CONFUSION">CONFUSION</option>
-                                <option value="CONFUSION_RESISTANCE">CONFUSION_RESISTANCE</option>
-                                <option value="GUIDANCE">GUIDANCE</option>
-                                <option value="PROTECTION">PROTECTION</option>
-                                <option value="VULNERABILITY">VULNERABILITY</option>
-                                <option value="VULNERABILITY_RESISTANCE">VULNERABILITY_RESISTANCE</option>
-                                <option value="HEAL">HEAL</option>
-                                <option value="REGENERATION">REGENERATION</option>
-                                <option value="EMPOWER">EMPOWER</option>
-                                <option value="ENFEEBLE">ENFEEBLE</option>
-                                <option value="ENFEEBLE_RESISTANCE">ENFEEBLE_RESISTANCE</option>
-                                <option value="SPEED">SPEED</option>
-                                <option value="SLOW">SLOW</option>
-                                <option value="SLOW_RESISTANCE">SLOW_RESISTANCE</option>
+                                <optgroup label="Classic" id="effectsClassic"></optgroup>
+                                <optgroup label="Resistance" id="effectsResistance"></optgroup>
                             </select>
                         </div>
 
@@ -108,6 +85,38 @@
 
 <script id="afterScript" async>
     const csrfToken = document.querySelector('#csrftoken').value;
+
+    const effects = []
+    const effectsData = fetch("{{ apiUrl }}/enum/effectType", {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then((response) => {
+        return response.json();
+    });
+
+    const effectsClassic = document.querySelector('#effectsClassic');
+    const effectsResistance = document.querySelector('#effectsResistance');
+
+    // Add effects to the select
+    effectsData.then((effectsData) => {
+        for (const effect of effectsData) {
+            console.log(effect);
+
+            const option = document.createElement('option');
+            option.value = effect.title;
+            option.innerText = effect.displayTitle + (effect.isResistance ? " Resistance" : "");
+
+            if (effect.isResistance) {
+                effectsResistance.appendChild(option);
+            } else {
+                effectsClassic.appendChild(option);
+            }
+            
+            effects.push(effect);
+        }
+    });
 
     // ---- | Urls
 
@@ -188,7 +197,37 @@
         effectSubmitForm.setAttribute('disabled', 'disabled');
     }
 
-    effectTypeInput.addEventListener('change', validate);
+    effectTypeInput.addEventListener('change', (event) => {
+        const selected = event.target.value;
+        console.log(selected);
+        
+        const selectedEffect = effects.find((effect) => effect.title === selected);
+        if (!selectedEffect) {
+            return;
+        }
+        
+        if (selectedEffect.hasDuration) {
+            effectDurationInput.disabled = false;
+            effectDurationInfinityInput.disabled = false;
+            effectDurationInput.value = "";
+        } else {
+            effectDurationInput.disabled = true;
+            effectDurationInfinityInput.disabled = true;
+            effectDurationInput.value = "";
+        }
+        
+        if (selectedEffect.hasStrength) {
+            effectStrengthInput.disabled = false;
+            effectStrengthInfinityInput.disabled = false;
+            effectStrengthInput.value = "";
+        } else {
+            effectStrengthInput.disabled = true;
+            effectStrengthInfinityInput.disabled = true;
+            effectStrengthInput.value = "";
+        }
+        
+        validate();
+    });
     effectTargetInput.addEventListener('change', validate);
     effectStrengthInput.addEventListener('input', validate);
     effectDurationInput.addEventListener('input', validate);

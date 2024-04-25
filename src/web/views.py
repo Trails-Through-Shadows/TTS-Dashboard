@@ -52,6 +52,10 @@ def itemViewer(request):
     return render(request, 'mechanics/items/itemsViewer.html')
 
 @login_required(login_url="/login/")
+def summonViewer(request):
+    return render(request, 'mechanics/summons/summonsViewer.html')
+
+@login_required(login_url="/login/")
 def itemWorkbench(request, id=None):
     context = {"itemId": id}
     return render(request, 'mechanics/items/itemWorkbench.html', context)
@@ -85,9 +89,25 @@ def campaignWorkbench(request, id=None):
 
 @login_required(login_url="/login/")
 def locationViewer(request):
-    return render(request, 'world/locations/locationsViewer.html')
+    return render(request, 'dungeon/locations/locationsViewer.html')
 
 @login_required(login_url="/login/")
 def locationWorkbench(request, id=None):
     context = {"locationId": id}
-    return render(request, 'world/locations/locationsWorkbench.html', context)
+    return render(request, 'dungeon/locations/locationsWorkbench.html', context)
+
+@login_required(login_url="/login/")
+def achievementViewer(request):
+    return render(request, 'world/achievements/achievementViewer.html')
+
+@login_required(login_url="/login/")
+def storyViewer(request):
+    return render(request, 'world/story/storyViewer.html')
+
+@login_required(login_url="/login/")
+def adventureViewer(request):
+    return render(request, 'player-data/adventure/adventureViewer.html')
+
+@login_required(login_url="/login/")
+def licenseViewer(request):
+    return render(request, 'player-data/license/licenseViewer.html')

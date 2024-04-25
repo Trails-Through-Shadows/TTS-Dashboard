@@ -50,21 +50,25 @@ module Dashboard {
                                     };
                                 })
                                 : null,
-                            location: Location.fromJSON(list.location),
-                            path: [] // Later
+                            location: Location.fromJSON(list.location)
                         }
                     })
                     : null
             );
 
-            // Find path // TODO: Žožeee
-            // const jsonPath = json.path;
-            // for (let jsonPathPart of jsonPath) {
-            //     const fromLocation = campaign.locations.find(location => location.location.id === jsonPathPart.key.idStart);
-            //     const toLocation = campaign.locations.find(location => location.location.id === jsonPathPart.key.ifEnd);
+            // // Find path // TODO: Žožeee
+            // for (let campLoc of campaign.locations) {
+            //     const location = campLoc.location;
             //
-            //     if (fromLocation && toLocation) {
-            //         fromLocation.path.push(toLocation);
+            //     if (location.path.length > 0) {
+            //         for (let i = 0; i < location.path.length; i++) {
+            //             const next = campaign.locations.find(loc => loc.location.id === location.path[i]);
+            //
+            //             if (next) {
+            //                 location.path.push(next);
+            //                 console.log("Found path");
+            //             }
+            //         }
             //     }
             // }
 
@@ -79,6 +83,10 @@ module Dashboard {
                 achievements: this.achievements.map(achievement => achievement.toJSON()),
                 locations: this.locations.map(location => {
                     return {
+                        id: location.location.id,
+                        idCampaign: this.id,
+
+                        location: location.location.toJSON(),
                         start: location.start,
                         finish: location.finish,
                         stories: location.stories,

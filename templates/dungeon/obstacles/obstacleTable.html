@@ -7,8 +7,8 @@
                 <th class="border-gray-200 orderable" data-order-key="id">#</th>
                 <th class="border-gray-200 orderable" data-order-key="title">{% translate 'Title' %}</th>
                 <th class="border-gray-200 orderable" data-order-key="tag">{% translate 'Tag' %}</th>
-                <th class="border-gray-200 orderable text-center" data-order-key="damage">{% translate 'Damage' %}</th>
-                <th class="border-gray-200 orderable text-center" data-order-key="health">{% translate 'Health' %}</th>
+                <th class="border-gray-200 orderable text-center" data-order-key="baseDamage">{% translate 'Damage' %}</th>
+                <th class="border-gray-200 orderable text-center" data-order-key="baseHealth">{% translate 'Health' %}</th>
                 <th class="border-gray-200 orderable text-center" data-order-key="crossable">{% translate 'Cross-able' %}</th>
                 <th class="border-gray-200 orderable text-center" data-order-key="effects">{% translate 'Effects' %}</th>
                 <th class="border-gray-200 orderable text-center" data-order-key="usages">{% translate 'Usages' %}</th>
@@ -96,7 +96,7 @@
     </table>
 </div>
 
-<div class="card-footer px-3 border-0 d-flex flex-column flex-lg-row align-items-center justify-content-between" id="tableNav">
+<div class="card-footer px-3 border-0 d-flex flex-column flex-sm-row align-items-center justify-content-between" id="tableNav">
     <nav aria-label="Table navigation">
         {% if pages.total != 0 %}
             <ul class="pagination mb-0">
@@ -115,13 +115,13 @@
                 </li>
             </ul>
         {% else %}
-            <div class="fw-normal small mt-4 mt-lg-0">
+            <div class="fw-normal small mt-4 mt-sm-0">
                 {% translate 'No entries found' %}
             </div>
         {% endif %}
     </nav>
 
-    <div class="fw-normal small mt-4 mt-lg-0">
+    <div class="fw-normal small mt-4 mt-sm-0">
         {% blocktranslate with entries|length as limit and pages.total as total %}
             Showing {{ limit }} of {{ total }} entries
         {% endblocktranslate  %}

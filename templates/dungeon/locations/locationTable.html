@@ -1,0 +1,108 @@
+{% load filters %}
+{% load i18n %}
+
+<div class="table-wrapper table-responsive card card-body border-0 shadow" id="tableData">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th class="border-gray-200 orderable" data-order-key="id">#</th>
+                <th class="border-gray-200 orderable" data-order-key="title">{% trans 'Title' %}</th>
+                <th class="border-gray-200 orderable" data-order-key="tag">{% trans 'Tag' %}</th>
+                <th class="border-gray-200 orderable text-center" data-order-key="type">{% trans 'Type' %}</th>
+                <th class="border-gray-200 text-center">{% trans 'Action' %}</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% if entries|length == 0 %}
+                <tr>
+                    <td colspan="8" class="text-center">{% translate 'No entry found' %}</td>
+                </tr>
+            {% else %}
+                {% for entry in entries %}
+                    <tr>
+                        <td>
+                            <span class="fw-normal">{{ entry.id }}</span>
+                        </td>
+                        <td>
+                            <span class="fw-normal">{{ entry.title }}</span>
+                        </td>
+                        <td>
+                            <span class="fw-normal">{{ entry.tag }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="fw-normal">{{ entry.type }}</span>
+                        </td>
+                        <td>
+                            <div class="btn-group d-flex align-items-center justify-content-evenly tableActions">
+                                <a href="javascript:void(0)">
+                                    <button class="btn btn-link text-dark m-0 p-0" data-action="view" data-entry="{{ entry.id }}">
+                                        <span class="icon icon-lg text-secondary">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </span>
+                                    </button>
+                                </a>
+
+                                <a href="{% url 'enemyWorkbenchEdit' id=entry.id %}">
+                                    <button class="btn btn-link text-dark m-0 p-0">
+                                        <span class="icon icon-lg text-success">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </span>
+                                    </button>
+                                </a>
+
+                                <a href="javascript:void(0)">
+                                    <button class="btn btn-link text-dark m-0 p-0" data-action="delete" data-entry="{{ entry.id }}">
+                                        <span class="icon icon-lg text-danger">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </span>
+                                    </button>
+                                </a>
+
+                                <a href="{% url 'apiQueryTableID' table='campaigns' id=entry.id %}?download" target="_top">
+                                    <button class="btn btn-link text-dark m-0 p-0">
+                                        <span class="icon icon-lg">
+                                            <i class="fa-solid fa-download"></i>
+                                        </span>
+                                    </button>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card-footer px-3 border-0 d-flex flex-column flex-sm-row align-items-center justify-content-between" id="tableNav">
+    <nav aria-label="Table navigation">
+        {% if pages.total != 0 %}
+            <ul class="pagination mb-0">
+                <li class="page-item">
+                    <a class="page-link" href="javascript:void(0)" data-page="{{ pages.prev }}">{% translate 'Previous' %}</a>
+                </li>
+
+                {% for i in pages.indexes %}
+                    <li class="page-item {% if i == pages.currentPage %} active {% endif %}">
+                        <a class="page-link" href="javascript:void(0)" data-page="{{ i }}">{{ i }}</a>
+                    </li>
+                {% endfor %}
+
+                <li class="page-item">
+                    <a class="page-link" href="javascript:void(0)" data-page="{{ pages.next }}">{% translate 'Next' %}</a>
+                </li>
+            </ul>
+        {% else %}
+            <div class="fw-normal small mt-4 mt-sm-0">
+                {% translate 'No entries found' %}
+            </div>
+        {% endif %}
+    </nav>
+
+    <div class="fw-normal small mt-4 mt-sm-0">
+        {% blocktranslate with entries|length as limit and pages.total as total %}
+            Showing {{ limit }} of {{ total }} entries
+        {% endblocktranslate  %}
+    </div>
+</div>
