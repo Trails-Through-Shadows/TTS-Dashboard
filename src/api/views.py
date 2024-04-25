@@ -205,6 +205,7 @@ def createFilter(request):
     if request.body:
         data = json.loads(request.body)
 
+    data['apiUrl'] = API_URL
     html_template = loader.get_template("includes/filter.html")
     return HttpResponse(html_template.render(data, request))
 
@@ -214,6 +215,7 @@ def createModal(request):
     if request.body:
         data = json.loads(request.body)
 
+    data['apiUrl'] = API_URL
     html_template = loader.get_template(data['template'])
     return HttpResponse(html_template.render(data, request))
 
@@ -224,6 +226,7 @@ def createSearchModal(request, table):
         data = json.loads(request.body)
 
     data['table'] = table
+    data['apiUrl'] = API_URL
     html_template = loader.get_template(data['template'])
     return HttpResponse(html_template.render(data, request))
 
