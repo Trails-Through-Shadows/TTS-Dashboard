@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 import base64
 import json
+import time
 
 from django.contrib.auth.decorators import login_required
 from django.template import loader
@@ -196,6 +197,9 @@ def validateTable(request, table):
     url = f"{API_URL}/validate/{table}"
     responseCode, responseData = requestAPI("post", url, data)
     status = responseCode == 200 or responseCode == 406
+
+    # TODO: Remove in future... just for testing
+    time.sleep(1)
 
     return JsonResponse(responseData, status=200 if status else responseCode, safe=False)
 
