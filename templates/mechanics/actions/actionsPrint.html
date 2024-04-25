@@ -35,22 +35,34 @@
 
     Notiflix.Block.circle("#loading", 'Loading...');
 
-    function convertSVGToPDF(svg, filename) {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
+    let height = 880;
+    let width = 630;
 
+    function convertSVGToPDF(svg, filename) {
         const img = new Image();
         img.onload = function () {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
+            console.log("Image loaded");
 
             const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF("p", "mm", "a6");
-            pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, 210/2, 297/2);
-            pdf.save(filename);
+            const pdf = new jsPDF({
+                orientation: "p",
+                unit: "pt",
+                format: [width, height]
+            });
+            
+            pdf.svg(svg, {
+                x: 0,
+                y: 0,
+                width: width,
+                height: height
+            }).then(() => {
+                console.log("PDF generated");
+                pdf.save(filename);
+            });
         };
-        img.src = "data:image/svg+xml;base64," + btoa(svg);
+
+        const svgData = new XMLSerializer().serializeToString(svg);
+        img.src = "data:image/svg+xml;base64," + btoa(svgData);
     }
 
     function convertSVGToPNG(svg, filename) {
@@ -85,8 +97,7 @@
         event.preventDefault();
 
         const svg = document.getElementById("card").firstChild;
-        const svgData = new XMLSerializer().serializeToString(svg);
-        convertSVGToPDF(svgData, "download.pdf");
+        convertSVGToPDF(svg, "download.pdf");
     });
 
     async function generateCard(actionId) {
@@ -95,9 +106,6 @@
         while (card.firstChild) {
             card.removeChild(card.firstChild);
         }
-
-        let height = 880;
-        let width = 630;
 
         const response = await fetch('{% url 'apiCardData' actionId=0 %}'.replace('0', actionId), {
             method: 'GET',
