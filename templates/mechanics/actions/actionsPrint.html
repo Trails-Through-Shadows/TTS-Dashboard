@@ -15,16 +15,27 @@
                 <div id="card" style="scale: 0.7; transform-origin: 0; -webkit-transform-origin-y: top; -webkit-transform-origin-x: left;"></div>
             </main>
 
-            <footer class="modal-footer border-0">
-                <a href="#" target="_top" id="actionDownloadPNG" class="btn btn-sm btn-gray-800">
-                    <i class="fa-solid fa-file-image"></i>
-                    {% trans 'Download as PNG' %}
-                </a>
-
-                <a href="#" target="_top" id="actionDownloadPDF" class="btn btn-sm btn-gray-800">
-                    <i class="fa-solid fa-file-pdf"></i>
-                    {% trans 'Download as PDF' %}
-                </a>
+            <footer class="modal-footer border-0 justify-content-center">
+                <div class="row">
+                    <div class="col-12 col-md-4">
+                        <a href="#" target="_top" id="actionDownloadPNG" class="btn btn-sm btn-gray-800">
+                            <i class="fa-solid fa-file-image"></i>
+                            {% trans 'Download as PNG' %}
+                        </a>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <a href="#" target="_top" id="actionDownloadPDF" class="btn btn-sm btn-gray-800">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            {% trans 'Download as PDF' %}
+                        </a>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <a href="#" target="_top" id="actionDownloadSVG" class="btn btn-sm btn-gray-800">
+                            <i class="fa-solid fa-panorama"></i>
+                            {% trans 'Download as SVG' %}
+                        </a>
+                    </div>
+                </div>
             </footer>
         </div>
     </div>
@@ -98,6 +109,22 @@
 
         const svg = document.getElementById("card").firstChild;
         convertSVGToPDF(svg, "download.pdf");
+    });
+    
+    const actionDownloadSVG = document.getElementById("actionDownloadSVG");
+    actionDownloadSVG.addEventListener("click", async function (event) {
+        event.preventDefault();
+
+        const svg = document.getElementById("card").firstChild;
+        const svgData = new XMLSerializer().serializeToString(svg);
+
+        const blob = new Blob([svgData], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "download.svg";
+        a.click();
     });
 
     async function generateCard(actionId) {
