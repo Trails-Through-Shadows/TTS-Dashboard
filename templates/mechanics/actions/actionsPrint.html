@@ -160,6 +160,8 @@
         let border = draw.rect(width, height).radius(20).attr({fill: black});
         let backgroundBorder = draw.rect(width - 5, height - 5).radius(18).attr({fill: color}).move(2.5, 2.5);
         let background = draw.rect(width - 10, height - 10).radius(16).attr({fill: lightColor}).move(5, 5);
+        // rounded corners
+        let backgroundImg = draw.image("{% static 'img/card/feature/background.png' %}").size(width, height).opacity(0.3);
 
         // icon at right left corner
         {#let source = draw.rect(100, 100).radius(20).attr({fill: black}).move(width - 100, 0);#}
@@ -432,8 +434,8 @@
             {#let discardText = draw.text("Discard").font({fill: black, size: 30, family: 'Helvetica'}).move(width - 137, height - 40);#}
 
             // draw trash icon
-            let trashIcon = "{% static 'img/card/feature/trash-bin-trash-svgrepo-com.svg' %}";
-            draw.image(trashIcon).move(width - 110, height - 110).size(100, 100);
+            let trashIcon = "{% static 'img/card/feature/discard.svg' %}";
+            draw.image(trashIcon).move(width - 110, height - 110).size(80, 80);
         }
 
         const svg = document.getElementById("card").firstChild;
