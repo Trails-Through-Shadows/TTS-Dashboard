@@ -186,8 +186,8 @@ module Dashboard {
                 hex.drawCoordinates(this.canvas.getContext(), textColor, offset);
             });
 
-            const boundingBox = this.getBoundingBox();
-            this.drawBoundingBox(boundingBox, offset, this.hexSize);
+            // const boundingBox = this.getBoundingBox();
+            // this.drawBoundingBox(boundingBox, offset, this.hexSize);
             this.canvas.setDrawn();
         }
 
