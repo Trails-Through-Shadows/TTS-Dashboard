@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -22,10 +23,57 @@
                 <!-- Content -->
             {% endblock content %}
 
+            <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="helpCanvasSidebar" aria-labelledby="helpCanvasSidebarLabel">
+                <div class="offcanvas-header pb-0">
+                    <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">User Manual</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <hr>
+                <div class="offcanvas-body" id="showdownTarget">
+                    aaa
+                </div>
+            </div>
+
             {% include 'includes/footer.html' %}
         </main>
 
         {% include 'includes/scripts.html' %}
+        <script>
+            const pageHref = window.location.href;
+            const pageUrl = pageHref.substring(0, pageHref.lastIndexOf('/'));
+
+            // Get path of the current page and remove the domain
+            let path = pageUrl.replace(/^(?:\/\/|[^\/]+)*\//, "");
+            path = path.substring(3).replace('\/', "_");
+            const filePath = `{% static 'empty.md' %}`;
+
+            if (path.length !== 0) {
+                const showdown = window.showdown;
+                const converter = new showdown.Converter();
+                const target = document.getElementById('showdownTarget');
+
+                const firstFile = path;
+                const firstFilePath = filePath.replace('empty', firstFile);
+
+                fetch(firstFilePath)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        target.innerHTML = converter.makeHtml(data);
+                    })
+                    .catch(err => {
+                        fetch(filePath)
+                            .then(response => response.text())
+                            .then(data => {
+                                target.innerHTML = converter.makeHtml(data);
+                            });
+                    });
+                }
+        </script>
 
         {% block javascripts %}
             <!-- Custom scripts -->
