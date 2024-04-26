@@ -148,6 +148,8 @@
             return;
         }
 
+        console.log("Action: ", action);
+
         let gradient = new SVG.Color(action.color).to('#fff');
         let black = '#000';
         let color = gradient.at(0).toHex();
@@ -173,7 +175,8 @@
 
             let image = draw.image(action.icon).size(90, 90).move(width - 99, 5);
         } else {
-            let image = draw.image(action.icon + "?size=90&radius=15").move(width - 95, 5);
+            action.icon = action.icon.replace("https://api.tts-game.fun", "http://localhost:8080");
+            let image = draw.image(action.icon).move(width - 95, 5).size(90, 90);
         }
 
         let textWidth = width - 400;
@@ -240,7 +243,8 @@
         currentHeightOffset += 60;
 
         function drawEffect(effect, x, y) {
-            let iconPath = effect.url.replace(".png", ".svg").replace("/images/", "/images/svgs/");
+            console.log("effect:", effect)
+            let iconPath = effect.url.replace(".png", ".svg").replace("/images/", "/images/svg/");
             console.log("icon path:", iconPath);
 
             let wordSize = 30;
