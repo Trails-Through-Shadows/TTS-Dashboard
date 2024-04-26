@@ -162,10 +162,12 @@
         let background = draw.rect(width - 10, height - 10).radius(16).attr({fill: lightColor}).move(5, 5);
 
         // icon at right left corner
-        let source = draw.rect(100, 100).radius(20).attr({fill: black}).move(width - 100, 0);
-        let sourceBackground = draw.rect(95, 95).radius(18).attr({fill: lightColor}).move(width - 97.5, 2.5);
+        {#let source = draw.rect(100, 100).radius(20).attr({fill: black}).move(width - 100, 0);#}
+        {#let sourceBackground = draw.rect(95, 95).radius(18).attr({fill: lightColor}).move(width - 97.5, 2.5);#}
 
         // print action.icon as image to source background
+
+        let iconSize = 110;
         if (action.icon == null) {
             if (action.source == "ENEMY") {
                 action.icon = "{% static 'img/card/feature/hydra-ugly-enemy-legend-svgrepo-com.svg' %}";
@@ -173,15 +175,14 @@
                 action.icon = "{% static 'img/card/feature/question-svgrepo-com.svg' %}";
             }
 
-            let image = draw.image(action.icon).size(90, 90).move(width - 99, 5);
+            let image = draw.image(action.icon).size(iconSize, iconSize).move(width - iconSize, 10);
         } else {
             action.icon = action.icon.replace("https://api.tts-game.fun", "http://localhost:8080");
-            let image = draw.image(action.icon).move(width - 95, 5).size(90, 90);
+            let image = draw.image(action.icon).move(width - iconSize, 10).size(iconSize, iconSize);
         }
 
         let textWidth = width - 400;
         let currentHeightOffset = 20;
-        console.log("init:", currentHeightOffset);
 
         // title
         let title = draw.text(function (add) {
@@ -207,7 +208,6 @@
 
         title.font({fill: black, size: 50, family: 'Helvetica', weight: 'bold'}).move(20, currentHeightOffset);
         currentHeightOffset += title.bbox().height + 20;
-        console.log("after tit:", currentHeightOffset);
 
         // description
         let description = draw.text(function (add) {
@@ -233,7 +233,6 @@
 
         description.font({fill: black, size: 30, family: 'Helvetica'}).move(20, currentHeightOffset);
         currentHeightOffset += description.bbox().height;
-        console.log("after desc:", currentHeightOffset);
 
         // line after description
         let line = draw.line(20, currentHeightOffset + 20, width - 20, currentHeightOffset + 20).stroke({
@@ -243,9 +242,7 @@
         currentHeightOffset += 60;
 
         function drawEffect(effect, x, y) {
-            console.log("effect:", effect)
             let iconPath = effect.url.replace(".png", ".svg").replace("/images/", "/images/svg/");
-            console.log("icon path:", iconPath);
 
             let wordSize = 30;
             let imageWidth = 70;
@@ -261,7 +258,6 @@
             let image = draw.image(iconPath).size(imageWidth, imageWidth).move(x + durationText.length(), y);
             let strengthText = draw.text(effect.strength).font({fill: black, size: wordSize, family: 'Helvetica'}).move(x + imageWidth + durationText.length(), y + 40);
 
-            console.log("effect width:", durationText.length() + imageWidth + strengthText.length() + 20);
             return 120;
         }
 
@@ -431,9 +427,13 @@
 
         // discard at right bottom corner
         if (action.discard !== "NEVER") {
-            let discardBorder = draw.rect(170, 50).radius(20).attr({fill: black}).move(width - 170, height - 50);
-            let discardBackground = draw.rect(165, 44).radius(18).attr({fill: lightColor}).move(width - 167.5, height - 47.5);
-            let discardText = draw.text("Discard").font({fill: black, size: 30, family: 'Helvetica'}).move(width - 137, height - 40);
+            {#let discardBorder = draw.rect(170, 50).radius(20).attr({fill: black}).move(width - 170, height - 50);#}
+            {#let discardBackground = draw.rect(165, 44).radius(18).attr({fill: lightColor}).move(width - 167.5, height - 47.5);#}
+            {#let discardText = draw.text("Discard").font({fill: black, size: 30, family: 'Helvetica'}).move(width - 137, height - 40);#}
+
+            // draw trash icon
+            let trashIcon = "{% static 'img/card/feature/trash-bin-trash-svgrepo-com.svg' %}";
+            draw.image(trashIcon).move(width - 110, height - 110).size(100, 100);
         }
 
         const svg = document.getElementById("card").firstChild;
@@ -455,7 +455,21 @@
         // Wait for all images to be converted
         await new Promise(resolve => setTimeout(resolve, 250));
         Notiflix.Block.remove("#loading");
+
+        // download svg
+        const svga = document.getElementById("card").firstChild;
+        const svgData = new XMLSerializer().serializeToString(svga);
+        convertSVGToPNG(svgData, `card-${actionId}-${action.title.toLowerCase().replace(" ", "-")}.png`);
     }
 
-    generateCard({{ actionId }});
+    async function downloadAll() {
+        for (let i = 0; i <= {{ actionId }}; i++) {
+            await generateCard(i);
+        }
+     }
+
+    downloadAll();
+
+    {#generateCard({{ actionId }});#}
+
 </script>
