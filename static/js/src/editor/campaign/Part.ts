@@ -14,7 +14,11 @@ module Dashboard {
                 json.id,
                 json.tag,
                 json.title,
-                json.hexes.map((hex: any) => Hex.fromJSON(hex))
+                json.hexes.map((hex: any) => {
+                    const h = Hex.fromJSON(hex)
+                    h.partId = json.id;
+                    return h;
+                })
             );
 
             part.calculateNeighbours();

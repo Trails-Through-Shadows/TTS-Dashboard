@@ -1,0 +1,94 @@
+{% load filters %}
+{% load static %}
+{% load i18n %}
+
+<div class="row">
+    <div class="col-3 align-self-center">
+        <img src="{% static 'img/imgLoading.png' %}" data-src="{% imageFor url %}" alt="Entry Image" class="lazyload img-fluid rounded">
+    </div>
+
+    <div class="col-9">
+        <div class="py-2">
+            <h2 class="h5 mb-2">{{ title }}</h2>
+
+            <div class="d-flex align-items-center tags">
+                <span class="badge bg-secondary me-1 rounded-1">Id: #{{ id }}</span>
+            </div>
+
+            <div class="d-flex align-items-center mt-2">
+                {% if description %}
+                    <span class="font-small">{{ description }}</span>
+                {% else %}
+                    <span class="font-small">{% trans 'No description available' %}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-1">
+
+    <div class="col-12 pt-2">
+        <div class="row">
+            <div class="col-2">
+                <h3 class="h6 mb-0">Parts</h3>
+                <hr class="my-1">
+
+                <div class="row g-2 flex-column" id="locationParts">
+                    <div class="col-12 locationPart">
+                        <div class="d-flex align-items-center text-center">
+                            <span class="font-small">No Parts</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-10" style="min-height: 500px">
+                <canvas id="locationView"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="entryDataScript">
+    const csrfToken = document.querySelector('#csrftoken').value;
+
+    // ---- | Urls
+
+    const apiUrlAll = `{% url 'apiQueryTable' table='locations' %}`;
+    const apiUrlSingle = `{% url 'apiQueryTableID' table='locations' id=0 %}`;
+    const apiUrlSinglePart = `{% url 'apiQueryTableID' table='parts' id=0 %}`;
+    const template = 'dungeon/locations/locationTable.html';
+    const templateInfo = 'dungeon/locations/locationEntry.html';
+
+    // ---- | Canvas
+
+    const title = {
+        title: '{% trans 'No Data' %}',
+        subtitle: '{% trans 'Please select a location to render.' %}',
+        spacer: 100
+    }
+    const canvasRoot = document.getElementById('locationView');
+    const canvas = new Dashboard.Canvas(canvasRoot, title);
+
+    // ---- | Location
+
+    const hexGridSize = 20;
+    const partList = document.getElementById('locationParts');
+    const locationMap = new Dashboard.LocationMap(canvas, partList, apiUrlSinglePart);
+
+    canvas.addOnSizeListener(() => {
+        if (!canvas.isDrawn() || canvas.isLoading()) {
+            return;
+        }
+
+        canvas.clear();
+        locationMap.hexGrid.draw([], false);
+    });
+
+    if ("{{ type }}" !== "MARKET") {
+        locationMap.readData(apiUrlSingle.replace(0, {{ id }}), (data) => {
+            canvas.clear();
+            locationMap.drawPart(locationMap.location.parts[0]);
+        });
+    }
+</script>

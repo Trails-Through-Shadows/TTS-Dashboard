@@ -1,6 +1,8 @@
 module Dashboard {
 
     export class Enemy {
+        partId: number = 0;
+        coords: CubeCoordinate = null;
 
         constructor(
             public id: number,

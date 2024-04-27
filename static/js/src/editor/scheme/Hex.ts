@@ -14,8 +14,15 @@ module Dashboard {
         y: number;
     }
 
+    export type HexType = 'default' | 'doors' | 'enemy' | 'obstacle' | 'start' | 'center';
+
     export class Hex {
         public vertices: Vertex[] = [];
+
+        public starting: boolean = false;
+        public type: HexType = 'default';
+        public occupant: Enemy | Obstacle | Door | null = null;
+        public partId: number = 0;
 
         constructor(
             public id: number = 0,

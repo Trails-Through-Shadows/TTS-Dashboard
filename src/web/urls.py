@@ -9,8 +9,8 @@ urlpatterns = [
 
     # Dungeon
     path('dungeon/locations/', views.locationViewer, name="locationViewer"),
-    path('dungeon/locations/workbench/', views.locationWorkbench, name="locationsWorkbench"),
-    path('dungeon/locations/workbench/<int:id>/', views.locationWorkbench, name="locationsWorkbenchEdit"),
+    path('dungeon/locations/workbench/', views.locationWorkbench, name="locationWorkbench"),
+    path('dungeon/locations/workbench/<int:id>/', views.locationWorkbench, name="locationWorkbenchEdit"),
 
     path('dungeon/parts/', views.partViewer, name="partViewer"),
     path('dungeon/parts/workbench/', views.parkWorkbench, name="partWorkbench"),

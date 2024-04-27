@@ -32,12 +32,12 @@ module Dashboard {
             }
         }
 
-        private onMouseClickListeners: ((x: number, y: number) => void)[] = [];
-        public addOnMouseClickListener(listener: (x: number, y: number) => void): void {
+        private onMouseClickListeners: ((x: number, y: number, shift: boolean) => void)[] = [];
+        public addOnMouseClickListener(listener: (x: number, y: number, shift: boolean) => void): void {
             this.onMouseClickListeners.push(listener);
         }
 
-        public removeOnMouseClickListener(listener: (x: number, y: number) => void): void {
+        public removeOnMouseClickListener(listener: (x: number, y: number, shift: boolean) => void): void {
             const index = this.onMouseClickListeners.indexOf(listener);
             if (index > -1) {
                 this.onMouseClickListeners.splice(index, 1);
@@ -97,6 +97,41 @@ module Dashboard {
                     ctx.fillText(line, this.canvas.width / 2, this.canvas.height / 2 + this.def.spacer / 2 + i * 30);
                 }
             }
+        }
+
+        public tooltip(text: string, x: number, y: number): void {
+            // Draw tooltip box that will contain the text
+            const ctx = this.getContext();
+            ctx.fillStyle = new Dashboard.Color(255, 255, 255, 1).toRGB();
+            ctx.strokeStyle = new Dashboard.Color(0, 0, 0, 1).toRGB();
+            ctx.lineWidth = 1;
+            ctx.shadowBlur = 2;
+
+            const padding = 10;
+            const width = ctx.measureText(text).width + padding * 2;
+            const height = 10 + padding * 2;
+            const posX = x - width / 2;
+            const posY = y - height - 15;
+
+            ctx.beginPath();
+            ctx.moveTo(posX, posY);
+            ctx.lineTo(posX + width, posY);
+            ctx.lineTo(posX + width, posY + height);
+            ctx.lineTo(posX, posY + height);
+            ctx.closePath();
+
+            ctx.fill();
+            ctx.stroke();
+
+            // Reset shadow
+            ctx.shadowBlur = 0;
+
+            // Draw text
+            ctx.fillStyle = new Dashboard.Color(0, 0, 0).toRGB();
+            ctx.font = '1em Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y - 30);
         }
 
         public clear(): void {
@@ -173,8 +208,9 @@ module Dashboard {
                 const rect = this.canvas.getBoundingClientRect();
                 const x = event.clientX - rect.left;
                 const y = event.clientY - rect.top;
+                const shift = event.shiftKey;
 
-                this.onMouseClickListeners.forEach(listener => listener(x, y));
+                this.onMouseClickListeners.forEach(listener => listener(x, y, shift));
             });
         }
 

@@ -462,14 +462,13 @@
         convertSVGToPNG(svgData, `card-${actionId}-${action.title.toLowerCase().replace(" ", "-")}.png`);
     }
 
-    async function downloadAll() {
-        for (let i = 0; i <= {{ actionId }}; i++) {
-            await generateCard(i);
-        }
-     }
+    {#async function downloadAll() {#}
+    {#    for (let i = 0; i <= {{ actionId }}; i++) {#}
+    {#        await generateCard(i);#}
+    {#    }#}
+    {# }#}
+    {##}
+    {#downloadAll();#}
 
-    downloadAll();
-
-    {#generateCard({{ actionId }});#}
-
+    generateCard({{ actionId }});
 </script>

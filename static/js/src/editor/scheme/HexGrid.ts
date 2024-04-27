@@ -12,6 +12,10 @@ module Dashboard {
         public id: number = 0;
         public tag: string = '';
         public title: string = '';
+        public active: boolean = true;
+
+        private images = {};
+        public showCoordinates: boolean = true;
 
         private staticOffset: Offset = {x: 0, y: 0};
         public setStaticOffset(offset: Offset): void {
@@ -19,7 +23,7 @@ module Dashboard {
         }
 
         private mouseHoverListener = (x: number, y: number) => {
-            if (this.canvas.isLoading()) {
+            if (this.canvas.isLoading() || !this.active) {
                 return
             }
 
@@ -42,7 +46,6 @@ module Dashboard {
             private hexes: Hex[] = [],
         ) {
             this.canvas.addOnMouseHoverListener(this.mouseHoverListener);
-            console.warn(hexes);
             hexes.forEach(hex => this.mapNeighbors(hex));
         }
 
@@ -69,7 +72,12 @@ module Dashboard {
 
                             // Map hexes
                             this.hexes = data['hexes'].map(({q, r, s}) => {
-                                return new Hex(null,new Dashboard.CubeCoordinate(q, r, s), this.hexSize, []);
+                                const cords = new CubeCoordinate(q, r, s);
+
+                                const hex = new Hex(null,cords, this.hexSize, []);
+                                hex.type = cords.isZero() ? 'center' : 'default';
+
+                                return hex;
                             })
 
                             // Map hex neighbors
@@ -173,9 +181,17 @@ module Dashboard {
                 let borderColor = Color.BLACK;
                 let textColor = Color.BLACK;
 
-                if (hex.coords.isZero()) {
+                if (hex.type === 'center') {
                     fillColor = Color.RED.lighten(0.30);
                     textColor = Color.WHITE;
+                }
+
+                if (hex.type === 'start') {
+                    fillColor = Color.GREEN.lighten(0.80);
+                }
+
+                if (hex.type === 'doors') {
+                    fillColor = Color.PURPLE.lighten(0.80);
                 }
 
                 if (this.hoveredHex && this.hoveredHex.coords.equals(hex.coords)) {
@@ -183,7 +199,99 @@ module Dashboard {
                 }
 
                 hex.draw(this.canvas.getContext(), fillColor, borderColor, offset);
-                hex.drawCoordinates(this.canvas.getContext(), textColor, offset);
+
+                if (hex.type === 'doors') {
+                    let doorImg = this.images['doorClosed'] || null;
+
+                    if (!doorImg) {
+                        doorImg = new Image();
+                        doorImg.src = '/static/img/grid/doorClosed.png';
+                        doorImg.onload = () => {
+                            const offsetCoords = hex.coords.to2D(this.hexSize);
+                            this.canvas.getContext().drawImage(
+                                doorImg,
+                                offset.x + offsetCoords.x - this.hexSize * 1.1 / 2,
+                                offset.y + offsetCoords.y - this.hexSize * 1.5 / 1.75,
+                                this.hexSize * 1.1,
+                                this.hexSize * 1.5
+                            );
+                            this.images['doorClosed'] = doorImg;
+                        };
+                    } else {
+                        const offsetCoords = hex.coords.to2D(this.hexSize);
+                        this.canvas.getContext().drawImage(
+                            this.images['doorClosed'],
+                            offset.x + offsetCoords.x - this.hexSize * 1.1 / 2,
+                            offset.y + offsetCoords.y - this.hexSize * 1.5 / 1.75,
+                            this.hexSize * 1.1,
+                            this.hexSize * 1.5
+                        );
+                    }
+                }
+
+                if (hex.type === 'enemy') {
+                    let enemy = hex.occupant as Enemy;
+                    let enemyImg = this.images[enemy.tag] || null;
+
+                    if (!enemyImg) {
+                        enemyImg = new Image();
+                        enemyImg.src = (hex.occupant as Enemy).url +"?token=true";
+                        enemyImg.onload = () => {
+                            const offsetCoords = hex.coords.to2D(this.hexSize);
+                            this.canvas.getContext().drawImage(
+                                enemyImg,
+                                offset.x + offsetCoords.x - this.hexSize * 1.5 / 2,
+                                offset.y + offsetCoords.y - this.hexSize * 1.5 / 2,
+                                this.hexSize * 1.5,
+                                this.hexSize * 1.5
+                            );
+                            this.images[enemy.tag] = enemyImg;
+                        };
+                    } else {
+                        const offsetCoords = hex.coords.to2D(this.hexSize);
+                        this.canvas.getContext().drawImage(
+                            this.images[enemy.tag],
+                            offset.x + offsetCoords.x - this.hexSize * 1.5 / 2,
+                            offset.y + offsetCoords.y - this.hexSize * 1.5 / 2,
+                            this.hexSize * 1.5,
+                            this.hexSize * 1.5
+                        );
+                    }
+                }
+
+                if (hex.type === 'obstacle') {
+                    let obstacle = hex.occupant as Obstacle;
+                    let obstacleImg = this.images[obstacle.tag] || null;
+
+                    if (!obstacleImg) {
+                        obstacleImg = new Image();
+                        obstacleImg.src = (hex.occupant as Obstacle).url +"?token=true";
+                        obstacleImg.onload = () => {
+                            const offsetCoords = hex.coords.to2D(this.hexSize);
+                            this.canvas.getContext().drawImage(
+                                obstacleImg,
+                                offset.x + offsetCoords.x - this.hexSize * 1.5 / 2,
+                                offset.y + offsetCoords.y - this.hexSize * 1.5 / 2,
+                                this.hexSize * 1.5,
+                                this.hexSize * 1.5
+                            );
+                            this.images[obstacle.tag] = obstacleImg;
+                        };
+                    } else {
+                        const offsetCoords = hex.coords.to2D(this.hexSize);
+                        this.canvas.getContext().drawImage(
+                            this.images[obstacle.tag],
+                            offset.x + offsetCoords.x - this.hexSize * 1.5 / 2,
+                            offset.y + offsetCoords.y - this.hexSize * 1.5 / 2,
+                            this.hexSize * 1.5,
+                            this.hexSize * 1.5
+                        );
+                    }
+                }
+
+                if ((hex.type === 'default' || hex.type === 'center' || hex.type === 'start') && this.showCoordinates) {
+                    hex.drawCoordinates(this.canvas.getContext(), textColor, offset);
+                }
             });
 
             // const boundingBox = this.getBoundingBox();
@@ -230,8 +338,6 @@ module Dashboard {
         }
 
         private mapNeighbors(hex: Hex) {
-            console.log(hex);
-
             hex.neighbors = CubeCoordinate.directions.map(direction => {
                 return this.getHexAt(hex.coords.add(direction))
             }).filter(neighbor => neighbor !== undefined && neighbor !== null);

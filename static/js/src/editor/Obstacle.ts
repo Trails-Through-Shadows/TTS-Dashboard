@@ -1,6 +1,8 @@
 module Dashboard {
 
     export class Obstacle {
+        partId: number = 0;
+        coords: CubeCoordinate = null;
 
         constructor(
             public id: number,

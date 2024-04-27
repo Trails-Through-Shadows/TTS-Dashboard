@@ -1,0 +1,222 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% load filters %}
+{% load i18n %}
+
+{% block title %} Dungeon - Locations - Editor {% endblock %}
+
+{% block stylesheets %}
+    <!-- Empty -->
+{% endblock stylesheets %}
+
+{% block content %}
+    <input type="hidden" value="{{ csrf_token }}" id="csrftoken" readonly/>
+    
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+        <div class="d-block mb-4 mb-md-0">
+            <h2 class="h4 mb-0">{% trans 'Location Workbench' %}</h2>
+            <p class="mb-0">{% trans 'Create or edit dungeon location' %}</p>
+        </div>
+    </div>
+
+    <form id="workbench">
+        <div class="row">
+            <div class="col-12 col-xl-5" id="locationInformation">
+                <div class="row flex-column h-100">
+                    <div class="col-12 flex-fill mb-4">
+                        <div class="card card-body border-0 shadow h-100">
+                            <div class="card-header p-0">
+                                <h2 class="h5">{% trans 'Location Information:' %}</h2>
+                            </div>
+
+                            <div class="card-body p-0 formLoading">
+                                <div class="row">
+                                    <div class="col-lg-4 col-12 py-3 text-center">
+                                        <img src="{% static 'img/imgLoading.png' %}" id="entryUrl" alt="Entry Image" class="lazyload img-fluid rounded">
+                                    </div>
+
+                                    <div class="col-lg-8 col-12 py-3">
+                                        <div class="row gy-2 gx-3">
+                                            <label class="visually-hidden" for="entryTitle">Title</label>
+                                            <div class="input-group input-group">
+                                                <div class="input-group-text">{% trans 'Title' %}</div>
+                                                <input type="text" class="form-control" id="entryTitle" placeholder="{% trans 'Title' %}" >
+                                            </div>
+
+                                            <div class="col-4">
+                                                <label class="visually-hidden" for="entryId">Id</label>
+                                                <div class="input-group input-group-sm">
+                                                    <div class="input-group-text">{% trans 'ID' %}</div>
+                                                    <input type="text" class="form-control" id="entryId" placeholder="Entry Id" value="{{ obstacleId|default:0 }}" readonly>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-8">
+                                                <label class="visually-hidden" for="entryTag">Tag</label>
+                                                <div class="input-group input-group-sm">
+                                                    <div class="input-group-text">{% trans 'Tag' %}</div>
+                                                    <input type="text" class="form-control" id="entryTag" placeholder="{% trans 'Tag' %}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="col-8">
+                                                <label class="visually-hidden" for="locationType">Type</label>
+                                                <div class="input-group input-group-sm">
+                                                    <div class="input-group-text">{% trans 'Type' %}</div>
+                                                    <select class="form-control" id="locationType" required>
+                                                        <option value="hidden" selected hidden disabled>Choose Target</option>
+                                                        <option value="DUNGEON">DUNGEON</option>
+                                                        <option value="MARKET">MARKET</option>
+                                                        <option value="QUEST">QUEST</option>
+                                                        <option value="CITY">CITY</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="align-items-center mt-2">
+                                                <label for="entryDescription" class="form-label visually-hidden">{% trans 'Description' %}</label>
+                                                <textarea class="form-control" id="entryDescription" rows="6" placeholder="{% trans 'Description' %}"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card card-body border-0 shadow">
+                            <div class="row justify-content-evenly">
+                                <div class="col-lg-6 col-12">
+                                    <button class="btn btn-red-100 animate-up-2 w-100" type="reset" id="cancelButton">
+                                        {% trans 'Cancel' %}
+                                    </button>
+                                </div>
+
+                                <div class="col-lg-6 col-12 mt-2 mt-lg-0">
+                                    <button class="btn btn-green-100 animate-up-2 w-100" type="submit" id="saveButton">
+                                        {% if partId is not None %}
+                                            Save
+                                        {% else %}
+                                            Create
+                                        {% endif %}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-7 mt-4 mt-xl-0" style="min-height: 500px">
+                <div class="card card-body border-0 shadow">
+                    <div class="row">
+
+                        <div class="col-2">
+                            <div class="col-12 mb-4">
+                                <button class="btn btn-green-100 animate-up-2 w-100" type="button" id="addPartButton">
+                                    Add Part
+                                </button>
+                            </div>
+
+                            <h3 class="h6 mb-0">Parts</h3>
+                            <hr class="my-1">
+
+                            <div class="row g-2 flex-column" id="locationParts">
+                                <div class="col-12 locationPart">
+                                    <div class="d-flex align-items-center text-center">
+                                        <span class="font-small">No Parts</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-10" style="min-height: 500px">
+                            <canvas id="editorCanvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock content %}
+
+{% block javascripts %}
+    <script async>
+        const csrfToken = document.querySelector('#csrftoken').value;
+
+        // ---- | Urls
+
+        const apiUrlAll = `{% url 'apiQueryTable' table='locations' %}`;
+        const apiUrlSingle = `{% url 'apiQueryTableID' table='locations' id=0 %}`;
+        const apiUrlSinglePart = `{% url 'apiQueryTableID' table='parts' id=0 %}`;
+        const template = 'dungeon/locations/locationTable.html';
+        const templateInfo = 'dungeon/locations/locationEntry.html';
+
+        // ---- | Canvas
+
+        const canvasRoot = document.getElementById('editorCanvas');
+        const canvas = new Dashboard.Canvas(canvasRoot, {
+            title: 'Error',
+            subtitle: 'An error occurred while loading the canvas.',
+            spacer: 100,
+        });
+
+        // ---- | Location
+
+        const hexGridSize = 35;
+        const partList = document.getElementById('locationParts');
+        const locationMap = new Dashboard.LocationMap(canvas, partList, apiUrlSinglePart, hexGridSize, false);
+        const editor = new Dashboard.LocationMapEditor(canvas, locationMap);
+
+        canvas.addOnSizeListener(() => {
+            if (!canvas.isDrawn() || canvas.isLoading()) {
+                return;
+            }
+
+            canvas.clear();
+            editor.draw();
+        });
+
+        const entryTitle = document.querySelector('#entryTitle');
+        entryTitle.addEventListener('input', () => {
+            locationMap.location.title = entryTitle.value;
+            editor.validate();
+        });
+
+        const entryTag = document.querySelector('#entryTag');
+        entryTag.addEventListener('input', () => {
+            locationMap.location.tag = entryTag.value;
+            editor.validate();
+        });
+
+        const entryDescription = document.querySelector('#entryDescription');
+        entryDescription.addEventListener('input', () => {
+            locationMap.location.description = entryDescription.value;
+            editor.validate();
+        });
+
+        const locationType = document.querySelector('#locationType');
+        locationType.addEventListener('change', () => {
+            locationMap.location.type = locationType.value;
+            editor.validate();
+        });
+
+        {% if locationId is not None %}
+            locationMap.readData(apiUrlSingle.replace(0, {{ locationId }}), (data) => {
+                entryTitle.value = data.title;
+                entryTag.value = data.tag;
+                entryDescription.value = data.description;
+                locationType.value = data.type;
+
+                canvas.setLoading(false);
+                canvas.clear();
+                editor.draw();
+                editor.validate();
+            });
+        {% else %}
+            editor.draw();
+            editor.validate();
+        {% endif %}
+    </script>
+{% endblock javascripts %}

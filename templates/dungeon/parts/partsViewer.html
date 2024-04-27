@@ -187,6 +187,31 @@
         const table = new Dashboard.Table(tableRoot, template, tableFilter, tableSorter, tableSearch);
 
         table.setOnDataLoad(() => {
+            const id = urlParams.get('open');
+
+            if (id) {
+                console.log(`Button | Auto viewing entry ${id}`);
+                hexGrid.readData(apiUrlSingle.replace(0, id), () => {
+                    canvas.clear();
+                    hexGrid.draw();
+                });
+            } else {
+                // Auto open first entry, get button with data-action="view" and click
+                const button = tableRoot.querySelector('[data-action="view"]');
+                const id = button.getAttribute('data-part');
+
+                // Set url ?open=id
+                const url = new URL(window.location.href);
+                url.searchParams.set('open', id);
+                window.history.replaceState({}, document.title, url.toString());
+
+                console.log(`Button | Auto viewing entry ${id}`);
+                hexGrid.readData(apiUrlSingle.replace(0, id), () => {
+                    canvas.clear();
+                    hexGrid.draw();
+                });
+            }
+
             table.setAction("view", (element) => {
                 const id = element.getAttribute('data-part');
 

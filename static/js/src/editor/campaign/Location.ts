@@ -43,10 +43,20 @@ module Dashboard {
                 [], // Later
                 [], // Later
                 json.enemies && json.enemies.length > 0
-                    ? json.enemies.map((enemy: any) => Dashboard.Enemy.fromJSON(enemy.enemy))
+                    ? json.enemies.map((enemy: any) => {
+                        const e = Dashboard.Enemy.fromJSON(enemy.enemy);
+                        e.partId = enemy.key.idPart;
+                        e.coords = new CubeCoordinate(enemy.enemy.startingHex.q, enemy.enemy.startingHex.r, enemy.enemy.startingHex.s);
+                        return e;
+                    })
                     : null,
                 json.obstacles && json.obstacles.length > 0
-                    ? json.obstacles.map((obstacle: any) => Dashboard.Obstacle.fromJSON(obstacle.obstacle))
+                    ? json.obstacles.map((obstacle: any) => {
+                        const o = Dashboard.Obstacle.fromJSON(obstacle.obstacle)
+                        o.partId = obstacle.key.idPart;
+                        o.coords = new CubeCoordinate(obstacle.obstacle.hex.q, obstacle.obstacle.hex.r, obstacle.obstacle.hex.s);
+                        return o;
+                    })
                     : null,
                 json.paths,
                 json.stories && json.stories.length > 0

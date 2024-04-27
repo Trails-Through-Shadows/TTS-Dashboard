@@ -40,7 +40,7 @@
 
                     <div class="col-12 col-sm-6">
                         <div class="btn-toolbar mb-2 mb-md-0 mt-2 mt-sm-0 justify-content-end">
-                            <a href="{% url 'campaignsWorkbench' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                            <a href="{% url 'locationWorkbench' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
                                 <i class="fa-solid fa-plus me-1"></i>
                                 {% trans 'New Location' %}
                             </a>
@@ -107,16 +107,60 @@
             </div>
         </div>
 
-        <div class="col-12 col-xl-7">
-            <div class="card card-body border-0 shadow h-100" style="min-height: 500px">
-                <canvas id="locationView"></canvas>
+        <div class="col-12 col-xl-7" id="entryData">
+            <div class="card card-body border-0 shadow h-100" id="entryDataReplacement">
+                <div class="row">
+                    <div class="col-3 align-self-center">
+                        <img src="{% static 'img/imgPlaceholder.png' %}" alt="Obstacle Image" class="img-fluid rounded">
+                    </div>
+
+                    <div class="col-9 align-self-center">
+                        <div class="py-2">
+                            <h2 class="h5 mb-2"><span class="skeleton-line w-25"></span></h2>
+
+                            <div class="d-flex align-items-center">
+                                <span class="skeleton-line w-100"></span>
+                            </div>
+
+                            <div class="d-flex align-items-center mt-2">
+                                <span class="skeleton-line w-100" style="height: 8vh;"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <h5 class="mt-2 mb-0">{% trans 'Attributes:' %}</h5>
+
+                        <div class="accordion accordion-flush" id="entryAttributes">
+                            {% for i in 5|range %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-actions-{{ i }}" aria-expanded="false" aria-controls="flush-actions-{{ i }}">
+                                            <span class="badge bg-secondary me-1 rounded-1">?</span> <span class="skeleton-line w-25"></span>
+                                        </button>
+                                    </h2>
+
+                                    <div id="flush-actions-{{ i }}" class="accordion-collapse collapse" data-bs-parent="#entryAttributes">
+                                        <div class="accordion-body">
+                                            <div class="row row-cols-auto">
+                                                {% for y in 5|range %}
+                                                    <span class="skeleton-line"></span>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 {% endblock content %}
 
 {% block javascripts %}
-    <script async defer>
+    <script>
         const csrfToken = document.querySelector('#csrftoken').value;
 
         // ---- | Urls
@@ -127,31 +171,13 @@
 
         const apiUrlAll = `{% url 'apiQueryTable' table='locations' %}`;
         const apiUrlSingle = `{% url 'apiQueryTableID' table='locations' id=0 %}`;
-        const template = 'world/locations/locationTable.html';
+        const template = 'dungeon/locations/locationTable.html';
+        const templateInfo = 'dungeon/locations/locationEntry.html';
 
-        // ---- | Canvas
+        // ---- | Data
 
-        const title = {
-            title: '{% trans 'No Data' %}',
-            subtitle: '{% trans 'Please select a location to render.' %}',
-            spacer: 100
-        }
-        const canvasRoot = document.getElementById('locationView');
-        const canvas = new Dashboard.Canvas(canvasRoot, title);
-
-        // ---- | Location
-
-        const hexGridSize = 20;
-        const locationGrid = new Dashboard.Location(canvas, hexGridSize);
-
-        canvas.addOnSizeListener(() => {
-            if (!canvas.isDrawn() || canvas.isLoading()) {
-                return;
-            }
-
-            canvas.clear();
-            locationGrid.draw();
-        });
+        const dataRoot = document.getElementById('entryData');
+        const data = new Dashboard.Data(dataRoot, templateInfo);
 
         // ---- | Table
 
@@ -176,22 +202,36 @@
         const tableRoot = document.getElementById('entriesTable');
         const table = new Dashboard.Table(tableRoot, template, tableFilter, tableSorter, tableSearch);
 
-        const id = 1;
-        console.log(`Button | Viewing entry ${id}`);
-        locationGrid.readData(apiUrlSingle.replace(0, id), apiUrlAll.replace('/locations/', ''), () => {
-            canvas.clear();
-            locationGrid.draw();
-        });
-
         table.setOnDataLoad(() => {
+            const id = urlParams.get('open');
+
+            if (id) {
+                console.log(`Button | Auto viewing entry ${id}`);
+                data.queryData(apiUrlSingle.replace('0', id), true, []);
+            } else {
+                // Auto open first entry, get button with data-action="view" and click
+                const button = tableRoot.querySelector('[data-action="view"]');
+                const id = button.getAttribute('data-entry');
+
+                // Set url ?open=id
+                const url = new URL(window.location.href);
+                url.searchParams.set('open', id);
+                window.history.replaceState({}, document.title, url.toString());
+
+                console.log(`Button | Auto viewing entry ${id}`);
+                data.queryData(apiUrlSingle.replace('0', id), true, []);
+            }
+
             table.setAction("view", (element) => {
                 const id = element.getAttribute('data-entry');
 
+                // Set url ?open=id
+                const url = new URL(window.location.href);
+                url.searchParams.set('open', id);
+                window.history.replaceState({}, document.title, url.toString());
+
                 console.log(`Button | Viewing entry ${id}`);
-                locationGrid.readData(apiUrlSingle.replace(0, id), apiUrlAll.replace('/locations/', ''), () => {
-                    canvas.clear();
-                    locationGrid.draw();
-                });
+                data.queryData(apiUrlSingle.replace('0', id), true, []);
             });
 
             table.setAction("delete", (element) => {
