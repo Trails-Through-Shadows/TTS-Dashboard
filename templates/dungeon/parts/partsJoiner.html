@@ -1,0 +1,131 @@
+{% load filters %}
+{% load i18n %}
+
+<div class="modal" id="searchModal" aria-hidden="true">
+    <div class="modal-overlay" tabindex="-1" data-micromodal-close>
+        <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-1-title" style="max-width: 60vw; width: 60vw">
+            <header class="modal-header border-0">
+                <h2 class="modal-title" id="modal-1-title">
+                    {% trans 'Parts Planner' %}
+                </h2>
+
+                <button class="modal-close hvr-grow" aria-label="Close modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </header>
+
+            <main class="modal-body pt-0 pb-0">
+                <div class="row">
+                    <div class="col-12" style="height: 60vh !important;">
+                        <div class="row h-100">
+                            <div class="col-12 col-md-6">
+                                <div class="row gx-2 h-100">
+                                    <div class="col-12">
+                                        <div class="row gx-2">
+                                            <div class="col-6">
+                                                <div class="input-group input-group-sm mt-2">
+                                                    <label class="input-group-text mb-0" for="fromPart">From Part:</label>
+                                                    <select class="form-select" id="fromPart" required>
+                                                        <option value="hidden" selected hidden disabled>Choose Part</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="col">
+                                                <div class="input-group input-group-sm mt-2">
+                                                    <label class="input-group-text mb-0" for="leftCoordQ">Q:</label>
+                                                    <input type="text" class="form-control" placeholder="0" id="leftCoordQ" disabled>
+                                                </div>
+                                            </div>
+
+                                            <div class="col">
+                                                <div class="input-group input-group-sm mt-2">
+                                                    <label class="input-group-text mb-0" for="leftCoordR">R:</label>
+                                                    <input type="text" class="form-control" placeholder="0" id="leftCoordR" disabled>
+                                                </div>
+                                            </div>
+
+                                            <div class="col">
+                                                <div class="input-group input-group-sm mt-2">
+                                                    <label class="input-group-text mb-0" for="leftCoordS">S:</label>
+                                                    <input type="text" class="form-control" placeholder="0" id="leftCoordS" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12" style="height: 400px">
+                                        <canvas id="leftPartCanvas"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="row gx-2 h-100">
+                                    <div class="col-12">
+                                        <div class="row gx-2">
+                                            <div class="col-6">
+                                                <div class="input-group input-group-sm mt-2">
+                                                    <label class="input-group-text mb-0" for="toPart">To Part:</label>
+                                                    <select class="form-select" id="toPart" required>
+                                                        <option value="hidden" selected hidden disabled>Choose Part</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="col">
+                                                <div class="input-group input-group-sm mt-2">
+                                                    <label class="input-group-text mb-0" for="rightCoordQ">Q:</label>
+                                                    <input type="text" class="form-control" placeholder="0" id="rightCoordQ" disabled>
+                                                </div>
+                                            </div>
+
+                                            <div class="col">
+                                                <div class="input-group input-group-sm mt-2">
+                                                    <label class="input-group-text mb-0" for="rightCoordR">R:</label>
+                                                    <input type="text" class="form-control" placeholder="0" id="rightCoordR" disabled>
+                                                </div>
+                                            </div>
+
+                                            <div class="col">
+                                                <div class="input-group input-group-sm mt-2">
+                                                    <label class="input-group-text mb-0" for="rightCoordS">S:</label>
+                                                    <input type="text" class="form-control" placeholder="0" id="rightCoordS" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12" style="height: 400px">
+                                        <canvas id="rightPartCanvas"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="modal-footer border-0">
+                <a href="#" target="_top" id="finishPartJoiner" class="btn btn-sm btn-gray-800">
+                    <i class="fa-solid fa-plus me-1"></i>
+                    {% trans 'Add' %}
+                </a>
+
+                <a href="#" target="_top" id="searchClose" class="btn btn-sm btn-gray-800">
+                    <i class="fa-solid fa-cross me-1"></i>
+                    {% trans 'Close' %}
+                </a>
+            </footer>
+        </div>
+    </div>
+</div>
+
+<script id="searchScript" async>
+    const csrfToken = document.querySelector('#csrftoken').value;
+    
+    const searchClose = document.getElementById('searchClose');
+    searchClose.addEventListener('click', (event) => {
+        event.preventDefault();
+    });
+</script>

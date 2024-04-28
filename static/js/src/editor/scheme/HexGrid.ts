@@ -9,6 +9,8 @@ module Dashboard {
 
     export class HexGrid {
         public hoveredHex: Hex | null = null;
+        public selectedHex: Hex | null = null;
+
         public id: number = 0;
         public tag: string = '';
         public title: string = '';
@@ -41,12 +43,13 @@ module Dashboard {
         };
 
         constructor(
-            private canvas: Canvas,
+            public canvas: Canvas,
             private hexSize: number,
-            private hexes: Hex[] = [],
+            public hexes: Hex[] = [],
         ) {
             this.canvas.addOnMouseHoverListener(this.mouseHoverListener);
             hexes.forEach(hex => this.mapNeighbors(hex));
+            hexes.forEach(hex => hex.partId = this.id);
         }
 
         public destruct(): void {
@@ -71,10 +74,10 @@ module Dashboard {
                             this.title = data['title'];
 
                             // Map hexes
-                            this.hexes = data['hexes'].map(({q, r, s}) => {
+                            this.hexes = data['hexes'].map(({key, q, r, s}) => {
                                 const cords = new CubeCoordinate(q, r, s);
 
-                                const hex = new Hex(null,cords, this.hexSize, []);
+                                const hex = new Hex(key.id,cords, this.hexSize, []);
                                 hex.type = cords.isZero() ? 'center' : 'default';
 
                                 return hex;
@@ -167,16 +170,34 @@ module Dashboard {
             if (this.hexes.length === 0) return;
             const offset: Offset = this.getOffset();
 
-            doors.forEach(door => {
-                door.drawWall(this.canvas.getContext(), Color.LIGHT_GREY, offset);
-                door.draw(this.canvas.getContext(), Color.BLUE, Color.BLACK, offset);
+            // Draw placeholder hexes
+            const placeholderHexes = this.hexes.filter(hex => hex.type === 'placeholder');
+            placeholderHexes.forEach(hex => {
+                let fillColor = Color.DARK_GREY;
+                let textColor = Color.WHITE;
+                const borderColor = Color.BLACK;
+
+                if (this.selectedHex && this.selectedHex.coords.equals(hex.coords)) {
+                    fillColor = Color.PURPLE.lighten(0.40);
+                    textColor = Color.BLACK;
+                }
+
+                if (this.hoveredHex && this.hoveredHex.coords.equals(hex.coords)) {
+                    fillColor = fillColor.darken(0.1);
+                }
+
+                hex.draw(this.canvas.getContext(), fillColor, borderColor, offset);
+                // hex.drawCoordinates(this.canvas.getContext(), textColor, offset);
+                hex.drawText(this.canvas.getContext(), '+', Color.WHITE, offset, 2);
             });
 
             this.hexes.forEach(hex => {
                 hex.drawWall(this.canvas.getContext(), Color.LIGHT_GREY, offset);
             });
 
-            this.hexes.forEach(hex => {
+            // Draw rest of the hexes
+            const restHexes = this.hexes.filter(hex => hex.type !== 'placeholder');
+            restHexes.forEach(hex => {
                 let fillColor = Color.WHITE;
                 let borderColor = Color.BLACK;
                 let textColor = Color.BLACK;
@@ -188,6 +209,14 @@ module Dashboard {
 
                 if (hex.type === 'start') {
                     fillColor = Color.GREEN.lighten(0.80);
+                }
+
+                if (hex.type === 'placeholder') {
+                    if (this.selectedHex && this.selectedHex.coords.equals(hex.coords)) {
+                        fillColor = Color.ORANGE.lighten(0.50);
+                    } else {
+                        fillColor = Color.ORANGE.lighten(0.80);
+                    }
                 }
 
                 if (hex.type === 'doors') {
@@ -289,7 +318,7 @@ module Dashboard {
                     }
                 }
 
-                if ((hex.type === 'default' || hex.type === 'center' || hex.type === 'start') && this.showCoordinates) {
+                if (((hex.type === 'default' || hex.type === 'center' || hex.type === 'start') && this.showCoordinates) || hex.type === 'placeholder') {
                     hex.drawCoordinates(this.canvas.getContext(), textColor, offset);
                 }
             });
@@ -386,10 +415,11 @@ module Dashboard {
             return this.hexes;
         }
 
-        addHexAt(CubeCoordinate: CubeCoordinate): void {
+        addHexAt(CubeCoordinate: CubeCoordinate): Hex {
             const hex = new Hex(null,CubeCoordinate, this.hexSize, []);
             this.mapNeighbors(hex);
             this.hexes.push(hex);
+            return hex;
         }
 
         addHex(hex: Hex): void {

@@ -14,7 +14,7 @@ module Dashboard {
         y: number;
     }
 
-    export type HexType = 'default' | 'doors' | 'enemy' | 'obstacle' | 'start' | 'center';
+    export type HexType = 'default' | 'doors' | 'enemy' | 'obstacle' | 'start' | 'center' | 'placeholder';
 
     export class Hex {
         public vertices: Vertex[] = [];
@@ -87,10 +87,15 @@ module Dashboard {
         }
 
         drawWall(ctx: CanvasRenderingContext2D, wallColor: Color, offset: Offset): void {
+            if (this.type === 'placeholder') {
+                return;
+            }
+
             const {x, y} = this.coords.to2D(this.hexSize);
             ctx.save();
 
-            if (this.neighbors.length != 6) {
+            const notPlaceholderNeighbors = this.neighbors.filter(hex => hex.type !== 'placeholder');
+            if (notPlaceholderNeighbors.length != 6) {
                 const borderHexes = this.calculateVertices(this.hexSize * 1.2);
 
                 ctx.beginPath();

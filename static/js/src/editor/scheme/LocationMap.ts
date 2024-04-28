@@ -3,7 +3,7 @@ module Dashboard {
     export class LocationMap {
         public location: Location;
         public hexGrid: HexGrid;
-        private readonly cachedHexGrids: HexGrid[] = [];
+        public cachedHexGrids: HexGrid[] = [];
 
         constructor(
             private readonly canvas: Canvas,
@@ -78,7 +78,12 @@ module Dashboard {
         }
 
         draw() {
-            this.drawPart(this.location.parts[0]);
+            if (this.location && this.location.parts.length > 0) {
+                this.drawPart(this.location.parts[0]);
+            } else {
+                this.canvas.clear();
+                this.canvas.title("No parts found", "Add parts to the location");
+            }
         }
 
         drawPart(part: Part) {
@@ -94,70 +99,88 @@ module Dashboard {
                 this.canvas.clear();
                 this.hexGrid.draw([]);
             } else {
-                this.hexGrid.active = false;
-                this.hexGrid = new HexGrid(this.canvas, this.hexGridSize);
-                this.hexGrid.showCoordinates = false;
-
                 this.canvas.setLoading(true);
                 this.canvas.setDrawn(false);
 
-                this.hexGrid.readData(this.partUrl.replace("0", "" + part.id), () => {
-                    for (let startHex of this.location.startHexes) {
-                        if (startHex.partId === part.id) {
-                            const hex = this.hexGrid.getHexAt(startHex.coords);
-
-                            if (hex) {
-                                hex.type = 'start';
-                            }
-                        }
-                    }
-
-                    for (let enemy of this.location.enemies) {
-                        if (enemy.partId === part.id) {
-                            const hex = this.hexGrid.getHexAt(enemy.coords);
-
-                            if (hex) {
-                                hex.type = 'enemy';
-                                hex.occupant = enemy;
-                            }
-                        }
-                    }
-
-                    for (let obstacle of this.location.obstacles) {
-                        if (obstacle.partId === part.id) {
-                            const hex = this.hexGrid.getHexAt(obstacle.coords);
-
-                            if (hex) {
-                                hex.type = 'obstacle';
-                                hex.occupant = obstacle;
-                            }
-                        }
-                    }
-
-                    for (let door of this.location.doors) {
-                        if (door.from.id === part.id) {
-                            const doorHex = new Hex(0, door.cords, this.hexGrid.getHexSize());
-                            doorHex.type = 'doors';
-                            doorHex.occupant = door;
-
-                            this.hexGrid.getHexes().push(doorHex);
-                        }
-                    }
-
-                    // Remove center hexes
-                    this.hexGrid.getHexes().forEach(hex => {
-                        if (hex.type === 'center') {
-                            hex.type = 'default';
-                        }
-                    });
+                this.hexGrid.active = false;
+                this.hexGrid = this.loadPart(part, () => {
+                    this.hexGrid.active = true;
+                    this.canvas.setLoading(false);
+                    this.canvas.setDrawn(true);
 
                     this.canvas.clear();
                     this.hexGrid.draw([]);
-
-                    console.log(this.hexGrid);
-                    this.cachedHexGrids.push(this.hexGrid);
                 });
             }
+        }
+
+        loadPart(part: Part, callback?: Function): HexGrid {
+            const newGrid = new HexGrid(this.canvas, this.hexGridSize);
+            newGrid.showCoordinates = false;
+            newGrid.active = false;
+
+            newGrid.readData(this.partUrl.replace("0", "" + part.id), () => {
+                for (let startHex of this.location.startHexes) {
+                    if (startHex.partId === part.id) {
+                        const hex = newGrid.getHexAt(startHex.coords);
+
+                        if (hex) {
+                            hex.type = 'start';
+                        }
+                    }
+                }
+
+                for (let enemy of this.location.enemies) {
+                    if (enemy.partId === part.id) {
+                        const hex = newGrid.getHexAt(enemy.coords);
+
+                        if (hex) {
+                            hex.type = 'enemy';
+                            hex.occupant = enemy;
+                        }
+                    }
+                }
+
+                for (let obstacle of this.location.obstacles) {
+                    if (obstacle.partId === part.id) {
+                        const hex = newGrid.getHexAt(obstacle.coords);
+
+                        if (hex) {
+                            hex.type = 'obstacle';
+                            hex.occupant = obstacle;
+                        }
+                    }
+                }
+
+                for (let door of this.location.doors) {
+                    if (door.from.id === part.id) {
+                        const doorHex = new Hex(0, door.cords, newGrid.getHexSize());
+                        doorHex.type = 'doors';
+                        doorHex.occupant = door;
+
+                        newGrid.getHexes().push(doorHex);
+                    }
+                }
+
+                // Remove center hexes
+                newGrid.getHexes().forEach(hex => {
+                    if (hex.type === 'center') {
+                        hex.type = 'default';
+                    }
+                });
+
+                console.log("== loaded ==")
+                console.log(newGrid);
+                console.log("== loaded ==")
+
+                this.cachedHexGrids.push(newGrid);
+
+                if (callback) {
+                    callback(newGrid);
+                }
+            });
+
+            return newGrid;
         }
 
         readData(url: string, callback?: (location: Location) => void): Promise<void> {
@@ -184,21 +207,7 @@ module Dashboard {
                             this.location = Location.fromJSON(data);
 
                             for (let part of this.location.parts) {
-                                const partElement = document.createElement('div');
-                                partElement.classList.add('col-auto', 'locationPart');
-
-                                partElement.innerHTML = `
-                                    <div class="card card-body border-0 shadow h-100 p-2 hvr-forward pointer bg-gray-200" data-id="${part.id}">
-                                        (#${part.id}) ${part.title} <br>
-                                        <small>${part.tag}</small>
-                                    </div>
-                                `;
-
-                                partElement.addEventListener('click', () => {
-                                    this.drawPart(part);
-                                });
-
-                                this.partsList.insertBefore(partElement, this.partsList.lastElementChild);
+                                this.addPart(part);
                             }
 
                             if (callback) {
@@ -218,6 +227,24 @@ module Dashboard {
                 request.open('GET', url, true);
                 request.send();
             });
+        }
+
+        addPart(part: Part) {
+            const partElement = document.createElement('div');
+            partElement.classList.add('col-auto', 'locationPart');
+
+            partElement.innerHTML = `
+                                    <div class="card card-body border-0 shadow h-100 p-2 hvr-forward pointer bg-gray-200" data-id="${part.id}">
+                                        (#${part.id}) ${part.title} <br>
+                                        <small>${part.tag}</small>
+                                    </div>
+                                `;
+
+            partElement.addEventListener('click', () => {
+                this.drawPart(part);
+            });
+
+            this.partsList.insertBefore(partElement, this.partsList.lastElementChild);
         }
     }
 }

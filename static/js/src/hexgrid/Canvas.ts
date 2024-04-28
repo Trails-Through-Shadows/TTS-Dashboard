@@ -6,7 +6,7 @@ module Dashboard {
     }
 
     export class Canvas {
-        private written = false;
+        public written = false;
         private loading = false;
 
         private backgroundImage: any;

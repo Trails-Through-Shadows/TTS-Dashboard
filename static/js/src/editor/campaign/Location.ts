@@ -115,6 +115,22 @@ module Dashboard {
                         r: door.cords.r,
                         s: door.cords.s
                     }
+                }),
+                startHexes: this.startHexes.map(hex => {
+                    return {
+                        idLocation: this.id,
+                        idPart: hex.partId,
+                        idHex: hex.id
+                    }
+                }),
+                enemies: this.enemies.map(enemy => {
+                    return {
+                        key: {
+                            idLocation: this.id,
+                            idPart: enemy.partId
+                        },
+                        enemy: enemy.toJSON()
+                    }
                 })
             };
         }

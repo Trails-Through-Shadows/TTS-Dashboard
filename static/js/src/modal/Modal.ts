@@ -1,7 +1,7 @@
 module Dashboard {
 
     export class Modal {
-        private modalContainer: HTMLElement | null = null;
+        public modalContainer: HTMLElement | null = null;
         private opening: boolean = false;
         private closing: boolean = false;
 
@@ -67,6 +67,11 @@ module Dashboard {
                         const afterScript = document.querySelector('#afterScript');
                         if (afterScript) {
                             afterScript.remove();
+                        }
+
+                        const searchScript = document.querySelector('#searchScript');
+                        if (searchScript) {
+                            searchScript.remove();
                         }
                     }
 

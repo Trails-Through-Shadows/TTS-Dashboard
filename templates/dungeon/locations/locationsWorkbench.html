@@ -113,9 +113,15 @@
                     <div class="row">
 
                         <div class="col-2">
-                            <div class="col-12 mb-4">
+                            <div class="col-12 mb-2">
                                 <button class="btn btn-green-100 animate-up-2 w-100" type="button" id="addPartButton">
                                     Add Part
+                                </button>
+                            </div>
+
+                            <div class="col-12 mb-4">
+                                <button class="btn btn-red-100 animate-up-2 w-100" type="button" id="removePartButton">
+                                    Remove Part
                                 </button>
                             </div>
 
@@ -139,6 +145,18 @@
             </div>
         </div>
     </form>
+
+    <template id="locationObjectAdd">
+        <swal-title>
+            Add to Part
+        </swal-title>
+        <swal-button type="confirm">
+            Enemy
+        </swal-button>
+        <swal-button type="deny">
+            Obstacle
+        </swal-button>
+    </template>
 {% endblock content %}
 
 {% block javascripts %}
@@ -157,8 +175,8 @@
 
         const canvasRoot = document.getElementById('editorCanvas');
         const canvas = new Dashboard.Canvas(canvasRoot, {
-            title: 'Error',
-            subtitle: 'An error occurred while loading the canvas.',
+            title: 'No Parts',
+            subtitle: 'Add parts to the location',
             spacer: 100,
         });
 
@@ -167,7 +185,7 @@
         const hexGridSize = 35;
         const partList = document.getElementById('locationParts');
         const locationMap = new Dashboard.LocationMap(canvas, partList, apiUrlSinglePart, hexGridSize, false);
-        const editor = new Dashboard.LocationMapEditor(canvas, locationMap);
+        const editor = new Dashboard.LocationMapEditor(canvas, locationMap, apiUrlSinglePart);
 
         canvas.addOnSizeListener(() => {
             if (!canvas.isDrawn() || canvas.isLoading()) {
@@ -182,25 +200,25 @@
         entryTitle.addEventListener('input', () => {
             locationMap.location.title = entryTitle.value;
             editor.validate();
-        });
+         });
 
         const entryTag = document.querySelector('#entryTag');
         entryTag.addEventListener('input', () => {
             locationMap.location.tag = entryTag.value;
             editor.validate();
-        });
+         });
 
         const entryDescription = document.querySelector('#entryDescription');
         entryDescription.addEventListener('input', () => {
             locationMap.location.description = entryDescription.value;
             editor.validate();
-        });
+         });
 
         const locationType = document.querySelector('#locationType');
         locationType.addEventListener('change', () => {
             locationMap.location.type = locationType.value;
             editor.validate();
-        });
+         });
 
         {% if locationId is not None %}
             locationMap.readData(apiUrlSingle.replace(0, {{ locationId }}), (data) => {
@@ -211,12 +229,133 @@
 
                 canvas.setLoading(false);
                 canvas.clear();
-                editor.draw();
+                locationMap.draw();
                 editor.validate();
             });
         {% else %}
-            editor.draw();
-            editor.validate();
+            locationMap.location = new Dashboard.Location(0, '', '', null, '', '', [], [], [], [], []);
         {% endif %}
+
+        const addPart = document.getElementById('addPartButton');
+        addPart.addEventListener('click', () => {
+            editor.addPart();
+        });
+
+        const removePart = document.getElementById('removePartButton');
+        removePart.addEventListener('click', () => {
+            editor.removePart();
+        });
+
+        // ----
+
+        const cancelButton = document.getElementById('cancelButton');
+        cancelButton.addEventListener('click', () => {
+            Swal.fire({
+                title: '{% trans 'Are you sure?' %}',
+                text: '{% trans 'You will loose all your changes!' %}',
+                icon: 'warning',
+                reverseButtons: true,
+                showCancelButton: true,
+                confirmButtonColor: Dashboard.Color.RED.lighten(0.2).toRGB(),
+                cancelButtonColor: Dashboard.Color.GREY.lighten(0.2).toRGB(),
+                confirmButtonText: '{% trans 'Yes, cancel!' %}',
+                cancelButtonText: '{% trans 'No, keep editing' %}',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{% url 'locationViewer' %}";
+                }
+            });
+        });
+
+        const saveButton = document.getElementById('saveButton');
+        saveButton.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            // Check form validity
+            const form = document.getElementById('workbench');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            if (editor.validator.isValidating()) {
+                return Swal.fire({
+                    icon: 'warning',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Entry object is validating, please wait!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
+                });
+            }
+
+            if (!editor.validator.isValid()) {
+                return Swal.fire({
+                    icon: 'error',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Entry object is not valid!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
+                });
+            }
+
+            Notiflix.Block.circle("#workbench", 'Saving...');
+
+            const entryIdInput = form.querySelector('#entryId');
+            const entryId = entryIdInput.value;
+
+            let url = "{% url 'apiQueryTable' table="locations" %}";
+            {% if partId is not undefined %}
+                url = "{% url 'apiQueryTableID' table="locations" id=0 %}".replace(0, entryId);
+            {% endif %}
+
+            editor.saveData(url, () => {
+                Swal.fire({
+                    icon: 'success',
+                    toast: true,
+                    position: 'top-end',
+                    text: '{% trans "Success, entry object saved!" %}',
+                    showConfirmButton: false,
+                    timer: 2500
+                })
+
+                setTimeout(() => {
+                    window.location.href = "{% url 'locationViewer' %}";
+                }, 1000);
+
+                Notiflix.Block.remove("#workbench");
+            }, (responseText) => {
+                Notiflix.Block.remove("#workbench");
+
+                Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 10000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        toast.addEventListener('click', () => {
+                            const data = JSON.parse(responseText);
+                            const string = JSON.stringify(data, null, 4);
+
+                            Swal.fire({
+                                text: string,
+                                customClass: {
+                                    htmlContainer: 'text-start text-pre'
+                                },
+                                showConfirmButton: false,
+                            });
+                        })
+                    }
+                }).fire({
+                    icon: "error",
+                    title: '{% trans "Error, saving failed! Click for more information." %}'
+                });
+            });
+        });
+
     </script>
 {% endblock javascripts %}

@@ -1,0 +1,125 @@
+{% load filters %}
+{% load i18n %}
+
+<div class="modal" id="searchModal" aria-hidden="true">
+    <div class="modal-overlay" tabindex="-1" data-micromodal-close>
+        <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-1-title">
+            <header class="modal-header border-0">
+                <h2 class="modal-title" id="modal-1-title">
+                    {% trans 'Search Enemy' %}
+                </h2>
+
+                <button class="modal-close hvr-grow" aria-label="Close modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </header>
+
+            <main class="modal-body pt-0 pb-0">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="searchInput" name="query" placeholder="Search" value="{{ request.GET.query }}">
+                            <button type="submit" class="btn btn-sm btn-gray-800">
+                                <i class="fa-solid fa-search me-1"></i>
+                            </button>
+                        </div>
+
+                        <hr class="mt-2">
+                    </div>
+
+                    <div class="col-12" id="searchData" style="height: 60vh !important;">
+                    </div>
+                </div>
+            </main>
+
+            <footer class="modal-footer border-0">
+                <a href="#" target="_top" id="searchClose" class="btn btn-sm btn-gray-800">
+                    <i class="fa-solid fa-search me-1"></i>
+                    {% trans 'Close' %}
+                </a>
+            </footer>
+        </div>
+    </div>
+</div>
+
+<script id="searchScript" async>
+    const csrfToken = document.querySelector('#csrftoken').value;
+    console.log('Request sent.');
+
+    Notiflix.Block.circle("#searchData", 'Loading...');
+
+    // ---- | Data
+
+    const dataRoot = document.getElementById('searchData');
+    const enemies = [];
+
+    const request = new XMLHttpRequest();
+    request.onreadystatechange = () => {
+        if (request.readyState === 4 && request.status === 200) {
+            const enemiesJson = JSON.parse(request.responseText).entries;
+
+            for (const enemyJson of enemiesJson) {
+                const enemy = Dashboard.Enemy.fromJSON(enemyJson);
+                enemies.push(enemy);
+
+                const card = enemy.toCard(true, null, () => {});
+                enemy.card = card;
+                dataRoot.appendChild(card);
+             }
+
+            const event = new CustomEvent('searchDataLoaded', {
+                detail: {
+                    type: 'enemies',
+                    data: enemies
+                }
+            });
+            document.dispatchEvent(event);
+            
+            Notiflix.Block.remove("#searchData");
+        } else if (request.readyState === 4) {
+            Notiflix.Notify.failure('Failed to load actions.');
+            Notiflix.Block.remove("#searchData");
+        }
+    }
+
+    request.open('GET', `{% url 'apiQueryTable' table='enemies' %}`, true);
+    request.setRequestHeader('Content-Type', 'application/json');
+    request.setRequestHeader('X-CSRFToken', csrfToken);
+    request.send();
+
+    // ---- | Search
+
+    const warn = document.createElement('div');
+    warn.id = 'warn';
+    warn.classList.add('alert', 'alert-warning', 'text-center');
+    warn.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> No actions found.';
+
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', Dashboard.debounce(() => {
+        const query = searchInput.value;
+        const filteredActions = actions.filter(action => action.title.toLowerCase().includes(query.toLowerCase()));
+
+        // Filter
+        for (const action of actions) {
+            if (filteredActions.includes(action) || query === '') {
+                action.card.style.display = 'block';
+            } else {
+                action.card.style.display = 'none';
+            }
+        }
+
+        // No actions found
+        if (filteredActions.length === 0) {
+            dataRoot.appendChild(warn);
+        } else if (actions) {
+            if (dataRoot.contains(warn)) {
+                dataRoot.removeChild(warn);
+            }
+        }
+    }, 300));
+    
+    const searchClose = document.getElementById('searchClose');
+    searchClose.addEventListener('click', (event) => {
+        event.preventDefault();
+    });
+</script>
