@@ -7,7 +7,8 @@ def defaultContext(request):
         'ROOT_URL': '/' + request.LANGUAGE_CODE + '/',
         'URL': url.replace('/' + request.LANGUAGE_CODE, '', 1),
         'LANG': request.LANGUAGE_CODE,
-        'SEARCH': request.GET.get('search', '')
+        'SEARCH': request.GET.get('search', ''),
+        'API_URL': settings.API_URL,
     }
 
     breadcrumbItems = url.split('/')
