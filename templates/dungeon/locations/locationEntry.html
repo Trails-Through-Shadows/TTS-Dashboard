@@ -72,9 +72,9 @@
 
     // ---- | Location
 
-    const hexGridSize = 20;
+    const hexGridSize = 30;
     const partList = document.getElementById('locationParts');
-    const locationMap = new Dashboard.LocationMap(canvas, partList, apiUrlSinglePart);
+    const locationMap = new Dashboard.LocationMap(canvas, partList, apiUrlSinglePart, hexGridSize);
 
     canvas.addOnSizeListener(() => {
         if (!canvas.isDrawn() || canvas.isLoading()) {

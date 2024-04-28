@@ -447,7 +447,7 @@ module Dashboard {
                             hexGridLeft.draw();
                         });
 
-                        const hexGridRight = new HexGrid(toPartCanvas, 25);
+                        const hexGridRight = new HexGrid(toPartCanvas, this.locationMap.hexGridSize);
                         hexGridRight.draw();
 
                         toPartCanvas.addOnMouseHoverListener(() => {
@@ -495,7 +495,7 @@ module Dashboard {
                             hexGridLeft.draw();
                         });
 
-                        const hexGridLeft = new HexGrid(fromPartCanvas, 25);
+                        const hexGridLeft = new HexGrid(fromPartCanvas, this.locationMap.hexGridSize);
                         hexGridLeft.draw();
 
                         fromPartCanvas.addOnMouseHoverListener(() => {

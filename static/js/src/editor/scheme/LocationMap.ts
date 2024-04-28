@@ -9,7 +9,7 @@ module Dashboard {
             private readonly canvas: Canvas,
             private readonly partsList: HTMLElement,
             private readonly partUrl: string,
-            private readonly hexGridSize: number = 30,
+            readonly hexGridSize: number = 30,
             private readonly events: boolean = true
         ) {
             this.hexGrid = new HexGrid(canvas, hexGridSize);
@@ -230,11 +230,11 @@ module Dashboard {
             partElement.classList.add('col-auto', 'locationPart');
 
             partElement.innerHTML = `
-                                    <div class="card card-body border-0 shadow h-100 p-2 hvr-forward pointer bg-gray-200" data-id="${part.id}">
-                                        (#${part.id}) ${part.title} <br>
-                                        <small>${part.tag}</small>
-                                    </div>
-                                `;
+                <div class="card card-body border-0 shadow h-100 p-2 hvr-forward pointer bg-gray-200" data-id="${part.id}">
+                    (#${part.id}) ${part.title} <br>
+                    <small>${part.tag}</small>
+                </div>
+            `;
 
             partElement.addEventListener('click', () => {
                 this.drawPart(part);
