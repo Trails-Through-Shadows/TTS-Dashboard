@@ -95,7 +95,7 @@
 
                                 <div class="col-lg-6 col-12 mt-2 mt-lg-0">
                                     <button class="btn btn-green-100 animate-up-2 w-100" type="submit" id="saveButton">
-                                        {% if partId is not None %}
+                                        {% if locationId is not None %}
                                             Save
                                         {% else %}
                                             Create
@@ -306,7 +306,7 @@
             const entryId = entryIdInput.value;
 
             let url = "{% url 'apiQueryTable' table="locations" %}";
-            {% if partId is not undefined %}
+            {% if locationId is not undefined %}
                 url = "{% url 'apiQueryTableID' table="locations" id=0 %}".replace(0, entryId);
             {% endif %}
 
