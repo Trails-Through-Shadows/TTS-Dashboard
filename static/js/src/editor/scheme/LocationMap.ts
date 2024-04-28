@@ -169,10 +169,6 @@ module Dashboard {
                     }
                 });
 
-                console.log("== loaded ==")
-                console.log(newGrid);
-                console.log("== loaded ==")
-
                 this.cachedHexGrids.push(newGrid);
 
                 if (callback) {

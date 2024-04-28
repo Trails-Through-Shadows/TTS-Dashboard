@@ -269,7 +269,6 @@ module Dashboard {
                             if (hex.type === 'doors') {
                                 const door = hex.occupant as Door;
 
-                                console.log(door);
                                 if (door.to.id == part.id || door.from.id == part.id) {
                                     toRemove.push(hex);
                                 }
@@ -668,7 +667,6 @@ module Dashboard {
             const method = object.id == 0 || object.id == null ? 'POST' : 'PUT';
             const newUrl = object.id == 0 || object.id == null ? apiUrl.replace('/0', '') : apiUrl;
 
-            console.log(newUrl);
             request.open(method, newUrl, true);
             request.setRequestHeader('Content-Type', 'application/json');
             request.setRequestHeader('X-CSRFToken', csrfToken);
