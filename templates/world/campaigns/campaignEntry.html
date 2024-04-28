@@ -63,9 +63,10 @@
 <script id="entryDataScript">
     let achievementsData = "{{ achievements|safe|escapejs }}"
         .replace(/None/g, 'null');
-
+    
     achievementsData = achievementsData.replace(/'([^']+)':/g, '"$1":');
     achievementsData = achievementsData.replace(/'([^']+)',/g, '"$1",');
+    console.log(achievementsData);
 
     let achievements = JSON.parse(achievementsData).map((achive) => {
         return new Dashboard.Achievement.fromJSON(achive.achievement);

@@ -220,7 +220,7 @@
 
             if (id) {
                 console.log(`Button | Auto viewing entry ${id}`);
-                data.queryData(apiUrlSingle.replace('0', id), true, []);
+                data.queryData(apiUrlSingle.replace('0', id), false, []);
             } else {
                 // Auto open first entry, get button with data-action="view" and click
                 const button = tableRoot.querySelector('[data-action="view"]');
@@ -232,7 +232,7 @@
                 window.history.replaceState({}, document.title, url.toString());
 
                 console.log(`Button | Auto viewing entry ${id}`);
-                data.queryData(apiUrlSingle.replace('0', id), true, []);
+                data.queryData(apiUrlSingle.replace('0', id), false, []);
             }
 
             table.setAction("view", (element) => {

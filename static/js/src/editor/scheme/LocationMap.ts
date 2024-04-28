@@ -120,45 +120,53 @@ module Dashboard {
             newGrid.active = false;
 
             newGrid.readData(this.partUrl.replace("0", "" + part.id), () => {
-                for (let startHex of this.location.startHexes) {
-                    if (startHex.partId === part.id) {
-                        const hex = newGrid.getHexAt(startHex.coords);
+                if (this.location.startHexes) {
+                    for (let startHex of this.location.startHexes) {
+                        if (startHex.partId === part.id) {
+                            const hex = newGrid.getHexAt(startHex.coords);
 
-                        if (hex) {
-                            hex.type = 'start';
+                            if (hex) {
+                                hex.type = 'start';
+                            }
                         }
                     }
                 }
 
-                for (let enemy of this.location.enemies) {
-                    if (enemy.partId === part.id) {
-                        const hex = newGrid.getHexAt(enemy.coords);
+                if (this.location.enemies) {
+                    for (let enemy of this.location.enemies) {
+                        if (enemy.partId === part.id) {
+                            const hex = newGrid.getHexAt(enemy.coords);
 
-                        if (hex) {
-                            hex.type = 'enemy';
-                            hex.occupant = enemy;
+                            if (hex) {
+                                hex.type = 'enemy';
+                                hex.occupant = enemy;
+                            }
                         }
                     }
                 }
 
-                for (let obstacle of this.location.obstacles) {
-                    if (obstacle.partId === part.id) {
-                        const hex = newGrid.getHexAt(obstacle.coords);
+                if (this.location.obstacles) {
+                    for (let obstacle of this.location.obstacles) {
+                        if (obstacle.partId === part.id) {
+                            const hex = newGrid.getHexAt(obstacle.coords);
 
-                        if (hex) {
-                            hex.type = 'obstacle';
-                            hex.occupant = obstacle;
+                            if (hex) {
+                                hex.type = 'obstacle';
+                                hex.occupant = obstacle;
+                            }
                         }
                     }
                 }
 
-                for (let door of this.location.doors) {
-                    if (door.from.id === part.id) {
-                        const doorHex = new Hex(0, door.cords, newGrid.getHexSize());
-                        doorHex.type = 'doors';
-                        doorHex.occupant = door;
+                if (this.location.doors) {
+                    for (let door of this.location.doors) {
+                        if (door.from.id === part.id) {
+                            const doorHex = new Hex(0, door.cords, newGrid.getHexSize());
+                            doorHex.type = 'doors';
+                            doorHex.occupant = door;
 
-                        newGrid.getHexes().push(doorHex);
+                            newGrid.getHexes().push(doorHex);
+                        }
                     }
                 }
 
