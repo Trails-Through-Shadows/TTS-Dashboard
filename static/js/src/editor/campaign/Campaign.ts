@@ -10,7 +10,7 @@ module Dashboard {
         start: boolean,
         finish: boolean,
         stories: any[],
-        path: any[],
+        paths: any[],
         conditions: WinCondition[],
         location: Location
     };
@@ -81,7 +81,17 @@ module Dashboard {
                 id: this.id,
                 title: this.title,
                 description: this.description,
-                achievements: this.achievements.map(achievement => achievement.toJSON()),
+                achievements: this.achievements
+                    ? this.achievements.map(achievement => {
+                            return {
+                                key: {
+                                    idCampaign: this.id,
+                                    idAchievement: achievement.id
+                                },
+                                achievement: achievement.toJSON()
+                            }
+                        })
+                    : null,
                 locations: this.locations.map(location => {
                     return {
                         id: location.location.id,

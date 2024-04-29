@@ -6,7 +6,7 @@
         <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-1-title">
             <header class="modal-header border-0">
                 <h2 class="modal-title" id="modal-1-title">
-                    {% trans 'Search Obstacle' %}
+                    {% trans 'Search Locations' %}
                 </h2>
 
                 <button class="modal-close hvr-grow" aria-label="Close modal">
@@ -58,7 +58,7 @@
             const entriesJson = JSON.parse(request.responseText).entries;
 
             for (const entryJson of entriesJson) {
-                const entry = Dashboard.Obstacle.fromJSON(entryJson);
+                const entry = Dashboard.Location.fromJSON(entryJson);
                 entries.push(entry);
 
                 const card = entry.toCard(true, null, () => {});
@@ -81,7 +81,7 @@
         }
     }
 
-    request.open('GET', `{% url 'apiQueryTable' table='obstacles' %}`, true);
+    request.open('GET', `{% url 'apiQueryTable' table='locations' %}`, true);
     request.setRequestHeader('Content-Type', 'application/json');
     request.setRequestHeader('X-CSRFToken', csrfToken);
     request.send();

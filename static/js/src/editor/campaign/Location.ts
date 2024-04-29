@@ -49,6 +49,11 @@ module Dashboard {
 
                         if (enemy.enemy.startingHex) {
                             e.coords = new CubeCoordinate(enemy.enemy.startingHex.q, enemy.enemy.startingHex.r, enemy.enemy.startingHex.s);
+                        } else if (json.parts) {
+                            const parts = json.parts.map((part: any) => Dashboard.Part.fromJSON(part.part))
+                            const hex = parts.find(part => part.id === enemy.key.idPart).hexes.find(hex => hex.id === enemy.key.idHex);
+
+                            e.coords = hex.coords;
                         }
 
                         return e;
@@ -61,6 +66,11 @@ module Dashboard {
 
                         if (obstacle.obstacle.hex) {
                             o.coords = new CubeCoordinate(obstacle.obstacle.hex.q, obstacle.obstacle.hex.r, obstacle.obstacle.hex.s);
+                        } else if (json.parts) {
+                            const parts = json.parts.map((part: any) => Dashboard.Part.fromJSON(part.part))
+                            const hex = parts.find(part => part.id === obstacle.key.idPart).hexes.find(hex => hex.id === obstacle.key.idHex);
+
+                            o.coords = hex.coords;
                         }
 
                         return o;

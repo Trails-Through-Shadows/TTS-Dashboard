@@ -59,7 +59,7 @@
                                                         <label class="visually-hidden" for="entryTag">Tag</label>
                                                         <div class="input-group input-group-sm">
                                                             <div class="input-group-text">{% trans 'Tag' %}</div>
-                                                            <input type="text" class="form-control" id="entryTag" placeholder="{% trans 'Tag' %}">
+                                                            <input type="text" class="form-control" id="entryTag" placeholder="{% trans 'Tag' %}" disabled>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -627,12 +627,59 @@
                 formEditor.validate();
             });
         }
-        
+
         const addButton = document.getElementById('addLocationButton');
         addButton.addEventListener('click', () => {
-            let promise = Dashboard.Modal.openModal("dungeon/obstacles/obstaclesSearch.html");
+            const openEnemySearch = (event) => {
+                const type = event.detail.type;
+
+                if (type === 'entries') {
+                    const entries = event.detail.data;
+
+                    for (const entry of entries) {
+                        entry.card.querySelector('button[data-action="add"]').addEventListener('click', (event) => {
+                            event.preventDefault();
+
+                            // If not exists add to list
+                            const locationId = entry.id;
+                            let location = formEditor.object.locations.find((campLoc) => campLoc.location.id == locationId);
+
+                            if (location) {
+                                return Swal.fire({
+                                    icon: 'warning',
+                                    toast: true,
+                                    position: 'top-end',
+                                    text: 'This locations already exists in this campaign!',
+                                    showConfirmButton: false,
+                                    timer: 2500
+                                });
+                            }
+                            location = entry;
+
+                            const camLoc = { start: false, finish: false, stories: [], paths: [], conditions: [], location: location};
+                            formEditor.object.locations.push(camLoc);
+
+                            const option = document.createElement('option');
+                            option.value = location.id;
+                            option.text = `#${location.id} - ${location.title}`;
+
+                            locationSelection.appendChild(option);
+
+                            Dashboard.Modal.closeOpenedModal();
+                        });
+                    }
+                }
+            }
+
+            document.addEventListener('searchDataLoaded', openEnemySearch);
+            Dashboard.Modal.openSearch("dungeon/locations/locationsSearch.html", "locations")
+                .then((modal) => {
+                    modal.setOnClose(() => {
+                        document.removeEventListener('searchDataLoaded', openEnemySearch);
+                    });
+                })
         });
-        
+
         const removeButton = document.getElementById('removeLocationButton');
         removeButton.addEventListener('click', () => {
             const locationId = locationSelection.value;
@@ -645,22 +692,22 @@
 
             locationSelection.remove(locationSelection.selectedIndex);
             locationSelection.selectedIndex = 0;
-            
+
             const pathRows = document.querySelectorAll('.pathRow');
             pathRows.forEach((pathRow) => pathRow.remove());
-            
+
             const conditionRows = document.querySelectorAll('.conditionRow');
             conditionRows.forEach((conditionRow) => conditionRow.remove());
-            
+
             const storyRows = document.querySelectorAll('.storyRow');
             storyRows.forEach((storyRow) => storyRow.remove());
-            
+
             const locationStart = document.getElementById('locationStart');
             locationStart.checked = false;
-            
+
             const locationFinish = document.getElementById('locationFinish');
             locationFinish.checked = false;
-            
+
             formEditor.validate();
         });
 
