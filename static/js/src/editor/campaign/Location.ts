@@ -146,7 +146,11 @@ module Dashboard {
                         return {
                             key: {
                                 idLocation: this.id,
-                                idPart: enemy.partId
+                                idPart: enemy.partId,
+                                idEnemy: enemy.id,
+                                idHex: enemy.coords
+                                    ? this.parts.find(part => part.id === enemy.partId).hexes.find(hex => hex.coords.equals(enemy.coords)).id
+                                    : null
                             },
                             enemy: enemy.toJSON()
                         }
@@ -157,7 +161,11 @@ module Dashboard {
                         return {
                             key: {
                                 idLocation: this.id,
-                                idPart: obstacle.partId
+                                idPart: obstacle.partId,
+                                idObstacle: obstacle.id,
+                                idHex: obstacle.coords
+                                    ? this.parts.find(part => part.id === obstacle.partId).hexes.find(hex => hex.coords.equals(obstacle.coords)).id
+                                    : null
                             },
                             obstacle: obstacle.toJSON()
                         }
