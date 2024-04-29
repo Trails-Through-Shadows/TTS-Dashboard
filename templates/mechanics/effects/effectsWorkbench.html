@@ -87,7 +87,7 @@
     const csrfToken = document.querySelector('#csrftoken').value;
 
     const effects = []
-    const effectsData = fetch("{{ apiUrl }}/enum/effectType", {
+    const effectsData = fetch("{{ API_URL }}/enum/effectType", {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
