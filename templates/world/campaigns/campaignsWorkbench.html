@@ -109,7 +109,7 @@
                 <div class="row flex-column h-100">
                     <div class="col-12 flex-fill">
                         <div class="card card-body border-0 shadow h-100">
-                            <div class="card-header p-0">
+                            <div class="card-header p-0 pt-2">
                                 <h2 class="h5">{% trans 'Locations:' %}</h2>
                             </div>
 
@@ -337,10 +337,27 @@
                     <div class="col-12 flex-fill">
                         <div class="card card-body border-0 shadow h-100">
                             <div class="card-header p-0">
-                                <h2 class="h5">{% trans 'Achievements:' %}</h2>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h2 class="h5 m-0">{% trans 'Achievements:' %}</h2>
+
+                                    <div class="col-6 mb-2">
+                                        <div class="btn-toolbar justify-content-end">
+                                            <a href="javascript:void(0)" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center disabled" id="addAchievement">
+                                                <i class="fa-solid fa-plus me-1"></i>
+                                                {% trans 'Add' %}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="card-body p-0 pt-2 cards-scroll formLoading">
+                                <div class="col-12 mt-2">
+                                    <div class="alert alert-danger fade show p-1 px-2 mb-2" role="alert">
+                                        <i class="fa-solid fa-exclamation-triangle me-1"></i>
+                                        {% trans 'Achievements under construction!' %}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -464,22 +481,41 @@
                         </div>
                     `;
                 } else {
-                    errorDiv.innerHTML = `
-                        <div class="col-12">
-                            <i class="fa-solid fa-exclamation-triangle me-1"></i>
-                            <span>${err.message}</span>
-                        </div>
-                        ${err.errors.map((field) => {
-                            return `
-                                <div class="col-12">
-                                    <span class="ms-1">* ${field.message}</span>
-                                </div>
-                            `;
-                        }).join('')}
-                    `;
+                    // Recursive error mapping keep spacing
+                    function mapErrors(errors, level) {
+                        return errors.map((field) => {
+                            const padding = " ".repeat(level);
+
+                            if (field.errors) {
+                                return `
+                                    ${padding}<div class="col-12">
+                                    ${padding}    <i class="fa-solid fa-exclamation-triangle me-1"></i>
+                                    ${padding}    <span>${field.message}</span>
+                                    ${padding}</div>
+                                    ${mapErrors(field.errors, level + 4).join('')}
+                                `;
+                            } else {
+                                return `
+                                    ${padding}<div class="col-12">
+                                    ${padding}    <span class="ms-1">* ${field.message}</span>
+                                    ${padding}</div>
+                                `;
+                            }
+                        });
+                    }
+
+                    errorDiv.innerHTML = mapErrors(err.errors).join('');
                 }
 
                 switch (err.object) {
+                    case 'CampaignLocation': {
+                        locationsValidation.classList.remove('alert-success', 'alert-collapsed');
+                        locationsValidation.classList.add('alert-danger');
+
+                        locationsValidation.appendChild(errorDiv);
+                        break;
+                    }
+
                     default: {
                         infoValidation.classList.remove('alert-success', 'alert-collapsed');
                         infoValidation.classList.add('alert-danger');

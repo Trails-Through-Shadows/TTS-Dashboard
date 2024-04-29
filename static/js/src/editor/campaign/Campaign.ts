@@ -102,6 +102,7 @@ module Dashboard {
                         finish: location.finish,
                         stories: location.stories,
                         conditions: location.conditions,
+                        conditionString: JSON.stringify(location.conditions),
                         paths: location.paths
                     }
                 })
