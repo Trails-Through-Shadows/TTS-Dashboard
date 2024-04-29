@@ -111,7 +111,15 @@ module Dashboard {
                 tag: this.tag,
                 type: this.type,
                 description: this.description,
-                parts: this.parts.map(part => part.toJSON()),
+                parts: this.parts.map(part => {
+                    return {
+                        key: {
+                            idLocation: this.id,
+                            idPart: part.id
+                        },
+                        part: part.toJSON()
+                    }
+                }),
                 doors: this.doors.map(door => {
                     return {
                         key: {
