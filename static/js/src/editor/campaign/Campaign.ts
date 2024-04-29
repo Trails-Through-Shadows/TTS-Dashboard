@@ -101,7 +101,8 @@ module Dashboard {
                         start: location.start,
                         finish: location.finish,
                         stories: location.stories,
-                        conditions: location.conditions
+                        conditions: location.conditions,
+                        paths: location.paths
                     }
                 })
             };

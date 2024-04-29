@@ -499,32 +499,43 @@
         pathAddButton.addEventListener('click', () => addPath(null));
 
         function addPath(path) {
-            const newPath = pathRowTemplate.content.cloneNode(true);
-            newPath.id = `path-${pathRow.children.length}`;
-            pathRow.appendChild(newPath);
-
-            const newPathAdded = pathRow.lastElementChild;
-            const pathFrom = newPathAdded.querySelector('#locationPathFrom');
-            const pathTo = newPathAdded.querySelector('#locationPathTo');
+            const newLocationPath = pathRowTemplate.content.cloneNode(true);
+            newLocationPath.id = `path-${pathRow.children.length}`;
+            pathRow.appendChild(newLocationPath);
 
             const campaign = formEditor.object;
-            for (const loc of campaign.locations) {
-                const option = document.createElement('option');
-                option.value = loc.location.id;
-                option.text = `#${loc.location.id} - ${loc.location.title}`;
+            const newLocationPathAdded = pathRow.lastElementChild;
+            const pathFrom = newLocationPathAdded.querySelector('#locationPathFrom');
+            const pathTo = newLocationPathAdded.querySelector('#locationPathTo');
 
-                pathFrom.appendChild(option);
-                pathTo.appendChild(option.cloneNode(true));
-            }
+            const selectedLocation = campaign.locations.find((loc) => loc.location.id == locationSelection.value);
+            if (selectedLocation === undefined) return;
 
             if (path) {
-                pathFrom.value = path.idStart;
-                pathTo.value = path.idEnd;
+                pathFrom.value = path.from;
+                pathTo.value = path.to;
+            } else {
+                path = { from: 0, to: 0 };
+                selectedLocation.paths.push(path);
+                formEditor.validate();
             }
 
-            const removePathButton = newPathAdded.querySelector('#removePathButton');
+            pathFrom.addEventListener('input', () => {
+                path.from = pathFrom.value;
+                formEditor.validate();
+            });
+
+            pathTo.addEventListener('input', () => {
+                path.to = pathTo.value;
+                formEditor.validate();
+            });
+
+            const removePathButton = newLocationPathAdded.querySelector('#removePathButton');
             removePathButton.addEventListener('click', () => {
-                newPathAdded.remove();
+                newLocationPathAdded.remove();
+
+                selectedLocation.paths = selectedLocation.paths.filter((locPath) => locPath !== path);
+                formEditor.validate();
             });
         }
 
@@ -664,6 +675,12 @@
                             option.text = `#${location.id} - ${location.title}`;
 
                             locationSelection.appendChild(option);
+                            
+                            // Add to path to list
+                            for (const pathRow of document.querySelectorAll('.pathRow')) {
+                                const toSelect = pathRow.querySelector('#locationPathTo');
+                                toSelect.appendChild(option.cloneNode(true));
+                            }
 
                             Dashboard.Modal.closeOpenedModal();
                         });
