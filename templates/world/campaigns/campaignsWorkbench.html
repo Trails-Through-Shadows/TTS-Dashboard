@@ -21,7 +21,7 @@
 
     <form id="workbench">
         <div class="row">
-            <div class="col-5" id="campaignInformation">
+            <div class="col-4" id="campaignInformation">
                 <div class="row flex-column h-100">
                     <div class="col-12 flex-fill mb-4">
                         <div class="card card-body border-0 shadow h-100">
@@ -30,12 +30,12 @@
                             </div>
 
                             <div class="card-body p-0 formLoading">
-                                <div class="row">
-                                    <div class="col-4 align-self-center py-3">
+                                <div class="row g-2">
+                                    <div class="col-4 align-self-top py-2">
                                         <img src="{% static 'img/imgLoading.png' %}" id="itemImage" data-src="{% imageFor url %}" alt="Entry Image" class="lazyload img-fluid rounded">
                                     </div>
 
-                                    <div class="col-8 align-self-center">
+                                    <div class="col-8 align-self-top">
                                         <div class="py-2">
                                             <h2 class="h5 mb-2">
                                                 <label class="visually-hidden" for="entryTitle">Title</label>
@@ -56,10 +56,10 @@
                                                     </div>
 
                                                     <div class="col-8">
-                                                        <label class="visually-hidden" for="itemTag">Tag</label>
+                                                        <label class="visually-hidden" for="entryTag">Tag</label>
                                                         <div class="input-group input-group-sm">
                                                             <div class="input-group-text">{% trans 'Tag' %}</div>
-                                                            <input type="text" class="form-control" id="itemTag" placeholder="{% trans 'Tag' %}" readonly>
+                                                            <input type="text" class="form-control" id="entryTag" placeholder="{% trans 'Tag' %}">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -105,28 +105,221 @@
                 </div>
             </div>
 
-            <div class="col-7" id="campaignLocations">
+            <div class="col-5" id="campaignLocations">
                 <div class="row flex-column h-100">
-
                     <div class="col-12 flex-fill">
                         <div class="card card-body border-0 shadow h-100">
-                            <div class="card-header p-0 mb-2">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <h2 class="h5 m-0">{% trans 'Locations:' %}</h2>
-
-                                    <div class="col-6 mb-2">
-                                        <div class="btn-toolbar justify-content-end">
-                                            <a href="javascript:void(0)" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center" id="addLocation">
-                                                <i class="fa-solid fa-arrow-pointer me-1"></i>
-                                                {% trans 'Select' %}
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="card-header p-0">
+                                <h2 class="h5">{% trans 'Locations:' %}</h2>
                             </div>
 
-                            <div class="card-body p-0 cards-scroll formLoading">
-                                <div class="row gap-1" id="actionsList">
+                            <div class="card-body p-0 pt-2 cards-scroll formLoading">
+                                <div class="row gy-2 gx-2">
+                                    <div class="col-6">
+                                        <label class="visually-hidden" for="locationList">Select Location:</label>
+                                        <div class="input-group input-group-sm">
+                                            <div class="input-group-text">{% trans 'Location' %}</div>
+                                            <select class="form-control" id="locationList" required>
+                                                <option value="hidden" selected hidden disabled>Choose Location</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Add button -->
+                                    <div class="col-3">
+                                        <button class="btn btn-sm btn-green-100 animate-up-2 w-100" type="button" id="addLocationButton">
+                                            Add Location
+                                        </button>
+                                    </div>
+
+                                    <!-- Remove button -->
+                                    <div class="col-3">
+                                        <button class="btn btn-sm btn-red-100 animate-up-2 w-100" type="button" id="removeLocationButton">
+                                            Remove Location
+                                        </button>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="row gx-2">
+                                            <div class="col-6">
+                                                <div class="form-check form-switch">
+                                                    <label class="form-check-label" for="locationStart">{% trans 'Location starting.' %}</label>
+                                                    <input class="form-check-input" type="checkbox" id="locationStart">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6">
+                                                <div class="form-check form-switch">
+                                                    <label class="form-check-label" for="locationFinish">{% trans 'Location finishing.' %}</label>
+                                                    <input class="form-check-input" type="checkbox" id="locationFinish">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <hr class="my-2">
+
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <h3 class="h6 m-0">{% trans 'Paths:' %}</h3>
+
+                                            <div class="col">
+                                                <div class="btn-toolbar justify-content-end ps-2">
+                                                    <a href="javascript:void(0)" class="btn btn-xs btn-outline-success d-inline-flex align-items-center" id="addPathButton">
+                                                        <i class="fa-solid fa-plus me-1"></i>
+                                                        {% trans 'Add' %}
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row gx-2 gy-1" id="locationPathRow">
+                                            <template id="locationPathTemplate">
+                                                <div class="col-12 pathRow">
+                                                    <div class="row gx-2">
+                                                        <div class="col">
+                                                            <label class="visually-hidden" for="locationPathFrom">From Location:</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <div class="input-group-text">{% trans 'From Location' %}</div>
+                                                                <select class="form-control" id="locationPathFrom" disabled required>
+                                                                    <option value="hidden" selected hidden disabled>Choose Location</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col">
+                                                            <label class="visually-hidden" for="locationPathTo">To Location:</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <div class="input-group-text">{% trans 'To Location' %}</div>
+                                                                <select class="form-control" id="locationPathTo" required>
+                                                                    <option value="hidden" selected hidden disabled>Choose Location</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-auto">
+                                                            <button class="btn btn-sm btn-outline-danger animate-up-2 w-100" type="button" id="removePathButton">
+                                                                <i class="fa-solid fa-trash-can"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 pt-1">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <h3 class="h6 m-0">{% trans 'Conditions:' %}</h3>
+
+                                            <div class="col">
+                                                <div class="btn-toolbar justify-content-end ps-2">
+                                                    <a href="javascript:void(0)" class="btn btn-xs btn-outline-success d-inline-flex align-items-center" id="addConditionButton">
+                                                        <i class="fa-solid fa-plus me-1"></i>
+                                                        {% trans 'Add' %}
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row gx-2 gy-1" id="locationConditionRow">
+                                            <template id="locationConditionTemplate">
+                                                <div class="col-12 conditionRow">
+                                                    <div class="row gx-2">
+                                                        <div class="col">
+                                                            <label class="visually-hidden" for="locationConditionType">Select Type:</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <div class="input-group-text">{% trans 'Type' %}</div>
+                                                                <select class="form-control" id="locationConditionType" required>
+                                                                    <option value="hidden" selected hidden disabled>Choose Type</option>
+                                                                    <option value="ENEMY_DEATHS">Enemy Deaths</option>
+                                                                    <option value="PLAYER_DEATHS">Players Deaths</option>
+                                                                    <option value="DOORS_OPENED">Doors Opened</option>
+                                                                    <option value="ROUND_REACHED">Round Reached</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col">
+                                                            <label class="visually-hidden" for="locationConditionValue">Value</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <div class="input-group-text">{% trans 'Value' %}</div>
+                                                                <input type="text" class="form-control" id="locationConditionValue" placeholder="{% trans 'Value' %}">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col">
+                                                            <label class="visually-hidden" for="locationConditionResult">Select Result:</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <div class="input-group-text">{% trans 'Result' %}</div>
+                                                                <select class="form-control" id="locationConditionResult" required>
+                                                                    <option value="hidden" selected hidden disabled>Choose Result</option>
+                                                                    <option value="COMPLETED">Completed</option>
+                                                                    <option value="FAILED">Failed</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-auto">
+                                                            <button class="btn btn-sm btn-outline-danger animate-up-2 w-100" type="button" id="removeConditionButton">
+                                                                <i class="fa-solid fa-trash-can"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 pt-1">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <h3 class="h6 m-0">{% trans 'Stories:' %}</h3>
+
+                                            <div class="col">
+                                                <div class="btn-toolbar justify-content-end ps-2">
+                                                    <a href="javascript:void(0)" class="btn btn-xs btn-outline-success d-inline-flex align-items-center" id="addStoryButton">
+                                                        <i class="fa-solid fa-plus me-1"></i>
+                                                        {% trans 'Add' %}
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row gx-2 gy-1" id="locationStoryRow">
+                                            <template id="locationStoryTemplate">
+                                                <div class="col-12 storyRow">
+                                                    <div class="row gx-2">
+                                                        <div class="col-auto">
+                                                            <label class="visually-hidden" for="locationStoryTrigger">Trigger:</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <div class="input-group-text">{% trans 'Trigger' %}</div>
+                                                                <select class="form-control" id="locationStoryTrigger" required>
+                                                                    <option value="hidden" selected hidden disabled>Choose Trigger</option>
+                                                                    <option value="NEW">New</option>
+                                                                    <option value="ONGOING">Ongoing</option>
+                                                                    <option value="COMPLETED">Completed</option>
+                                                                    <option value="FAILED">Failed</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col">
+                                                            <div class="align-items-center">
+                                                                <label for="locationStoryText" class="form-label visually-hidden">{% trans 'Description' %}</label>
+                                                                <textarea class="form-control form-control-sm js-auto-size" id="locationStoryText" rows="1" placeholder="{% trans 'Description' %}"></textarea>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-auto">
+                                                            <button class="btn btn-sm btn-outline-danger animate-up-2 w-100" type="button" id="removeStoryButton">
+                                                                <i class="fa-solid fa-trash-can"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -138,12 +331,45 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-3" id="campaignAchievements">
+                <div class="row flex-column h-100">
+                    <div class="col-12 flex-fill">
+                        <div class="card card-body border-0 shadow h-100">
+                            <div class="card-header p-0">
+                                <h2 class="h5">{% trans 'Achievements:' %}</h2>
+                            </div>
+
+                            <div class="card-body p-0 pt-2 cards-scroll formLoading">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-2">
+                        <div class="alert alert-success fade show validation" role="alert" id="achievementsValidation">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </form>
 {% endblock content %}
 
 {% block javascripts %}
     <script async>
+        function expandTextarea(element) {
+            function perform() {
+                element.style.overflow = 'hidden';
+                element.style.height = 0;
+                element.style.height = element.scrollHeight + 'px';
+            }
+
+            perform();
+            element.addEventListener('keyup', perform, false);
+         }
+
+        // ---- | Variables
+
         const csrfToken = document.querySelector('#csrftoken').value;
 
         // ---- | Urls
@@ -164,6 +390,12 @@
             formEditor.validate();
         });
 
+        const entryTag = formRoot.querySelector('#entryTag');
+        entryTag.addEventListener('input', () => {
+            formEditor.object.tag = entryTag.value;
+            formEditor.validate();
+        });
+
         const entryDescription = formRoot.querySelector('#entryDescription');
         entryDescription.addEventListener('input', () => {
             formEditor.object.description = entryDescription.value;
@@ -172,6 +404,7 @@
 
         const infoValidation = document.getElementById('informationValidation');
         const locationsValidation = document.getElementById('locationsValidation');
+        const achievementsValidation = document.getElementById('locationsValidation');
 
         formValidator.setOnStart(() => {
             infoValidation.classList.remove('alert-success', 'alert-danger', 'alert-collapsed');
@@ -181,6 +414,10 @@
             locationsValidation.classList.remove('alert-success', 'alert-danger', 'alert-collapsed');
             locationsValidation.classList.add('alert-warning', 'validating');
             locationsValidation.innerHTML = '<i class="fa-solid fa-spinner-third me-1"></i> Validating...';
+
+            achievementsValidation.classList.remove('alert-success', 'alert-danger', 'alert-collapsed');
+            achievementsValidation.classList.add('alert-warning', 'validating');
+            achievementsValidation.innerHTML = '<i class="fa-solid fa-spinner-third me-1"></i> Validating...';
         })
 
         formValidator.setOnSuccess(() => {
@@ -191,6 +428,10 @@
             locationsValidation.classList.remove('alert-warning', 'alert-danger', 'validating');
             locationsValidation.classList.add('alert-success', 'alert-collapsed');
             locationsValidation.innerHTML = '';
+
+            achievementsValidation.classList.remove('alert-warning', 'alert-danger', 'validating');
+            achievementsValidation.classList.add('alert-success', 'alert-collapsed');
+            achievementsValidation.innerHTML = '';
         })
 
         formValidator.setOnFail((errors) => {
@@ -204,6 +445,10 @@
                 locationsValidation.classList.remove('alert-success', 'alert-collapsed');
                 locationsValidation.classList.add('alert-danger');
                 locationsValidation.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> Internal Server error!';
+
+                achievementsValidation.classList.remove('alert-success', 'alert-collapsed');
+                achievementsValidation.classList.add('alert-danger');
+                achievementsValidation.innerHTML = '<i class="fa-solid fa-exclamation-triangle me-1"></i> Internal Server error!';
                 return;
             }
 
@@ -246,6 +491,210 @@
             }
         })
 
+        // -------
+
+        const pathRow = document.getElementById('locationPathRow');
+        const pathRowTemplate = document.getElementById('locationPathTemplate');
+        const pathAddButton = document.getElementById('addPathButton');
+        pathAddButton.addEventListener('click', () => addPath(null));
+
+        function addPath(path) {
+            const newPath = pathRowTemplate.content.cloneNode(true);
+            newPath.id = `path-${pathRow.children.length}`;
+            pathRow.appendChild(newPath);
+
+            const newPathAdded = pathRow.lastElementChild;
+            const pathFrom = newPathAdded.querySelector('#locationPathFrom');
+            const pathTo = newPathAdded.querySelector('#locationPathTo');
+
+            const campaign = formEditor.object;
+            for (const loc of campaign.locations) {
+                const option = document.createElement('option');
+                option.value = loc.location.id;
+                option.text = `#${loc.location.id} - ${loc.location.title}`;
+
+                pathFrom.appendChild(option);
+                pathTo.appendChild(option.cloneNode(true));
+            }
+
+            if (path) {
+                pathFrom.value = path.idStart;
+                pathTo.value = path.idEnd;
+            }
+
+            const removePathButton = newPathAdded.querySelector('#removePathButton');
+            removePathButton.addEventListener('click', () => {
+                newPathAdded.remove();
+            });
+        }
+
+        const conditionRow = document.getElementById('locationConditionRow');
+        const conditionRowTemplate = document.getElementById('locationConditionTemplate');
+        const conditionAddButton = document.getElementById('addConditionButton');
+        conditionAddButton.addEventListener('click', () => addCondition(null));
+
+        function addCondition(condition) {
+            const newCondition = conditionRowTemplate.content.cloneNode(true);
+            newCondition.id = `condition-${conditionRow.children.length}`;
+            conditionRow.appendChild(newCondition);
+
+            const campaign = formEditor.object;
+            const newConditionAdded = conditionRow.lastElementChild;
+            const conditionType = newConditionAdded.querySelector('#locationConditionType');
+            const conditionValue = newConditionAdded.querySelector('#locationConditionValue');
+            const conditionResult = newConditionAdded.querySelector('#locationConditionResult');
+
+            const selectedLocation = campaign.locations.find((loc) => loc.location.id == locationSelection.value);
+            if (selectedLocation === undefined) return;
+
+            if (condition) {
+                conditionType.value = condition.type;
+                conditionValue.value = condition.value;
+                conditionResult.value = condition.result;
+            } else {
+                condition = new Dashboard.Condition('ENEMY_DEATHS', 0, 'COMPLETED');
+                campaign.locations[0].conditions.push(condition);
+                formEditor.validate();
+            }
+
+            conditionType.addEventListener('input', () => {
+                condition.type = conditionType.value;
+                formEditor.validate();
+            });
+
+            conditionValue.addEventListener('input', () => {
+                condition.value = conditionValue.value;
+                formEditor.validate();
+            });
+
+            conditionResult.addEventListener('input', () => {
+                condition.result = conditionResult.value;
+                formEditor.validate();
+            });
+
+            const removeConditionButton = newConditionAdded.querySelector('#removeConditionButton');
+            removeConditionButton.addEventListener('click', () => {
+                newConditionAdded.remove();
+
+                selectedLocation.conditions = selectedLocation.conditions.filter((locCond) => locCond !== condition);
+                formEditor.validate();
+            });
+        }
+
+        const storyRow = document.getElementById('locationStoryRow');
+        const storyRowTemplate = document.getElementById('locationStoryTemplate');
+        const storyAddButton = document.getElementById('addStoryButton');
+        storyAddButton.addEventListener('click', () => addStory(null));
+
+        function addStory(story) {
+            const newStory = storyRowTemplate.content.cloneNode(true);
+            newStory.id = `story-${storyRow.children.length}`;
+            storyRow.appendChild(newStory);
+
+            const campaign = formEditor.object;
+            const newStoryAdded = storyRow.lastElementChild;
+            const storyTrigger = newStoryAdded.querySelector('#locationStoryTrigger');
+            const storyText = newStoryAdded.querySelector('#locationStoryText');
+
+            const selectedLocation = campaign.locations.find((loc) => loc.location.id == locationSelection.value);
+            if (selectedLocation === undefined) return;
+
+            if (story) {
+                storyTrigger.value = story.trigger;
+                storyText.value = story.story;
+            } else {
+                story = new Dashboard.Story(0, '', '');
+                selectedLocation.stories.push(story);
+                formEditor.validate();
+            }
+
+            storyTrigger.addEventListener('input', () => {
+                story.trigger = storyTrigger.value;
+                formEditor.validate();
+            });
+
+            expandTextarea(storyText)
+            storyText.addEventListener('input', () => {
+                story.story = storyText.value;
+                formEditor.validate();
+            });
+
+            const removeStoryButton = newStoryAdded.querySelector('#removeStoryButton');
+            removeStoryButton.addEventListener('click', () => {
+                newStoryAdded.remove();
+
+                selectedLocation.stories = selectedLocation.stories.filter((locStory) => locStory !== story);
+                formEditor.validate();
+            });
+        }
+        
+        const addButton = document.getElementById('addLocationButton');
+        addButton.addEventListener('click', () => {
+            let promise = Dashboard.Modal.openModal("dungeon/obstacles/obstaclesSearch.html");
+        });
+        
+        const removeButton = document.getElementById('removeLocationButton');
+        removeButton.addEventListener('click', () => {
+            const locationId = locationSelection.value;
+            const location = formEditor.object.locations.find((campLoc) => campLoc.location.id == locationId);
+
+            if (location === undefined) return;
+
+            const index = formEditor.object.locations.indexOf(location);
+            formEditor.object.locations.splice(index, 1);
+
+            locationSelection.remove(locationSelection.selectedIndex);
+            locationSelection.selectedIndex = 0;
+            
+            const pathRows = document.querySelectorAll('.pathRow');
+            pathRows.forEach((pathRow) => pathRow.remove());
+            
+            const conditionRows = document.querySelectorAll('.conditionRow');
+            conditionRows.forEach((conditionRow) => conditionRow.remove());
+            
+            const storyRows = document.querySelectorAll('.storyRow');
+            storyRows.forEach((storyRow) => storyRow.remove());
+            
+            const locationStart = document.getElementById('locationStart');
+            locationStart.checked = false;
+            
+            const locationFinish = document.getElementById('locationFinish');
+            locationFinish.checked = false;
+            
+            formEditor.validate();
+        });
+
+        const locationSelection = document.getElementById('locationList');
+        locationSelection.addEventListener('change', () => {
+            const locationId = locationSelection.value;
+            const location = formEditor.object.locations.find((campLoc) => campLoc.location.id == locationId);
+
+            if (location === undefined)  return;
+            console.log("Selected: ", location);
+
+            // Switches
+            const locationStart = document.getElementById('locationStart');
+            locationStart.checked = location.start;
+
+            const locationFinish = document.getElementById('locationFinish');
+            locationFinish.checked = location.finish;
+
+            // -- Paths
+            const pathRows = document.querySelectorAll('.pathRow');
+            pathRows.forEach((pathRow) => pathRow.remove());
+            location.paths.forEach(addPath)
+
+            // Remove all conditions
+            const conditionRows = document.querySelectorAll('.conditionRow');
+            conditionRows.forEach((conditionRow) => conditionRow.remove());
+            location.conditions.forEach(addCondition);
+
+            // Remove all stories
+            const storyRows = document.querySelectorAll('.storyRow');
+            storyRows.forEach((storyRow) => storyRow.remove());
+            location.stories.forEach(addStory);
+        });
+
         {% if campaignId is not None %}
             formEditor.queryData((data) => {
                 const campaign = Dashboard.Campaign.fromJSON(data);
@@ -259,12 +708,22 @@
                 const entryDescription = document.getElementById('entryDescription');
                 entryDescription.value = campaign.description;
 
+                for (const campLoc of campaign.locations) {
+                    const loc = campLoc.location;
+
+                    const option = document.createElement('option');
+                    option.value = loc.id;
+                    option.text = `#${loc.id} - ${loc.title}`;
+
+                    locationSelection.appendChild(option);
+                }
+
                 return campaign;
             }, () => {
                 formEditor.validate();
             });
         {% else %}
-            formEditor.object = new Dashboard.Location(0, null, null, null, null);
+            formEditor.object = new Dashboard.Campaign(null, '', '', [], []);
             formEditor.validate();
         {% endif %}
 
@@ -284,7 +743,7 @@
                 cancelButtonText: '{% trans 'No, keep editing' %}',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = "{% url 'itemViewer' %}";
+                    window.location.href = "{% url 'campaignViewer' %}";
                 }
             });
         });
@@ -343,7 +802,7 @@
                 })
 
                 setTimeout(() => {
-                    window.location.href = "{% url 'obstacleViewer' %}";
+                    window.location.href = "{% url 'campaignViewer' %}";
                 }, 1000);
 
                 Notiflix.Block.remove("#workbench");

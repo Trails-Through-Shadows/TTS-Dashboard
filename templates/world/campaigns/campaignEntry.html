@@ -66,7 +66,6 @@
     
     achievementsData = achievementsData.replace(/'([^']+)':/g, '"$1":');
     achievementsData = achievementsData.replace(/'([^']+)',/g, '"$1",');
-    console.log(achievementsData);
 
     let achievements = JSON.parse(achievementsData).map((achive) => {
         return new Dashboard.Achievement.fromJSON(achive.achievement);
@@ -130,7 +129,7 @@
             myDiagram.model.linkDataArray = data.links;
             
             // Event for click on node
-            myDiagram.addDiagramListener("ObjectSingleClicked", function(e) {
+            myDiagram.addDiagramListener("ObjectDoubleClicked", function(e) {
                 const part = e.subject.part;
                 if (!(part instanceof go.Link)) {
                     const node = part;

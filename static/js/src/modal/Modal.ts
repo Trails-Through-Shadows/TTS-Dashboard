@@ -114,7 +114,7 @@ module Dashboard {
                             const htmlContent = request.responseText;
 
                             // Append the modal to the body
-                            const body = document.querySelector('body');
+                            let body = document.querySelector('body');
                             body.insertAdjacentHTML('beforeend', htmlContent);
 
                             // Select modal

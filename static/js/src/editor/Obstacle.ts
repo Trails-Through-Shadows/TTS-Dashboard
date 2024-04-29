@@ -29,7 +29,7 @@ module Dashboard {
                 json.description || "",
                 json.baseDamage,
                 json.baseHealth,
-                json.crossable == "true",
+                json.crossable || json.crossable == "true",
                 effects,
                 json.url || ""
             );
