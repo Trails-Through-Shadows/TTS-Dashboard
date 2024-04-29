@@ -50,6 +50,7 @@ module Dashboard {
                                     };
                                 })
                                 : null,
+                            paths: list.paths,
                             location: Location.fromJSON(list.location)
                         }
                     })

@@ -46,7 +46,11 @@ module Dashboard {
                     ? json.enemies.map((enemy: any) => {
                         const e = Dashboard.Enemy.fromJSON(enemy.enemy);
                         e.partId = enemy.key.idPart;
-                        e.coords = new CubeCoordinate(enemy.enemy.startingHex.q, enemy.enemy.startingHex.r, enemy.enemy.startingHex.s);
+
+                        if (enemy.enemy.startingHex) {
+                            e.coords = new CubeCoordinate(enemy.enemy.startingHex.q, enemy.enemy.startingHex.r, enemy.enemy.startingHex.s);
+                        }
+
                         return e;
                     })
                     : null,
@@ -54,7 +58,11 @@ module Dashboard {
                     ? json.obstacles.map((obstacle: any) => {
                         const o = Dashboard.Obstacle.fromJSON(obstacle.obstacle)
                         o.partId = obstacle.key.idPart;
-                        o.coords = new CubeCoordinate(obstacle.obstacle.hex.q, obstacle.obstacle.hex.r, obstacle.obstacle.hex.s);
+
+                        if (obstacle.obstacle.hex) {
+                            o.coords = new CubeCoordinate(obstacle.obstacle.hex.q, obstacle.obstacle.hex.r, obstacle.obstacle.hex.s);
+                        }
+
                         return o;
                     })
                     : null,
@@ -116,22 +124,37 @@ module Dashboard {
                         s: door.cords.s
                     }
                 }),
-                startHexes: this.startHexes.map(hex => {
-                    return {
-                        idLocation: this.id,
-                        idPart: hex.partId,
-                        idHex: hex.id
-                    }
-                }),
-                enemies: this.enemies.map(enemy => {
-                    return {
-                        key: {
+                startHexes: this.startHexes
+                    ? this.startHexes.map(hex => {
+                        return {
                             idLocation: this.id,
-                            idPart: enemy.partId
-                        },
-                        enemy: enemy.toJSON()
-                    }
-                })
+                            idPart: hex.partId,
+                            idHex: hex.id
+                        }
+                    })
+                    : null,
+                enemies: this.enemies
+                    ? this.enemies.map(enemy => {
+                        return {
+                            key: {
+                                idLocation: this.id,
+                                idPart: enemy.partId
+                            },
+                            enemy: enemy.toJSON()
+                        }
+                    })
+                    : null,
+                obstacles: this.obstacles
+                    ? this.obstacles.map(obstacle => {
+                        return {
+                            key: {
+                                idLocation: this.id,
+                                idPart: obstacle.partId
+                            },
+                            obstacle: obstacle.toJSON()
+                        }
+                    })
+                    : null,
             };
         }
     }
