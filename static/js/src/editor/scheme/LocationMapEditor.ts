@@ -63,6 +63,10 @@ module Dashboard {
                                             enemy.card.querySelector('button[data-action="add"]').addEventListener('click', (event) => {
                                                 event.preventDefault();
 
+                                                if (!this.locationMap.location.enemies) {
+                                                    this.locationMap.location.enemies = [];
+                                                }
+
                                                 enemy.coords = hex.coords;
                                                 enemy.partId = this.locationMap.hexGrid.id;
                                                 this.locationMap.location.enemies.push(enemy);
@@ -111,6 +115,10 @@ module Dashboard {
                                         for (const entry of entries) {
                                             entry.card.querySelector('button[data-action="add"]').addEventListener('click', (event) => {
                                                 event.preventDefault();
+
+                                                if (!this.locationMap.location.obstacles) {
+                                                    this.locationMap.location.obstacles = [];
+                                                }
 
                                                 entry.coords = hex.coords;
                                                 entry.partId = this.locationMap.hexGrid.id;
