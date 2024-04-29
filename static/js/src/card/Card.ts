@@ -8,9 +8,13 @@ module Dashboard {
 
         if (effect.duration == null) {
             effect.duration = "-";
+        } else if (effect.duration == "-1") {
+            effect.duration = "∞";
         }
         if (effect.strength == null) {
             effect.strength = "-";
+        } else if (effect.strength == "-1") {
+            effect.strength = "∞";
         }
 
         let durationText = draw.text(effect.duration).font({
@@ -77,7 +81,7 @@ module Dashboard {
         return 50 + biggerLength + 30;
     }
 
-    export async function generateEffect(apiUrl, effectId, parentId) {
+    export async function generateEffect(apiUrl, effect, parentId) {
         // remove previous card
         let card = document.getElementById(parentId);
         while (card.firstChild) {
@@ -87,20 +91,6 @@ module Dashboard {
         // replace with import
         const SVG = window['SVG'];
         const Notiflix = window['Notiflix'];
-
-        const response = await fetch(apiUrl + "/effects/" + effectId, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-
-        // check if status is 200
-        const effect = await response.json();
-        if (effect.status === "BAD_REQUEST" || effect.status === "NOT_FOUND") {
-            console.log("Error: ", effect.message);
-            return;
-        }
 
         console.log("Effect: ", effect);
 
