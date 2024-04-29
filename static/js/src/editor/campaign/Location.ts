@@ -23,9 +23,9 @@ module Dashboard {
             public description: string,
             public parts: Part[],
             public doors: Door[],
-            public startHexes: Hex[],
-            public enemies: Enemy[],
-            public obstacles: Obstacle[],
+            public startHexes: Hex[] = [],
+            public enemies: Enemy[] = [],
+            public obstacles: Obstacle[] = [],
             public paths: any[] = [],
             public stories: any[] = [],
         ) {}
@@ -132,7 +132,7 @@ module Dashboard {
                             idHex: hex.id
                         }
                     })
-                    : null,
+                    : [],
                 enemies: this.enemies
                     ? this.enemies.map(enemy => {
                         return {
@@ -143,7 +143,7 @@ module Dashboard {
                             enemy: enemy.toJSON()
                         }
                     })
-                    : null,
+                    : [],
                 obstacles: this.obstacles
                     ? this.obstacles.map(obstacle => {
                         return {
@@ -154,7 +154,7 @@ module Dashboard {
                             obstacle: obstacle.toJSON()
                         }
                     })
-                    : null,
+                    : [],
             };
         }
     }
