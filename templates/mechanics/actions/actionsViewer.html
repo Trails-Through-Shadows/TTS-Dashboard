@@ -228,6 +228,11 @@
             table.setAction("view", (element) => {
                 const id = element.getAttribute('data-entry');
 
+                // Set url ?open=id
+                const url = new URL(window.location.href);
+                url.searchParams.set('open', id);
+                window.history.replaceState({}, document.title, url.toString());
+
                 console.log(`Button | Viewing entry ${id}`);
                 data.queryData(apiUrlSingle.replace('0', id));
             });

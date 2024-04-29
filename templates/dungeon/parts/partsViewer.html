@@ -215,6 +215,11 @@
             table.setAction("view", (element) => {
                 const id = element.getAttribute('data-part');
 
+                // Set url ?open=id
+                const url = new URL(window.location.href);
+                url.searchParams.set('open', id);
+                window.history.replaceState({}, document.title, url.toString());
+
                 console.log(`Button | Viewing part ${id}`);
                 hexGrid.readData(apiUrlSingle.replace(0, id), () => {
                     canvas.clear();
