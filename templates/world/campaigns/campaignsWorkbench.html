@@ -511,22 +511,32 @@
             const selectedLocation = campaign.locations.find((loc) => loc.location.id == locationSelection.value);
             if (selectedLocation === undefined) return;
 
+            for (const loc of campaign.locations) {
+                const option = document.createElement('option');
+                option.value = loc.location.id;
+                option.text = `#${loc.location.id} - ${loc.location.title}`;
+
+                pathFrom.appendChild(option);
+                pathTo.appendChild(option.cloneNode(true));
+            }
+
             if (path) {
-                pathFrom.value = path.from;
-                pathTo.value = path.to;
+                pathFrom.value = path.idStart;
+                pathTo.value = path.idEnd;
             } else {
-                path = { from: 0, to: 0 };
+                pathFrom.value = selectedLocation.location.id;
+                path = { idCampaign: campaign.id, idStart: selectedLocation.location.id, idEnd: 0 };
                 selectedLocation.paths.push(path);
                 formEditor.validate();
             }
 
             pathFrom.addEventListener('input', () => {
-                path.from = pathFrom.value;
+                path.idStart = parseInt(pathFrom.value);
                 formEditor.validate();
             });
 
             pathTo.addEventListener('input', () => {
-                path.to = pathTo.value;
+                path.idEnd = parseInt(pathTo.value);
                 formEditor.validate();
             });
 
@@ -563,8 +573,8 @@
                 conditionValue.value = condition.value;
                 conditionResult.value = condition.result;
             } else {
-                condition = new Dashboard.Condition('ENEMY_DEATHS', 0, 'COMPLETED');
-                campaign.locations[0].conditions.push(condition);
+                condition = { type: 'ENEMY_DEATHS', value: 0, result: 'COMPLETED'};
+                selectedLocation.conditions.push(condition);
                 formEditor.validate();
             }
 
@@ -675,7 +685,7 @@
                             option.text = `#${location.id} - ${location.title}`;
 
                             locationSelection.appendChild(option);
-                            
+
                             // Add to path to list
                             for (const pathRow of document.querySelectorAll('.pathRow')) {
                                 const toSelect = pathRow.querySelector('#locationPathTo');
@@ -757,6 +767,26 @@
             const storyRows = document.querySelectorAll('.storyRow');
             storyRows.forEach((storyRow) => storyRow.remove());
             location.stories.forEach(addStory);
+        });
+
+        const startingLocation = document.getElementById('locationStart');
+        startingLocation.addEventListener('change', () => {
+            const locationId = locationSelection.value;
+            const location = formEditor.object.locations.find((campLoc) => campLoc.location.id == locationId);
+
+            if (location === undefined) return;
+            location.start = startingLocation.checked;
+            formEditor.validate();
+        });
+
+        const finishingLocation = document.getElementById('locationFinish');
+        finishingLocation.addEventListener('change', () => {
+            const locationId = locationSelection.value;
+            const location = formEditor.object.locations.find((campLoc) => campLoc.location.id == locationId);
+
+            if (location === undefined) return;
+            location.finish = finishingLocation.checked;
+            formEditor.validate();
         });
 
         {% if campaignId is not None %}
