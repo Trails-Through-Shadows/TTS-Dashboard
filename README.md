@@ -1,7 +1,8 @@
 # TTS-Dashboard
 
 This repository contains the code for the TTS Dashboard. <br>
-The dashboard is a web application that allows users to view and interact with administrative data inside TTS database.
+The dashboard is a web application that allows users to view and interact with game data inside a TTS database using
+API interface. It provides a user-friendly interface written in Django and TypeScript.
 
 ## Setup
 - Clone the repository
@@ -11,6 +12,7 @@ The dashboard is a web application that allows users to view and interact with a
   - `source .venv/bin/activate`
 - Install the required packages
   - `pip install -r requirements.txt`
+  - `npm install`
 - Build all necessary files
   - `lessc static/less/style.less static/css/style.css`
   - `tsc -p tsconfig.json`
@@ -28,9 +30,18 @@ The dashboard is a web application that allows users to view and interact with a
 - Run the server
   - `python manage.py runserver`
 
+## Running the server in production
+- Install gunicorn
+  - `pip install gunicorn`
+- Run the server using gunicorn
+  - `python -m uvicorn dashboard.asgi:application`
+- **Note:** Make sure to update the `ALLOWED_HOSTS` in `settings.py` to allow the domain name
+- **Note:** Make sure to update the `DEBUG` in `settings.py` to `False` for production
+
 ## Accessing the dashboard
 - Open a web browser and go to `http://localhost:8000/` to access the dashboard
-- Use the superuser credentials to login and access the dashboard
+- Use the superuser credentials to log in and access the dashboard
 
 ## Documentation
 - [Dashboard Documentation](https://docs.tts-game.fun/dashboard)
+- [API Documentation](https://api.tts-game.fun/docs)
