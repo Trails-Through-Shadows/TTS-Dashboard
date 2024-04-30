@@ -23,7 +23,7 @@
                 <!-- Content -->
             {% endblock content %}
 
-            <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="helpCanvasSidebar" aria-labelledby="helpCanvasSidebarLabel" style="width: clamp(300px, 50%, 600px);">
+            <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="helpCanvasSidebar" aria-labelledby="helpCanvasSidebarLabel" style="width: clamp(300px, 50%, 600px);" data-simplebar>
                 <div class="offcanvas-header pb-0">
                     <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">User Manual</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -44,8 +44,23 @@
 
             // Get path of the current page and remove the domain
             let path = pageUrl.replace(/^(?:\/\/|[^\/]+)*\//, "");
-            path = path.substring(3).replace('\/', "_");
-            const filePath = `{% static 'empty.md' %}`;
+            let pathUrls = path.split('/');
+
+            // Remove first path
+            const lang = pathUrls.shift();
+
+            // If empty
+            if (pathUrls.length === 0) {
+                pathUrls.push('index');
+            }
+
+            // If last path is only numbers, remove it
+            if (pathUrls.length > 0 && pathUrls[pathUrls.length - 1].match(/^\d+$/)) {
+                pathUrls.pop();
+            }
+
+            path = pathUrls.join('_');
+            let filePath = `{% static 'empty.md' %}`;
 
             if (path.length !== 0) {
                 const showdown = window.showdown;
@@ -64,8 +79,23 @@
                     })
                     .then(data => {
                         target.innerHTML = converter.makeHtml(data);
+                        
+                        const parentBook = document.getElementById('parentBook');
+                        if (parentBook) {
+                            pathUrls.pop();
+                            filePath = filePath.replace('empty', pathUrls.join('_'));
+
+                            fetch(filePath)
+                                .then(response => response.text())
+                                .then(data => {
+                                    parentBook.innerHTML = converter.makeHtml(data);
+                                });
+                        }
                     })
                     .catch(err => {
+                        pathUrls.pop()
+                        filePath = filePath.replace('empty', pathUrls.join('_'));
+
                         fetch(filePath)
                             .then(response => response.text())
                             .then(data => {
