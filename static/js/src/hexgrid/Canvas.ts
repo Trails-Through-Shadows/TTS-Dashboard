@@ -77,8 +77,18 @@ module Dashboard {
 
         public title(text: string, subtitle: string): void {
             const ctx = this.getContext();
-            ctx.fillStyle = new Dashboard.Color(255, 255, 255, 0.1).toRGB();
-            ctx.shadowColor = new Dashboard.Color(0, 0, 0, 0.75).toRGB();
+
+            const html = document.querySelector('html');
+            const darkMode = html ? html.getAttribute('data-darkreader-scheme') === 'dark' : false;
+
+            if (darkMode) {
+                ctx.fillStyle = new Dashboard.Color(255, 255, 255, 0.1).toRGB();
+                ctx.shadowColor = new Dashboard.Color(0, 0, 0, 0.75).toRGB();
+            } else {
+                ctx.fillStyle = new Dashboard.Color(0, 0, 0, 0.1).toRGB();
+                ctx.shadowColor = new Dashboard.Color(255, 255, 255, 0.75).toRGB();
+            }
+
             ctx.shadowBlur = 5;
             ctx.shadowOffsetX = 5;
             ctx.shadowOffsetY = 5;
