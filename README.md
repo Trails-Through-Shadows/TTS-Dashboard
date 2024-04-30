@@ -45,3 +45,12 @@ API interface. It provides a user-friendly interface written in Django and TypeS
 ## Documentation
 - [Dashboard Documentation](https://docs.tts-game.fun/dashboard)
 - [API Documentation](https://api.tts-game.fun/docs)
+
+## Screenshots
+![Dashboard Table](static/img/assets/dashboardTable.png)
+![Dashboard Table Horizontal](static/img/assets/dashboardTableHorizontal.png)
+![Dashboard User Manual](static/img/assets/dashboardUserManual.png)
+![Dashboard Workbench Campaign](static/img/assets/dashboardWorkbenchCampaign.png)
+![Dashboard Workbench Enemy](static/img/assets/dashboardWorkbenchEnemy.png)
+![Dashboard Workbench Part](static/img/assets/dashboardWorkbenchPart.png)
+
