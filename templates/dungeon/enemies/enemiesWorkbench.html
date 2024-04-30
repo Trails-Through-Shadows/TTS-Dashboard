@@ -21,78 +21,74 @@
 
     <form id="workbench">
         <div class="row">
-            <div class="col-5" id="enemyInformation">
+            <div class="col-12 col-lg-5" id="enemyInformation">
                 <div class="row flex-column h-100">
                     <div class="col-12 flex-fill mb-4">
                         <div class="card card-body border-0 shadow h-100">
-                            <div class="card-header p-0">
+                            <div class="card-header p-0 pt-2">
                                 <h2 class="h5">{% trans 'Information:' %}</h2>
                             </div>
 
                             <div class="card-body p-0 formLoading">
                                 <div class="row">
-                                    <div class="col-12 col-lg-4 align-self-center py-3">
+                                    <div class="col-12 col-xl-4 align-self-top py-3 text-center" style="max-width: clamp(200px, 50%, 300px);">
                                         <img src="{% static 'img/imgLoading.png' %}" id="entryUrl" alt="Entry Image" class="lazyload img-fluid rounded">
                                     </div>
 
-                                    <div class="col-12 col-sm-8 align-self-center">
-                                        <div class="py-2">
-                                            <h2 class="h5 mb-2">
-                                                <label class="visually-hidden" for="enemyTitle">Title</label>
-                                                <div class="input-group input-group">
-                                                    <div class="input-group-text">{% trans 'Title' %}</div>
-                                                    <input type="text" class="form-control" id="enemyTitle" placeholder="{% trans 'Title' %}" >
-                                                </div>
-                                            </h2>
+                                    <div class="col-12 col-sm-8 py-3">
+                                        <h2 class="h5 mb-2">
+                                            <label class="visually-hidden" for="enemyTitle">Title</label>
+                                            <div class="input-group input-group">
+                                                <div class="input-group-text">{% trans 'Title' %}</div>
+                                                <input type="text" class="form-control" id="enemyTitle" placeholder="{% trans 'Title' %}" >
+                                            </div>
+                                        </h2>
 
-                                            <div class="d-flex align-items-center">
-                                                <div class="row gy-2 gx-3 align-items-center">
-                                                    <div class="col-4">
-                                                        <label class="visually-hidden" for="enemyId">Id</label>
-                                                        <div class="input-group input-group-sm">
-                                                            <div class="input-group-text">{% trans 'ID' %}</div>
-                                                            <input type="text" class="form-control" id="enemyId" placeholder="Enemy Id" value="{{ enemyId|default:0 }}" readonly>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-8">
-                                                        <label class="visually-hidden" for="enemyTag">Tag</label>
-                                                        <div class="input-group input-group-sm">
-                                                            <div class="input-group-text">{% trans 'Tag' %}</div>
-                                                            <input type="text" class="form-control" id="enemyTag" placeholder="{% trans 'Tag' %}" >
-                                                        </div>
-                                                    </div>
+                                        <div class="row gy-2 gx-3 align-items-center">
+                                            <div class="col-4">
+                                                <label class="visually-hidden" for="enemyId">Id</label>
+                                                <div class="input-group input-group-sm">
+                                                    <div class="input-group-text">{% trans 'ID' %}</div>
+                                                    <input type="text" class="form-control" id="enemyId" placeholder="Enemy Id" value="{{ enemyId|default:0 }}" readonly>
                                                 </div>
                                             </div>
 
-                                            <div class="align-items-center mt-2">
-                                                <label for="enemyDescription" class="form-label visually-hidden">{% trans 'Description' %}</label>
-                                                <textarea class="form-control" id="enemyDescription" rows="3" placeholder="{% trans 'Description' %}"></textarea>
+                                            <div class="col-8">
+                                                <label class="visually-hidden" for="enemyTag">Tag</label>
+                                                <div class="input-group input-group-sm">
+                                                    <div class="input-group-text">{% trans 'Tag' %}</div>
+                                                    <input type="text" class="form-control" id="enemyTag" placeholder="{% trans 'Tag' %}" >
+                                                </div>
+                                            </div>
+
+                                            <div class="col-4">
+                                                <label class="visually-hidden" for="baseInitiative">{% trans 'Base Initiative' %}</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-text">INI</div>
+                                                    <input type="text" class="form-control" id="baseInitiative" placeholder="{% trans 'Initiative' %}">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-4">
+                                                <label class="visually-hidden" for="baseHealth">{% trans 'Base Health' %}</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-text">HP</div>
+                                                    <input type="text" class="form-control" id="baseHealth" placeholder="{% trans 'Health' %}">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-4">
+                                                <label class="visually-hidden" for="baseDefence">{% trans 'Base Defence' %}</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-text">DEF</div>
+                                                    <input type="text" class="form-control" id="baseDefence" placeholder="{% trans 'Defence' %}">
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-4">
-                                        <label class="visually-hidden" for="baseInitiative">{% trans 'Base Initiative' %}</label>
-                                        <div class="input-group">
-                                            <div class="input-group-text">INI</div>
-                                            <input type="text" class="form-control" id="baseInitiative" placeholder="{% trans 'Initiative' %}">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-4">
-                                        <label class="visually-hidden" for="baseHealth">{% trans 'Base Health' %}</label>
-                                        <div class="input-group">
-                                            <div class="input-group-text">HP</div>
-                                            <input type="text" class="form-control" id="baseHealth" placeholder="{% trans 'Health' %}">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-4">
-                                        <label class="visually-hidden" for="baseDefence">{% trans 'Base Defence' %}</label>
-                                        <div class="input-group">
-                                            <div class="input-group-text">DEF</div>
-                                            <input type="text" class="form-control" id="baseDefence" placeholder="{% trans 'Defence' %}">
+                                        <div class="align-items-center mt-2">
+                                            <label for="enemyDescription" class="form-label visually-hidden">{% trans 'Description' %}</label>
+                                            <textarea class="form-control" id="enemyDescription" rows="5" placeholder="{% trans 'Description' %}"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -129,9 +125,8 @@
                 </div>
             </div>
 
-            <div class="col-4" id="enemyActions">
-                <div class="row flex-column h-100">
-
+            <div class="col-12 col-lg-4" id="enemyActions">
+                <div class="row flex-column h-100 gy-2">
                     <div class="col-12 flex-fill">
                         <div class="card card-body border-0 shadow h-100">
                             <div class="card-header p-0 mb-2">

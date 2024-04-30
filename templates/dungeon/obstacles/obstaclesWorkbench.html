@@ -25,71 +25,69 @@
                 <div class="row flex-column h-100">
                     <div class="col-12 flex-fill mb-4">
                         <div class="card card-body border-0 shadow h-100">
-                            <div class="card-header p-0">
+                            <div class="card-header p-0 pt-2">
                                 <h2 class="h5">{% trans 'Information:' %}</h2>
                             </div>
 
                             <div class="card-body p-0 formLoading">
                                 <div class="row">
-                                    <div class="col-lg-4 col-12 align-self-center py-3 text-center">
+                                    <div class="col-12 col-sm-auto align-self-top py-3 text-center" style="max-width: clamp(200px, 50%, 300px);">
                                         <img src="{% static 'img/imgLoading.png' %}" id="entryUrl" alt="Entry Image" class="lazyload img-fluid rounded">
                                     </div>
 
-                                    <div class="col-lg-8 col-12 py-3">
-                                        <div class="py-2">
-                                            <h2 class="h5 mb-2">
-                                                <label class="visually-hidden" for="entryTitle">Title</label>
-                                                <div class="input-group input-group">
-                                                    <div class="input-group-text">{% trans 'Title' %}</div>
-                                                    <input type="text" class="form-control" id="entryTitle" placeholder="{% trans 'Title' %}" >
-                                                </div>
-                                            </h2>
+                                    <div class="col py-3">
+                                        <h2 class="h5 mb-2">
+                                            <label class="visually-hidden" for="entryTitle">Title</label>
+                                            <div class="input-group input-group">
+                                                <div class="input-group-text">{% trans 'Title' %}</div>
+                                                <input type="text" class="form-control" id="entryTitle" placeholder="{% trans 'Title' %}" >
+                                            </div>
+                                        </h2>
 
-                                            <div class="row gy-2 gx-3 align-items-center">
-                                                <div class="col-4">
-                                                    <label class="visually-hidden" for="entryId">Id</label>
-                                                    <div class="input-group input-group-sm">
-                                                        <div class="input-group-text">{% trans 'ID' %}</div>
-                                                        <input type="text" class="form-control" id="entryId" placeholder="Entry Id" value="{{ obstacleId|default:0 }}" readonly>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-8">
-                                                    <label class="visually-hidden" for="entryTag">Tag</label>
-                                                    <div class="input-group input-group-sm">
-                                                        <div class="input-group-text">{% trans 'Tag' %}</div>
-                                                        <input type="text" class="form-control" id="entryTag" placeholder="{% trans 'Tag' %}" >
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-6">
-                                                    <label class="visually-hidden" for="obstacleDamage">{% trans 'Damage' %}</label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-text">Damage</div>
-                                                        <input type="number" class="form-control" id="obstacleDamage" placeholder="{% trans 'Initiative' %}">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-6">
-                                                    <label class="visually-hidden" for="obstacleHealth">{% trans 'Health' %}</label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-text">Health</div>
-                                                        <input type="number" class="form-control" id="obstacleHealth" placeholder="{% trans 'Health' %}">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-12 align-self-end">
-                                                    <div class="form-check form-switch">
-                                                        <input class="form-check-input" type="checkbox" id="obstacleCrossable">
-                                                        <label class="form-check-label" for="obstacleCrossable">{% trans 'Crossable' %}?</label>
-                                                    </div>
+                                        <div class="row gy-2 gx-3 align-items-center">
+                                            <div class="col-4">
+                                                <label class="visually-hidden" for="entryId">Id</label>
+                                                <div class="input-group input-group-sm">
+                                                    <div class="input-group-text">{% trans 'ID' %}</div>
+                                                    <input type="text" class="form-control" id="entryId" placeholder="Entry Id" value="{{ obstacleId|default:0 }}" readonly>
                                                 </div>
                                             </div>
 
-                                            <div class="align-items-center mt-2">
-                                                <label for="entryDescription" class="form-label visually-hidden">{% trans 'Description' %}</label>
-                                                <textarea class="form-control" id="entryDescription" rows="6" placeholder="{% trans 'Description' %}"></textarea>
+                                            <div class="col-8">
+                                                <label class="visually-hidden" for="entryTag">Tag</label>
+                                                <div class="input-group input-group-sm">
+                                                    <div class="input-group-text">{% trans 'Tag' %}</div>
+                                                    <input type="text" class="form-control" id="entryTag" placeholder="{% trans 'Tag' %}" >
+                                                </div>
                                             </div>
+
+                                            <div class="col-6">
+                                                <label class="visually-hidden" for="obstacleDamage">{% trans 'Damage' %}</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-text">Damage</div>
+                                                    <input type="number" class="form-control" id="obstacleDamage" placeholder="{% trans 'Initiative' %}">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6">
+                                                <label class="visually-hidden" for="obstacleHealth">{% trans 'Health' %}</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-text">Health</div>
+                                                    <input type="number" class="form-control" id="obstacleHealth" placeholder="{% trans 'Health' %}">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12 align-self-end">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="obstacleCrossable">
+                                                    <label class="form-check-label" for="obstacleCrossable">{% trans 'Crossable' %}?</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="align-items-center mt-2">
+                                            <label for="entryDescription" class="form-label visually-hidden">{% trans 'Description' %}</label>
+                                            <textarea class="form-control" id="entryDescription" rows="6" placeholder="{% trans 'Description' %}"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -379,6 +377,9 @@
                 obstacleDamage.value = obstacle.baseDamage;
                 obstacleHealth.value = obstacle.baseHealth;
                 obstacleCrossable.checked = obstacle.crossable;
+
+                const entryUrl = document.getElementById('entryUrl');
+                entryUrl.src = obstacle.url;
 
                 const effectsList = document.getElementById('effectsList');
                 obstacle.effects.forEach((effect) => {
