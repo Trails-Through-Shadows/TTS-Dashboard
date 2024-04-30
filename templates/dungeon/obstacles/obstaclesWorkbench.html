@@ -231,7 +231,9 @@
                 const effectForm = modalRoot.querySelector('#effectWorkbench');
                 const effectSubmitForm = modalRoot.querySelector('#effectSubmit');
 
-                function submitForm() {
+                function submitForm(event) {
+                    event.preventDefault();
+                    
                     if (!effectForm.checkValidity()) {
                         Swal.fire({
                             icon: 'error',
