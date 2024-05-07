@@ -17,17 +17,17 @@ module Dashboard {
             effect.strength = "∞";
         }
 
-        let durationText = draw.text(effect.duration).font({
+        let strengthText = draw.text(effect.strength).font({
             fill: black,
             size: wordSize,
             family: 'Helvetica'
         }).move(x, y + 40);
-        draw.image(iconPath).size(imageWidth, imageWidth).move(x + durationText.length(), y);
-        draw.text(effect.strength).font({
+        draw.image(iconPath).size(imageWidth, imageWidth).move(x + strengthText.length(), y);
+        draw.text(effect.duration).font({
             fill: black,
             size: wordSize,
             family: 'Helvetica'
-        }).move(x + imageWidth + durationText.length(), y + 40);
+        }).move(x + imageWidth + strengthText.length(), y + 40);
 
         return 120;
     }
