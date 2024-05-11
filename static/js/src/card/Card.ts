@@ -263,7 +263,7 @@ module Dashboard {
             currentWidthOffset += drawIcon(draw, apiUrl, "range", "Range", action.attack.range, currentWidthOffset, currentHeightOffset);
 
             let hasArea = action.attack.area != null && action.attack.area != "1" && action.attack.area != "0";
-            let hasNumber = action.attack.numberOfAttacks != null && action.attack.numberOfAttacks != "1";
+            let hasNumber = action.attack.numAttacks != null && action.attack.numAttacks != "1";
 
             if (hasArea || hasNumber) {
                 currentHeightOffset += 80;
@@ -278,7 +278,7 @@ module Dashboard {
                     currentWidthOffset += drawIcon(draw, apiUrl, "area", "Area", action.attack.area, currentWidthOffset, currentHeightOffset);
                 }
                 if (hasNumber) {
-                    currentWidthOffset += drawIcon(draw, apiUrl, "attackCount", "Count", action.attack.numberOfAttacks, currentWidthOffset, currentHeightOffset);
+                    currentWidthOffset += drawIcon(draw, apiUrl, "attackCount", "Count", action.attack.numAttacks, currentWidthOffset, currentHeightOffset);
                 }
             }
 
