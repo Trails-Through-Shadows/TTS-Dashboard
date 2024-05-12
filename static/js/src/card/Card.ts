@@ -318,7 +318,7 @@ module Dashboard {
             currentHeightOffset += 60;
 
             // not null
-            currentWidthOffset += drawIcon(draw, apiUrl, "attackCount", "Count", action.restoreCards.numCards, currentWidthOffset, currentHeightOffset);
+            currentWidthOffset += drawIcon(draw, apiUrl, "cardsCount", "Count", action.restoreCards.numCards, currentWidthOffset, currentHeightOffset);
             currentWidthOffset += drawIcon(draw, apiUrl, "target", "Target", action.restoreCards.target, currentWidthOffset, currentHeightOffset);
 
             // nullable
